@@ -1,0 +1,10 @@
+[run]
+branch = True
+data_file = .coverage
+source=course_access_groups
+omit =
+    test_settings
+    *migrations*
+    *admin.py
+    *static*
+    *templates*
