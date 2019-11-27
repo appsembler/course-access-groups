@@ -14,7 +14,7 @@ different permissions to groups.
 
 
 Overview
-------------------------------
+--------
 
 This is a plugin for the Open edX Platform that provides the Course Access
 Group functionality. It can be installed via pip with minimal configuration to
@@ -30,6 +30,30 @@ Documentation
 -------------
 
 The full documentation is at https://course-access-groups.readthedocs.org.
+
+Quickstart Instructions
+-----------------------
+
+Install this plugin via ``pip``. Then configure your Ansibe
+``server-vars.yml`` with the following:
+
+.. code:: yaml
+
+    ACCESS_CONTROL_BACKENDS:
+        course.enroll:
+            NAME: course_access_groups.acl_backends:dummy_backend
+        course.load:
+            NAME: course_access_groups.acl_backends:dummy_backend
+        course.see_in_catalog:
+            NAME: course_access_groups.acl_backends:dummy_backend
+
+.. _Access Control Backends pull request: https://github.com/appsembler/edx-platform/pull/491
+
+This plugin requires some changes on the Open edX Platform which can be found
+in the `Access Control Backends pull request`_.
+
+The intention is to make this plugin work in the Open edX Platform out of the
+box but today, that's not the case the pull request should be cherry-picked.
 
 License
 -------
