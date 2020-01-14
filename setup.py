@@ -79,6 +79,14 @@ setup(
     install_requires=load_requirements('requirements/base.in'),
     zip_safe=False,
     keywords='Django Appsembler',
+    entry_points={
+        'lms.djangoapp': [
+            'course_access_groups = course_access_groups.apps:CourseAccessGroupsConfig',
+        ],
+        'cms.djangoapp': [
+            'course_access_groups = course_access_groups.apps:CourseAccessGroupsConfig',
+        ],
+    },
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
