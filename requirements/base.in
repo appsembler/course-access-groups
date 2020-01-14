@@ -2,4 +2,4 @@
 -c constraints.txt
 
 Django>=1.11,<2.0          # Web application framework
-
+XBlock>=1.2.2              # Courseware component architecture
