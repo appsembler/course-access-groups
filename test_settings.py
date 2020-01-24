@@ -31,6 +31,7 @@ DATABASES = {
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'organizations',
     'course_access_groups',
 )
 

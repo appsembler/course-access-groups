@@ -5,16 +5,47 @@
 #    make upgrade
 #
 appdirs==1.4.3            # via fs
+backports.os==0.1.1       # via fs
+certifi==2019.11.28       # via requests
+chardet==3.0.4            # via requests
+django-model-utils==3.0.0  # via edx-organizations
+django-waffle==0.19.0     # via edx-django-utils, edx-drf-extensions
 django==1.11.27
+djangorestframework-jwt==1.11.0  # via edx-drf-extensions
+djangorestframework-oauth==1.1.0  # via edx-organizations
+djangorestframework==3.6.4  # via edx-drf-extensions, edx-organizations, rest-condition
+edx-django-oauth2-provider==1.3.5  # via edx-organizations
+edx-django-utils==2.0.3   # via edx-drf-extensions
+edx-drf-extensions==2.4.5  # via edx-organizations
+edx-opaque-keys==0.4.4    # via edx-drf-extensions, edx-organizations
+edx-organizations==0.4.10
+enum34==1.1.6             # via fs
 fs==2.4.11                # via xblock
+future==0.18.2            # via backports.os, pyjwkest
+idna==2.8                 # via requests
 lxml==4.4.2               # via xblock
 markupsafe==1.1.1         # via xblock
-python-dateutil==2.8.1    # via xblock
+newrelic==5.4.1.134       # via edx-django-utils
+pbr==5.4.4                # via stevedore
+pillow==6.2.2             # via edx-organizations
+psutil==1.2.1             # via edx-django-utils, edx-drf-extensions
+pycryptodomex==3.9.4      # via pyjwkest
+pyjwkest==1.3.2           # via edx-drf-extensions
+pyjwt==1.7.1              # via djangorestframework-jwt
+pymongo==3.10.1           # via edx-opaque-keys
+python-dateutil==2.8.1    # via edx-drf-extensions, xblock
 pytz==2019.3              # via django, fs, xblock
 pyyaml==5.3               # via xblock
-six==1.13.0               # via fs, python-dateutil, xblock
+requests==2.22.0          # via edx-drf-extensions, pyjwkest
+rest-condition==1.0.3     # via edx-drf-extensions
+semantic-version==2.8.4   # via edx-drf-extensions
+shortuuid==0.5.0          # via edx-django-oauth2-provider
+six==1.14.0               # via django-waffle, edx-drf-extensions, edx-opaque-keys, fs, pyjwkest, python-dateutil, stevedore, xblock
+stevedore==1.31.0         # via edx-opaque-keys
+typing==3.7.4.1           # via fs
+urllib3==1.25.8           # via requests
 web-fragments==0.3.1      # via xblock
-webob==1.8.5              # via xblock
+webob==1.8.6              # via xblock
 xblock==1.2.9
 
 # The following packages are considered to be unsafe in a requirements file:
