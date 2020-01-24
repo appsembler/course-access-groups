@@ -21,6 +21,8 @@ course_access_groups.CourseAccessGroup:
   ".. no_pii:": "This model has no PII"
 course_access_groups.Membership:
   ".. no_pii:": "This model has no PII"
+course_access_groups.EmailDomainAssignment:
+  ".. no_pii:": "This model has no PII"
 organizations.Organization:
   ".. no_pii:": "This module has no PII"
 organizations.OrganizationCourse:

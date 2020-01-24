@@ -14,6 +14,8 @@ from model_utils import models as utils_models
 from organizations.models import Organization
 from six import text_type
 
+from course_access_groups.validators import validate_domain
+
 
 class CourseAccessGroup(models.Model):
     """
@@ -104,3 +106,33 @@ class Membership(utils_models.TimeStampedModel):
         :return:
         """
         cls.objects.filter(user=user).delete()
+
+
+class EmailDomainAssignment(utils_models.TimeStampedModel):
+    """
+    Model to automatically assign learners from a specific domain to a specific CourseAccessGroup.
+    """
+
+    name = models.CharField(max_length=255, help_text='A description for this assignment rule.')
+    domain = models.CharField(max_length=255, db_index=True, validators=[validate_domain])
+    group = models.ForeignKey(CourseAccessGroup)
+
+    @classmethod
+    def ensure_membership(cls, user):
+        """
+        Automatically enroll a user based on existing EmailDomainAssignment.
+
+        :param user:
+        :return:
+        """
+        if user.is_active:  # Ensure that only users with verified emails are enrolled the group
+            _, email_domain = user.email.rsplit('@', 1)
+            # TODO: Ensure sites data won't leak by filtering through the user's organization
+            assignment = cls.objects.filter(domain=email_domain).first()
+            if assignment and not Membership.objects.filter(user=user).exists():
+                # Avoid automatically assigning a previously deactivated membership
+                return Membership.objects.create(
+                    user=user,
+                    group=assignment.group,
+                    automatic=True,
+                )
