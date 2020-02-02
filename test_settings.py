@@ -28,12 +28,13 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
+    'django.contrib.sites',
     'organizations',
     'course_access_groups',
-)
+]
 
 LOCALE_PATHS = [
     root('course_access_groups', 'conf', 'locale'),

@@ -3,4 +3,5 @@
 
 Django>=1.11,<2.0          # Web application framework
 XBlock>=1.2.2              # Courseware component architecture
-edx-organizations==0.4.10  # edX Organization framework
+django-model-utils==3.0.0
+git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
