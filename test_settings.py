@@ -8,6 +8,7 @@ Django applications, so these settings will not be used.
 from __future__ import absolute_import, unicode_literals
 
 from os.path import abspath, dirname, join
+import sys
 
 
 def root(*args):
@@ -15,6 +16,9 @@ def root(*args):
     Get the absolute path of the given path relative to the project root.
     """
     return join(abspath(dirname(__file__)), *args)
+
+
+sys.path.append(root('mocks'))
 
 
 DATABASES = {
@@ -32,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sites',
+    'openedx.core.djangoapps.content.course_overviews',
     'organizations',
     'course_access_groups',
 ]
@@ -39,6 +44,10 @@ INSTALLED_APPS = [
 LOCALE_PATHS = [
     root('course_access_groups', 'conf', 'locale'),
 ]
+
+REST_FRAMEWORK = {
+    'PAGE_SIZE': 20
+}
 
 ROOT_URLCONF = 'course_access_groups.urls'
 

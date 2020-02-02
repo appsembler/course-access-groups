@@ -17,7 +17,7 @@ auth.User:
   ".. pii_retirement:" : consumer_api
 contenttypes.ContentType:
   ".. no_pii:": "This model has no PII"
-course_access_groups.CourseAccessGroup:
+course_access_groups.Group:
   ".. no_pii:": "This model has no PII"
 course_access_groups.Membership:
   ".. no_pii:": "This model has no PII"
