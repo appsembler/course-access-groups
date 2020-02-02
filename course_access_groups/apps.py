@@ -16,10 +16,3 @@ class CourseAccessGroupsConfig(AppConfig):
     name = 'course_access_groups'
 
     plugin_app = {}  # Add this app to the Open edX plugin system
-
-    def ready(self):
-        """
-        Add a course field for the Course Access Groups.
-        """
-        from course_access_groups.monkeypatch import add_to_course_fields
-        add_to_course_fields()
