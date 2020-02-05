@@ -5,30 +5,28 @@ from __future__ import absolute_import, unicode_literals
 from rest_framework import serializers
 from openedx.core.lib.api.serializers import CourseKeyField
 from course_access_groups.models import (
-    Group,
-    CourseGroup,
+    CourseAccessGroup,
+    GroupCourse,
     Membership,
-    Rule,
+    MembershipRule,
 )
 
 
-class GroupSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
-    organization_name = serializers.ReadOnlyField(source='organization.name')
+class CourseAccessGroupSerializer(serializers.ModelSerializer):
+    organization_name = serializers.CharField(source='organization.name', read_only=True)
 
     class Meta:
-        model = Group
+        model = CourseAccessGroup
         fields = [
             'id', 'name', 'description', 'organization', 'organization_name',
         ]
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
-    user_email = serializers.ReadOnlyField(source='user.email')
-    user_username = serializers.ReadOnlyField(source='user.username')
-    group_name = serializers.ReadOnlyField(source='group.name')
-    group_description = serializers.ReadOnlyField(source='group.description')
+    user_email = serializers.EmailField(source='user.email', read_only=True)
+    user_username = serializers.CharField(source='user.username', read_only=True)
+    group_name = serializers.CharField(source='group.name', read_only=True)
+    group_description = serializers.CharField(source='group.description', read_only=True)
 
     class Meta:
         model = Membership
@@ -43,12 +41,11 @@ class MembershipSerializer(serializers.ModelSerializer):
         ]
 
 
-class RuleSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
-    group_name = serializers.ReadOnlyField(source='group.name')
+class MembershipRuleSerializer(serializers.ModelSerializer):
+    group_name = serializers.CharField(source='group.name', read_only=True)
 
     class Meta:
-        model = Rule
+        model = MembershipRule
         fields = [
             'id',
             'name',
@@ -58,14 +55,13 @@ class RuleSerializer(serializers.ModelSerializer):
         ]
 
 
-class CourseGroupSerializer(serializers.ModelSerializer):
-    id = serializers.ReadOnlyField()
+class GroupCourseSerializer(serializers.ModelSerializer):
     course = CourseKeyField(source='course_id')
-    course_name = serializers.ReadOnlyField(source='course.display_name_with_default')
-    group_name = serializers.ReadOnlyField(source='group.name')
+    course_name = serializers.CharField(source='course.display_name_with_default', read_only=True)
+    group_name = serializers.CharField(source='group.name', read_only=True)
 
     class Meta:
-        model = CourseGroup
+        model = GroupCourse
         fields = [
             'id',
             'course',

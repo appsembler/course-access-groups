@@ -16,7 +16,7 @@ class CourseKeyField(serializers.Field):
 
     def to_representation(self, data):
         """Convert a course key to unicode. """
-        return unicode(data)
+        return str(data)
 
     def to_internal_value(self, data):
         """Convert unicode to a course key. """

@@ -10,23 +10,23 @@ from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 
 from course_access_groups.serializers import (
-    GroupSerializer,
+    CourseAccessGroupSerializer,
     MembershipSerializer,
-    RuleSerializer,
-    CourseGroupSerializer,
+    MembershipRuleSerializer,
+    GroupCourseSerializer,
 )
 from course_access_groups.models import (
-    Group,
+    CourseAccessGroup,
     Membership,
-    Rule,
-    CourseGroup,
+    MembershipRule,
+    GroupCourse,
 )
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    model = Group
+class CourseAccessGroupViewSet(viewsets.ModelViewSet):
+    model = CourseAccessGroup
     pagination_class = LimitOffsetPagination
-    serializer_class = GroupSerializer
+    serializer_class = CourseAccessGroupSerializer
 
     def get_queryset(self):
         return self.model.objects.all()
@@ -41,19 +41,19 @@ class MemberViewSet(viewsets.ModelViewSet):
         return self.model.objects.all()
 
 
-class RuleViewSet(viewsets.ModelViewSet):
-    model = Rule
+class MembershipRuleViewSet(viewsets.ModelViewSet):
+    model = MembershipRule
     pagination_class = LimitOffsetPagination
-    serializer_class = RuleSerializer
+    serializer_class = MembershipRuleSerializer
 
     def get_queryset(self):
         return self.model.objects.all()
 
 
-class CourseGroupViewSet(viewsets.ModelViewSet):
-    model = CourseGroup
+class GroupCourseViewSet(viewsets.ModelViewSet):
+    model = GroupCourse
     pagination_class = LimitOffsetPagination
-    serializer_class = CourseGroupSerializer
+    serializer_class = GroupCourseSerializer
 
     def get_queryset(self):
         return self.model.objects.all()

@@ -6,10 +6,10 @@ from django.contrib.auth import get_user_model
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
-    Group,
-    CourseGroup,
+    CourseAccessGroup,
+    GroupCourse,
     Membership,
-    Rule,
+    MembershipRule,
 )
 from organizations.models import Organization
 
@@ -40,9 +40,9 @@ class OrganizationFactory(factory.DjangoModelFactory):
                 self.sites.add(site)
 
 
-class GroupFactory(factory.DjangoModelFactory):
+class CourseAccessGroupFactory(factory.DjangoModelFactory):
     class Meta(object):
-        model = Group
+        model = CourseAccessGroup
 
     name = factory.Sequence('Group {}'.format)
     organization = factory.SubFactory(OrganizationFactory)
@@ -53,17 +53,17 @@ class MembershipFactory(factory.DjangoModelFactory):
     class Meta(object):
         model = Membership
 
-    group = factory.SubFactory(GroupFactory)
+    group = factory.SubFactory(CourseAccessGroupFactory)
     user = factory.SubFactory(UserFactory)
 
 
-class RuleFactory(factory.DjangoModelFactory):
+class MembershipRuleFactory(factory.DjangoModelFactory):
     class Meta(object):
-        model = Rule
+        model = MembershipRule
 
     name = factory.Sequence('Rule {}'.format)
     domain = factory.Sequence('example{}.com'.format)
-    group = factory.SubFactory(GroupFactory)
+    group = factory.SubFactory(CourseAccessGroupFactory)
 
 
 class CourseOverviewFactory(factory.DjangoModelFactory):
@@ -82,9 +82,9 @@ class CourseOverviewFactory(factory.DjangoModelFactory):
         return "{} Course".format(self.id)
 
 
-class CourseGroupFactory(factory.DjangoModelFactory):
+class GroupCourseFactory(factory.DjangoModelFactory):
     class Meta(object):
-        model = CourseGroup
+        model = GroupCourse
 
-    group = factory.SubFactory(GroupFactory)
+    group = factory.SubFactory(CourseAccessGroupFactory)
     course = factory.SubFactory(CourseOverviewFactory)

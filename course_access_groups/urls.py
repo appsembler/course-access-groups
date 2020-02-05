@@ -11,9 +11,9 @@ from course_access_groups import views
 router = routers.SimpleRouter()
 
 router.register(
-    r'groups',
-    views.GroupViewSet,
-    base_name='groups',
+    r'course-access-groups',
+    views.CourseAccessGroupViewSet,
+    base_name='course-access-groups',
 )
 
 router.register(
@@ -23,15 +23,15 @@ router.register(
 )
 
 router.register(
-    r'rules',
-    views.RuleViewSet,
-    base_name='rules',
+    r'membership-rules',
+    views.MembershipRuleViewSet,
+    base_name='membership-rules',
 )
 
 router.register(
-    r'course-groups',
-    views.CourseGroupViewSet,
-    base_name='course-groups',
+    r'group-courses',
+    views.GroupCourseViewSet,
+    base_name='group-courses',
 )
 
 urlpatterns = router.urls
