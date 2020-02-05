@@ -2,14 +2,35 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
-from openedx.core.lib.api.serializers import CourseKeyField
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
     CourseAccessGroup,
     GroupCourse,
     Membership,
     MembershipRule,
 )
+
+
+class CourseKeyField(serializers.RelatedField):
+    """
+    Serializer field for a model CourseKey field.
+
+    This is copied from the openedx.core.lib.api.serializers module but enhanced with `RelatedField`.
+    """
+
+    def to_representation(self, data):
+        """Convert a course key to unicode. """
+        return str(data.id)
+
+    def to_internal_value(self, data):
+        """Convert unicode to a course key. """
+        try:
+            return CourseKey.from_string(data)
+        except InvalidKeyError as ex:
+            raise serializers.ValidationError('Invalid course key: {msg}'.format(msg=str(ex)))
 
 
 class CourseAccessGroupSerializer(serializers.ModelSerializer):
@@ -56,7 +77,7 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
 
 
 class GroupCourseSerializer(serializers.ModelSerializer):
-    course = CourseKeyField(source='course_id')
+    course = CourseKeyField(queryset=CourseOverview.objects.all())
     course_name = serializers.CharField(source='course.display_name_with_default', read_only=True)
     group_name = serializers.CharField(source='group.name', read_only=True)
 

@@ -10,6 +10,8 @@ from __future__ import absolute_import, unicode_literals
 from os.path import abspath, dirname, join
 import sys
 
+DEBUG = True
+
 
 def root(*args):
     """
@@ -33,12 +35,30 @@ DATABASES = {
 }
 
 INSTALLED_APPS = [
+    'django.contrib.sessions',
+    'django.contrib.messages',
     'django.contrib.auth',
+    'django.contrib.admin',
     'django.contrib.contenttypes',
     'django.contrib.sites',
+    'django.contrib.staticfiles',
+    'rest_framework',
+    'mocks',
     'openedx.core.djangoapps.content.course_overviews',
     'organizations',
     'course_access_groups',
+]
+
+SITE_ID = 1
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 LOCALE_PATHS = [
@@ -49,6 +69,24 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-ROOT_URLCONF = 'course_access_groups.urls'
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+STATIC_URL = '/static/'
+
+ROOT_URLCONF = 'mocks.urls'
 
 SECRET_KEY = 'insecure-secret-key'
