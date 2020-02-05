@@ -21,9 +21,12 @@ class CourseKeyField(serializers.RelatedField):
     This is copied from the openedx.core.lib.api.serializers module but enhanced with `RelatedField`.
     """
 
+    def get_queryset(self):
+        return CourseOverview.objects.values_list('id', flat=True)
+
     def to_representation(self, data):
         """Convert a course key to unicode. """
-        return str(data.id)
+        return str(data)
 
     def to_internal_value(self, data):
         """Convert unicode to a course key. """
@@ -77,7 +80,7 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
 
 
 class GroupCourseSerializer(serializers.ModelSerializer):
-    course = CourseKeyField(queryset=CourseOverview.objects.all())
+    course = CourseKeyField(source='course_id')
     course_name = serializers.CharField(source='course.display_name_with_default', read_only=True)
     group_name = serializers.CharField(source='group.name', read_only=True)
 
