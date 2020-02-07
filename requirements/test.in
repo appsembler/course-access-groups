@@ -7,3 +7,4 @@ pytest>=4,<5              # test runner
 pytest-cov                # pytest extension for code coverage statistics
 pytest-django             # pytest extension for better Django support
 code-annotations          # provides commands used by the pii_check make target.
+factory_boy==2.8.1        # Django models factory for tests

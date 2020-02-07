@@ -17,3 +17,5 @@ more-itertools<6.0.0
 
 django-model-utils<=3.0.0  # Avoid installing 4.x.x which breaks the dependency tree
 edx-lint<=0.5.5            # Avoid dependency conflict
+django-model-utils==3.0.0
+edx-opaque-keys==0.4.4

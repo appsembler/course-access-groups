@@ -2,11 +2,11 @@ coverage:
   status:
     project:
       default:
-        enabled: yes
+        enabled: true
         target: auto
     patch:
       default:
-        enabled: yes
-        target: 100%
+        enabled: true
+        target: 1%
 
 comment: false

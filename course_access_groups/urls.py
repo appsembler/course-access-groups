@@ -4,21 +4,34 @@ URLs for course_access_groups.
 """
 from __future__ import absolute_import, unicode_literals
 
-from django.conf.urls import include, url
 from rest_framework import routers
-
 from course_access_groups import views
 
 
-router = routers.DefaultRouter()
+router = routers.SimpleRouter()
 
 router.register(
-    r'groups',
-    views.GroupsViewSet,
-    base_name='groups',
+    r'course-access-groups',
+    views.CourseAccessGroupViewSet,
+    base_name='course-access-groups',
 )
 
+router.register(
+    r'memberships',
+    views.MemberViewSet,
+    base_name='memberships',
+)
 
-urlpatterns = [
-    url(r'^api/course_access_groups/v1/', include(router.urls, namespace='course-access-groups-api')),
-]
+router.register(
+    r'membership-rules',
+    views.MembershipRuleViewSet,
+    base_name='membership-rules',
+)
+
+router.register(
+    r'group-courses',
+    views.GroupCourseViewSet,
+    base_name='group-courses',
+)
+
+urlpatterns = router.urls
