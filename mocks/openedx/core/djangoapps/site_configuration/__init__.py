@@ -1,0 +1,3 @@
+"""
+Mock Site Configuration module.
+"""
