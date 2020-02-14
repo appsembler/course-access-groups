@@ -20,7 +20,7 @@ def is_organization_staff(user, course):
     """
     # TODO: What if a course has two orgs? data leak I guess?
     organizations = get_course_organizations(course.id)
-    if not len(organizations):
+    if not organizations:
         return False
 
     return UserOrganizationMapping.objects.filter(
