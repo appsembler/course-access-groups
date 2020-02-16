@@ -7,6 +7,8 @@ from __future__ import absolute_import, unicode_literals
 
 from django.apps import AppConfig
 
+from openedx.core.djangoapps.plugins.constants import ProjectType, PluginURLs
+
 
 class CourseAccessGroupsConfig(AppConfig):
     """
@@ -15,4 +17,12 @@ class CourseAccessGroupsConfig(AppConfig):
 
     name = 'course_access_groups'
 
-    plugin_app = {}  # Add this app to the Open edX plugin system
+    # Configuration for Open edX plugins
+    plugin_app = {
+        PluginURLs.CONFIG: {
+           ProjectType.LMS: {
+               PluginURLs.NAMESPACE: 'course_access_groups',
+               PluginURLs.REGEX: '^course_access_groups/api/v1/',
+           },
+        },
+    }
