@@ -9,4 +9,5 @@ from mock import Mock
 
 # Minimal mocks to reduce test maintenance costs.
 ProjectType = Mock()
+PluginSignals = Mock()
 PluginURLs = Mock()

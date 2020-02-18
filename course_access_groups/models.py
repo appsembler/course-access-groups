@@ -8,7 +8,7 @@ from __future__ import absolute_import, unicode_literals
 from django.contrib.auth import get_user_model
 from django.db import models
 from model_utils import models as utils_models
-from organizations.models import Organization
+from organizations.models import Organization, UserOrganizationMapping
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
 
@@ -40,6 +40,47 @@ class Membership(utils_models.TimeStampedModel):
         get_user_model(),
         help_text='Learner. A learner can only be enrolled in a single Course Access Group.'
     )
+    automatic = models.BooleanField(
+        default=False,
+        help_text='If created by MembershipRule',
+    )
+
+    @classmethod
+    def create_from_rules(cls, user):
+        """
+        Automatically enroll a user based on existing MembershipRule.
+
+        :param user:
+        :raise ValueError if the user is not active.
+        :return: Membership (or None)
+        """
+        if not user.is_active:
+            # Ensure that only users with verified emails are enrolled the group
+            # This error should not happen in production.
+            # If it does, look at the both the `Registration` class and the USER_ACCOUNT_ACTIVATED signal in Open edX.
+            raise ValueError('Course Access Groups: Unable to create automatic Membership for inactive user.')
+
+        _, email_domain = user.email.rsplit('@', 1)
+
+        # Ideally an exception should be thrown if there's more than one organization
+        # but such error is out of the scope of the CAG module.
+        user_orgs = Organization.objects.filter(
+            pk__in=UserOrganizationMapping.objects.filter(user=user),
+        )
+        rule = MembershipRule.objects.filter(
+            domain=email_domain,
+            group__organization=user_orgs,
+        ).first()
+
+        if rule:
+            membership, _created = cls.objects.get_or_create(
+                user=user,
+                defaults={
+                    'group': rule.group,
+                    'automatic': True,
+                },
+            )
+            return membership
 
 
 class MembershipRule(utils_models.TimeStampedModel):
