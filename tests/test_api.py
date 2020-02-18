@@ -21,9 +21,12 @@ from test_utils.factories import (
     MembershipRuleFactory,
     GroupCourseFactory,
 )
+from test_utils import skip_authentication, skip_permission
 
 
 @pytest.mark.django_db
+@skip_authentication()
+@skip_permission()
 class TestCourseAccessGroupsViewSet(object):
     """
     Tests for the CourseAccessGroupsViewSet APIs.
@@ -77,6 +80,8 @@ class TestCourseAccessGroupsViewSet(object):
 
 
 @pytest.mark.django_db
+@skip_authentication()
+@skip_permission()
 class TestMembershipViewSet(object):
     """
     Tests for the MembershipViewSet APIs.
@@ -126,6 +131,8 @@ class TestMembershipViewSet(object):
 
 
 @pytest.mark.django_db
+@skip_authentication()
+@skip_permission()
 class TestMembershipRuleViewSet(object):
     """
     Tests for the MembershipRuleViewSet APIs.
@@ -175,6 +182,8 @@ class TestMembershipRuleViewSet(object):
 
 
 @pytest.mark.django_db
+@skip_authentication()
+@skip_permission()
 class TestGroupCourseViewSet(object):
     """
     Tests for the GroupCourseViewSet APIs.

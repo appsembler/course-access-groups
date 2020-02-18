@@ -17,3 +17,21 @@ def patch_site_configs(values):
     Use either as `@patch_site_configs(...)` or `with patch_site_configs(...):`.
     """
     return patch.dict('openedx.core.djangoapps.site_configuration.helpers.MOCK_SITE_CONFIG_VALUES', values)
+
+
+def skip_authentication():
+    """
+    Helper to skip authentications on API calls.
+
+    Use either as `@skip_authentication(...)` or `with skip_authentication(...):`.
+    """
+    return patch('course_access_groups.security.CommonAuthMixin.authentication_classes', [])
+
+
+def skip_permission():
+    """
+    Helper to skip security permissions on API calls.
+
+    Use either as `@skip_permission(...)` or `with skip_permission(...):`.
+    """
+    return patch('course_access_groups.security.CommonAuthMixin.permission_classes', [])
