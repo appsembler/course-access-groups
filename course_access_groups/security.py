@@ -74,5 +74,5 @@ class CommonAuthMixin(object):
     )
     permission_classes = (
         IsAuthenticated,
-        # IsSiteAdminUser,
+        IsSiteAdminUser,
     )

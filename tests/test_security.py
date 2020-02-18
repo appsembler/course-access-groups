@@ -9,10 +9,13 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from rest_framework.test import APIRequestFactory
-
+from rest_framework.authentication import (
+    TokenAuthentication,
+)
 from organizations.models import UserOrganizationMapping
 from course_access_groups.security import (
     is_active_staff_or_superuser,
+    CommonAuthMixin,
     IsSiteAdminUser,
 )
 
@@ -29,6 +32,26 @@ class TestTodo(object):
 
     def test_todo(self):
         assert False, 'TODO: Ensure APIs are callable with Bearer token from within the AMC.'
+
+
+class TestCommonAuthMixin(object):
+    """
+    Tests for CommonAuthMixin.
+
+    This class is minimal because CommonAuthMixin should be tested in `test_api_security`.
+    """
+
+    def test_token_authentication(self):
+        """
+        Ensures that the APIs are usable with an API Token.
+        """
+        assert TokenAuthentication in CommonAuthMixin.authentication_classes
+
+    def test_is_site_admin_user_permission(self):
+        """
+        Ensures that the APIs are only callable by Site Admin User.
+        """
+        assert IsSiteAdminUser in CommonAuthMixin.permission_classes
 
 
 @pytest.mark.django_db
