@@ -28,18 +28,14 @@ def is_site_admin_user(request):
     """
     Determines if the requesting user has access to site admin data
 
-    * If Figures is running in standalone mode, then the user needs to be staff
-      or superuser.
-    * If figures is running in multisite mode, then the user needs to belong to
-      an organizations mapped to the specified site and have `is_amc_admin` set
-      to `True`
-
     ## What this function does
 
     1. Get the current site (matching the request)
-    2. Get the orgs for the site. We assume only one org
+    2. Get the orgs for the site
     3. Get the user org mappings for the orgs and user in the request
-    4. Check the uom record if user is admin and active
+    4. Check the UOM record if user is admin and active
+
+    # TODO: Refactor with `is_organization_staff`.
     """
     if is_active_staff_or_superuser(request.user):
         return True

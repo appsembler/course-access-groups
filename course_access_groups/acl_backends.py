@@ -8,6 +8,7 @@ from __future__ import absolute_import, unicode_literals
 from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
 from organizations.models import OrganizationCourse, UserOrganizationMapping
 import six
+from course_access_groups.security import is_active_staff_or_superuser
 from course_access_groups.models import (
     CourseAccessGroup,
     GroupCourse,
@@ -26,8 +27,10 @@ def is_organization_staff(user, course):
 
     TODO: Handle single-site setups in which organization is not important
     TODO: What if a course has two orgs? data leak I guess?
+    TODO: Move to the `security.py` module.
     """
     if not user.is_active:
+        # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
 
     # Same as organization.api.get_course_organizations
@@ -47,6 +50,8 @@ def is_organization_staff(user, course):
 def is_feature_enabled():
     """
     Helper to check Site Configuration for ENABLE_COURSE_ACCESS_GROUPS.
+
+    # TODO: Move to its own file.
 
     :return: bool
     """
@@ -74,7 +79,7 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
         # of the permission. It's good to have the CAG module future proof in case of such changes.
         return False
 
-    if user.is_staff or user.is_superuser:
+    if is_active_staff_or_superuser(user):
         return default_has_access
 
     if is_organization_staff(user, resource):
