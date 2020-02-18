@@ -24,6 +24,13 @@ from test_utils.factories import (
 )
 
 
+class TestTodo(object):
+    todo = True
+
+    def test_todo(self):
+        assert False, 'TODO: Ensure APIs are callable with Bearer token from within the AMC.'
+
+
 @pytest.mark.django_db
 class TestStaffSuperuserHelper(object):
     """
