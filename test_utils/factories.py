@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 import factory
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
@@ -90,18 +91,10 @@ class GroupCourseFactory(factory.DjangoModelFactory):
     course = factory.SubFactory(CourseOverviewFactory)
 
 
-def create_standard_test_users():
-    """
-    Creates four test users to test the combination of permissions.
+class SiteFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Site
 
-        * regular_user (is_staff=False, is_superuser=False)
-        * staff_user (is_staf=True, is_superuser=False)
-        * super_user (is_staff=False, is_superuser=True)
-        * superstaff_user (is_staff=True, is_superuser=True)
-    """
-    return [
-        UserFactory(username='regular_user'),
-        UserFactory(username='staff_user', is_staff=True),
-        UserFactory(username='super_user', is_superuser=True),
-        UserFactory(username='superstaff_user', is_staff=True, is_superuser=True)
-    ]
+    domain = factory.Sequence(lambda n: 'site-{}.example.com'.format(n))
+    name = factory.Sequence(lambda n: 'Site {}'.format(n))
+
