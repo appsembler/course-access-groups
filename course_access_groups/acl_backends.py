@@ -28,6 +28,7 @@ def is_organization_staff(user, course):
     TODO: What if a course has two orgs? data leak I guess?
     """
     if not user.is_active:
+        # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
 
     # Same as organization.api.get_course_organizations
