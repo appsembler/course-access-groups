@@ -29,3 +29,10 @@ class CommonAuthMixin(object):
         IsAuthenticated,
         # TODO: Add IsSiteAdminUser,
     )
+
+
+def is_active_staff_or_superuser(user):
+    """
+    Checks if user is active staff or superuser.
+    """
+    return user and user.is_active and (user.is_staff or user.is_superuser)
