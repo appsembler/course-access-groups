@@ -21,9 +21,10 @@ from course_access_groups.models import (
     MembershipRule,
     GroupCourse,
 )
+from course_access_groups.permissions import CommonAuthMixin
 
 
-class CourseAccessGroupViewSet(viewsets.ModelViewSet):
+class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     model = CourseAccessGroup
     pagination_class = LimitOffsetPagination
     serializer_class = CourseAccessGroupSerializer
@@ -32,7 +33,7 @@ class CourseAccessGroupViewSet(viewsets.ModelViewSet):
         return self.model.objects.all()
 
 
-class MemberViewSet(viewsets.ModelViewSet):
+class MemberViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     model = Membership
     pagination_class = LimitOffsetPagination
     serializer_class = MembershipSerializer
@@ -41,7 +42,7 @@ class MemberViewSet(viewsets.ModelViewSet):
         return self.model.objects.all()
 
 
-class MembershipRuleViewSet(viewsets.ModelViewSet):
+class MembershipRuleViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     model = MembershipRule
     pagination_class = LimitOffsetPagination
     serializer_class = MembershipRuleSerializer
@@ -50,7 +51,7 @@ class MembershipRuleViewSet(viewsets.ModelViewSet):
         return self.model.objects.all()
 
 
-class GroupCourseViewSet(viewsets.ModelViewSet):
+class GroupCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     model = GroupCourse
     pagination_class = LimitOffsetPagination
     serializer_class = GroupCourseSerializer

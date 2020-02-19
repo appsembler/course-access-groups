@@ -3,6 +3,7 @@ from __future__ import absolute_import, unicode_literals
 
 import factory
 from django.contrib.auth import get_user_model
+from django.contrib.sites.models import Site
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
@@ -88,3 +89,12 @@ class GroupCourseFactory(factory.DjangoModelFactory):
 
     group = factory.SubFactory(CourseAccessGroupFactory)
     course = factory.SubFactory(CourseOverviewFactory)
+
+
+class SiteFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = Site
+
+    domain = factory.Sequence(lambda n: 'site-{}.example.com'.format(n))
+    name = factory.Sequence(lambda n: 'Site {}'.format(n))
+
