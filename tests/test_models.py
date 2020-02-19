@@ -6,6 +6,7 @@ Tests for the `course-access-groups` models module.
 from __future__ import absolute_import, unicode_literals
 
 import pytest
+from django.core.exceptions import ValidationError
 from organizations.models import UserOrganizationMapping
 from course_access_groups.models import (
     Membership,
@@ -14,8 +15,37 @@ from course_access_groups.models import (
 from test_utils.factories import (
     UserFactory,
     CourseAccessGroupFactory,
+    MembershipRuleFactory,
 )
 from course_access_groups.singals import on_learner_account_activated
+
+
+@pytest.mark.django_db
+class TestMembershipRuleModel(object):
+    """
+    Tests for MembershipRule model.
+    """
+
+    @pytest.mark.parametrize('domain', [
+        'example.com',
+        'example.co.uk',
+        'hello-world.org',
+    ])
+    def test_valid_domains(self, domain):
+        rule = MembershipRuleFactory.create(domain=domain)
+        rule.full_clean()
+        assert rule
+
+    @pytest.mark.parametrize('domain', [
+        '@example.com',
+        '111',
+        '===',
+        ' example.com ',  # has spaces
+    ])
+    def test_invalid_domains(self, domain):
+        with pytest.raises(ValidationError):
+            rule = MembershipRuleFactory.create(domain=domain)
+            rule.full_clean()
 
 
 @pytest.mark.django_db
