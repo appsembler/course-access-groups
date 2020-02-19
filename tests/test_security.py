@@ -9,10 +9,9 @@ import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from rest_framework.test import APIRequestFactory
-from rest_framework.authentication import (
-    TokenAuthentication,
-)
+from rest_framework.authentication import TokenAuthentication
 from organizations.models import UserOrganizationMapping
+from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.security import (
     is_active_staff_or_superuser,
     CommonAuthMixin,
@@ -41,11 +40,15 @@ class TestCommonAuthMixin(object):
     This class is minimal because CommonAuthMixin should be tested in `test_api_security`.
     """
 
-    def test_token_authentication(self):
+    @pytest.mark.parametrize('auth_backend, reason', [
+        [OAuth2Authentication, 'Should work with Bearer OAuth token from within AMC'],
+        [TokenAuthentication, 'Should work with API Token for external usage'],
+    ])
+    def test_token_authentication(self, auth_backend, reason):
         """
-        Ensures that the APIs are usable with an API Token.
+        Ensures that the APIs are usable with an API Token besides the AMC Bearer token.
         """
-        assert TokenAuthentication in CommonAuthMixin.authentication_classes
+        assert auth_backend in CommonAuthMixin.authentication_classes, reason
 
     def test_is_site_admin_user_permission(self):
         """

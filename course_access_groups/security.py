@@ -10,6 +10,7 @@ from rest_framework.authentication import (
     SessionAuthentication,
     TokenAuthentication,
 )
+from openedx.core.lib.api.authentication import OAuth2Authentication
 from organizations.models import Organization, UserOrganizationMapping
 from rest_framework.permissions import IsAuthenticated, BasePermission
 from django.contrib.sites import shortcuts as sites_shortcuts
@@ -71,6 +72,7 @@ class CommonAuthMixin(object):
         BasicAuthentication,
         SessionAuthentication,
         TokenAuthentication,
+        OAuth2Authentication,
     )
     permission_classes = (
         IsAuthenticated,
