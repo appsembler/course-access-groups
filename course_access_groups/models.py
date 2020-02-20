@@ -12,6 +12,8 @@ from model_utils import models as utils_models
 from organizations.models import Organization, UserOrganizationMapping
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
+from course_access_groups.validators import validate_domain
+
 
 @python_2_unicode_compatible
 class CourseAccessGroup(utils_models.TimeStampedModel):
@@ -95,7 +97,12 @@ class MembershipRule(utils_models.TimeStampedModel):
 
     name = models.CharField(max_length=255, help_text='A description for this assignment rule.')
     # TODO: Add a new wild-card rule to assign learners with no rules to a specific group.
-    domain = models.CharField(max_length=255, db_index=True, help_text='The learner email domain e.g. "example.com".')
+    domain = models.CharField(
+        max_length=255,
+        db_index=True,
+        validators=[validate_domain],
+        help_text='The learner email domain e.g. "example.com".',
+    )
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
 
 
