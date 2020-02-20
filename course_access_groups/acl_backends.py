@@ -13,6 +13,7 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
 )
+from course_access_groups.permissions import is_active_staff_or_superuser
 
 
 def is_organization_staff(user, course):
@@ -78,7 +79,7 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
         # of the permission. It's good to have the CAG module future proof in case of such changes.
         return False
 
-    if user.is_staff or user.is_superuser:
+    if is_active_staff_or_superuser(user):
         return default_has_access
 
     if is_organization_staff(user, resource):
