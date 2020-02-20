@@ -7,6 +7,7 @@ python:
 
 env:
   - TOXENV=py27-django111
+  - TOXENV=py27-django111-check
   - TOXENV=docs
 
 cache:
