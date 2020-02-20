@@ -7,12 +7,15 @@ Overview
 The purpose of this module is to provide the minimum models in order to mock
 Course Access Group interaction with the edx-platform models.
 """
+from __future__ import absolute_import, unicode_literals
 
 from django.db import models
+from django.utils.encoding import python_2_unicode_compatible
 
 from opaque_keys.edx.django.models import CourseKeyField
 
 
+@python_2_unicode_compatible
 class CourseOverview(models.Model):
     """
     Minimal mock model for the edx-platform 'CourseOverview' model.
@@ -33,3 +36,6 @@ class CourseOverview(models.Model):
     @property
     def display_org_with_default(self):
         return self.org
+
+    def __str__(self):
+        return unicode(self.id)
