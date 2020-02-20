@@ -26,8 +26,10 @@ def is_organization_staff(user, course):
 
     TODO: Handle single-site setups in which organization is not important
     TODO: What if a course has two orgs? data leak I guess?
+    TODO: Move to the `permissions.py` module.
     """
     if not user.is_active:
+        # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
 
     # Same as organization.api.get_course_organizations
@@ -47,6 +49,8 @@ def is_organization_staff(user, course):
 def is_feature_enabled():
     """
     Helper to check Site Configuration for ENABLE_COURSE_ACCESS_GROUPS.
+
+    # TODO: Move to its own file.
 
     :return: bool
     """
