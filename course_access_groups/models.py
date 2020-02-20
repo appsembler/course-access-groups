@@ -6,12 +6,14 @@ Database models for course_access_groups.
 from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth import get_user_model
+from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from model_utils import models as utils_models
 from organizations.models import Organization, UserOrganizationMapping
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
 
+@python_2_unicode_compatible
 class CourseAccessGroup(utils_models.TimeStampedModel):
     """
     Group of learners to determine which courses to show to them.
@@ -27,6 +29,9 @@ class CourseAccessGroup(utils_models.TimeStampedModel):
         help_text='An optional description about this group.'
     )
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
 
 
 class Membership(utils_models.TimeStampedModel):
@@ -102,7 +107,7 @@ class GroupCourse(utils_models.TimeStampedModel):
     extracting it here to make it easy to work with API ViewSets.
     """
 
-    course = models.ForeignKey(CourseOverview, on_delete=models.CASCADE)
+    course = models.ForeignKey(CourseOverview, related_name='group_course', on_delete=models.CASCADE)
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
 
     class Meta(object):

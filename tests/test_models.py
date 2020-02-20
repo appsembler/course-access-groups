@@ -8,6 +8,7 @@ from __future__ import absolute_import, unicode_literals
 import pytest
 from organizations.models import UserOrganizationMapping
 from course_access_groups.models import (
+    CourseAccessGroup,
     Membership,
     MembershipRule,
 )
@@ -51,3 +52,14 @@ class TestMembershipRuleApply(object):
         user = UserFactory.create(is_active=False)
         with pytest.raises(ValueError):
             on_learner_account_activated(self.__class__, user)
+
+
+class TestCourseAccessGroupModel(object):
+    """
+    Tests for the CourseAccessGroup model.
+    """
+
+    def test_str(self):
+        group = CourseAccessGroup(name='hello world')
+        assert str(group) == 'hello world'
+        assert unicode(group) == 'hello world'
