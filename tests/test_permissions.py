@@ -7,9 +7,103 @@ from __future__ import absolute_import, unicode_literals
 
 import pytest
 from django.contrib.auth import get_user_model
+from django.contrib.sites import shortcuts as sites_shortcuts
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.test import APIRequestFactory
+from organizations.models import UserOrganizationMapping
+from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
+    CommonAuthMixin,
+    IsSiteAdminUser,
 )
+
+from test_utils.factories import (
+    OrganizationFactory,
+    SiteFactory,
+    UserFactory,
+)
+
+
+@pytest.mark.django_db
+class TestSiteAdminPermissions(object):
+    """
+    Test for the IsSiteAdminUser permission class.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup(self, db, monkeypatch, standard_test_users):
+        self.site = SiteFactory()
+        self.organization = OrganizationFactory(sites=[self.site])
+        self.callers = [
+            UserFactory.create(username='alpha_nonadmin'),
+            UserFactory.create(username='alpha_site_admin'),
+            UserFactory.create(username='nosite_staff'),
+        ]
+        self.user_organization_mappings = [
+            UserOrganizationMapping.objects.create(
+                user=self.callers[0],
+                organization=self.organization),
+            UserOrganizationMapping.objects.create(
+                user=self.callers[1],
+                organization=self.organization,
+                is_amc_admin=True)
+        ]
+        self.callers += standard_test_users
+        self.request = APIRequestFactory().get('/')
+        self.request.META['HTTP_HOST'] = self.site.domain
+        monkeypatch.setattr(sites_shortcuts, 'get_current_site', self.get_test_site)
+
+    def get_test_site(self, request):  # pylint: disable=unused-argument
+        """
+        Mock django.contrib.sites.shortcuts.get_current_site.
+
+        :return: Site.
+        """
+        return self.site
+
+    @pytest.mark.parametrize('username, allow', [
+        ('regular_user', False),
+        ('staff_user', True),
+        ('super_user', True),
+        ('superstaff_user', True),
+        ('alpha_nonadmin', False),
+        ('alpha_site_admin', True),
+        ('nosite_staff', False),
+    ])
+    def test_is_site_admin_user(self, username, allow):
+        """
+        Ensure only site (org) admins have access.
+        """
+        self.request.user = get_user_model().objects.get(username=username)
+        permission = IsSiteAdminUser().has_permission(self.request, None)
+        assert permission == allow, 'User "{username}" should have access'.format(username=username)
+
+        # Verify that inactive users are denied permission
+        self.request.user.is_active = False
+        permission = IsSiteAdminUser().has_permission(self.request, None)
+        assert not permission, 'username: "{username}"'.format(username=username)
+
+    @pytest.mark.parametrize('username, allow', [
+        ('regular_user', False),
+        ('staff_user', True),
+        ('super_user', True),
+        ('superstaff_user', True),
+        ('alpha_nonadmin', False),
+        ('alpha_site_admin', True),
+        ('nosite_staff', False),
+    ])
+    def test_multiple_user_orgs(self, username, allow):
+        """
+        Allow users to have multiple orgs.
+
+        Probably we'll remove this features, but this ensures Tahoe doesn't go crazy.
+        """
+        self.request.user = get_user_model().objects.get(username=username)
+        org2 = OrganizationFactory(sites=[self.site])
+        UserOrganizationMapping.objects.create(user=self.request.user, organization=org2),
+        permission = IsSiteAdminUser().has_permission(self.request, None)
+        assert permission == allow, 'Incorrect permission for user: "{username}"'.format(username=username)
 
 
 @pytest.mark.django_db
@@ -41,3 +135,27 @@ class TestStaffSuperuserHelper(object):
         user = get_user_model().objects.get(username=username)
         user.is_active = False
         assert not is_active_staff_or_superuser(user)
+
+
+class TestCommonAuthMixin(object):
+    """
+    Tests for CommonAuthMixin.
+
+    This class is minimal because CommonAuthMixin should be tested in `test_api_permissions`.
+    """
+
+    @pytest.mark.parametrize('auth_backend, reason', [
+        [OAuth2Authentication, 'Should work with Bearer OAuth token from within AMC'],
+        [TokenAuthentication, 'Should work with API Token for external usage'],
+    ])
+    def test_token_authentication(self, auth_backend, reason):
+        """
+        Ensures that the APIs are usable with an API Token besides the AMC Bearer token.
+        """
+        assert auth_backend in CommonAuthMixin.authentication_classes, reason
+
+    def test_is_site_admin_user_permission(self):
+        """
+        Ensures that the APIs are only callable by Site Admin User.
+        """
+        assert IsSiteAdminUser in CommonAuthMixin.permission_classes, 'Only authorized users may access CAG views'
