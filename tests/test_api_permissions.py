@@ -13,9 +13,9 @@ from course_access_groups.permissions import CommonAuthMixin
 from test_utils import get_api_view_classes
 
 
-class TestCourseAccessGroupsViewSet(object):
+class TestCommonAuthMixinUsage(object):
     """
-    Tests for the CourseAccessGroupsViewSet APIs.
+    Ensure the CommonAuthMixin is used by APIs.
     """
 
     def test_sanity_check(self):
