@@ -78,6 +78,15 @@ class TestCourseAccessGroupsViewSet(object):
         assert new_group.organization.id == org.id
         assert new_group.name == 'Awesome Group'
 
+    def test_delete_group(self, client):
+        """
+        Ensure group deletion is possible via the API.
+        """
+        group = CourseAccessGroupFactory.create()
+        response = client.delete('/course-access-groups/{}/'.format(group.id))
+        assert response.status_code == 204
+        assert not CourseAccessGroup.objects.count()
+
 
 @pytest.mark.django_db
 @skip_authentication()
@@ -128,6 +137,15 @@ class TestMembershipViewSet(object):
         new_membership = Membership.objects.get()
         assert new_membership.group.id == group.id
         assert new_membership.user.id == user.id
+
+    def test_delete_membership(self, client):
+        """
+        Ensure membership deletion is possible via the API.
+        """
+        membership = MembershipFactory.create()
+        response = client.delete('/memberships/{}/'.format(membership.id))
+        assert response.status_code == 204
+        assert not Membership.objects.count()
 
 
 @pytest.mark.django_db
@@ -180,6 +198,15 @@ class TestMembershipRuleViewSet(object):
         assert new_rule.domain == domain
         assert new_rule.name == 'Community assignment'
 
+    def test_delete_rule(self, client):
+        """
+        Ensure rule deletion is possible via the API.
+        """
+        rule = MembershipRuleFactory.create()
+        response = client.delete('/membership-rules/{}/'.format(rule.id))
+        assert response.status_code == 204
+        assert not MembershipRule.objects.count()
+
 
 @pytest.mark.django_db
 @skip_authentication()
@@ -228,3 +255,12 @@ class TestGroupCourseViewSet(object):
         new_link = GroupCourse.objects.get()
         assert new_link.group.id == group.id
         assert new_link.course.id == course.id
+
+    def test_delete_link(self, client):
+        """
+        Ensure link deletion is possible via the API.
+        """
+        link = GroupCourseFactory.create()
+        response = client.delete('/group-courses/{}/'.format(link.id))
+        assert response.status_code == 204
+        assert not GroupCourse.objects.count()
