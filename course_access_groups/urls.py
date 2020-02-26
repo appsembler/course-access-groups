@@ -18,7 +18,7 @@ router.register(
 
 router.register(
     r'memberships',
-    views.MemberViewSet,
+    views.MembershipViewSet,
     base_name='memberships',
 )
 

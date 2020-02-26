@@ -49,13 +49,12 @@ INSTALLED_APPS = [
     'course_access_groups',
 ]
 
-SITE_ID = 1
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.sites.middleware.CurrentSiteMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -68,6 +67,8 @@ LOCALE_PATHS = [
 REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
+
+ALLOWED_HOSTS = ['*']
 
 TEMPLATES = [
     {

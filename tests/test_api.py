@@ -11,6 +11,7 @@ from course_access_groups.models import (
     Membership,
     MembershipRule,
 )
+from course_access_groups.permissions import CommonAuthMixin
 import pytest
 from test_utils.factories import (
     UserFactory,
@@ -21,13 +22,24 @@ from test_utils.factories import (
     MembershipRuleFactory,
     GroupCourseFactory,
 )
-from test_utils import skip_authentication, skip_permission
 
 
 @pytest.mark.django_db
-@skip_authentication()
-@skip_permission()
-class TestCourseAccessGroupsViewSet(object):
+class ViewSetTestBase(object):
+    """
+    Base class for ViewSet test cases.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup(self, settings, monkeypatch):
+        settings.SITE_ID = 1  # Mock get_current_site
+
+        # Skip permissions on API calls
+        monkeypatch.setattr(CommonAuthMixin, 'authentication_classes', [])
+        monkeypatch.setattr(CommonAuthMixin, 'permission_classes', [])
+
+
+class TestCourseAccessGroupsViewSet(ViewSetTestBase):
     """
     Tests for the CourseAccessGroupsViewSet APIs.
     """
@@ -88,10 +100,7 @@ class TestCourseAccessGroupsViewSet(object):
         assert not CourseAccessGroup.objects.count()
 
 
-@pytest.mark.django_db
-@skip_authentication()
-@skip_permission()
-class TestMembershipViewSet(object):
+class TestMembershipViewSet(ViewSetTestBase):
     """
     Tests for the MembershipViewSet APIs.
     """
@@ -148,10 +157,7 @@ class TestMembershipViewSet(object):
         assert not Membership.objects.count()
 
 
-@pytest.mark.django_db
-@skip_authentication()
-@skip_permission()
-class TestMembershipRuleViewSet(object):
+class TestMembershipRuleViewSet(ViewSetTestBase):
     """
     Tests for the MembershipRuleViewSet APIs.
     """
@@ -208,10 +214,7 @@ class TestMembershipRuleViewSet(object):
         assert not MembershipRule.objects.count()
 
 
-@pytest.mark.django_db
-@skip_authentication()
-@skip_permission()
-class TestGroupCourseViewSet(object):
+class TestGroupCourseViewSet(ViewSetTestBase):
     """
     Tests for the GroupCourseViewSet APIs.
     """
