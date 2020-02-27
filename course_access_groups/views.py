@@ -8,7 +8,6 @@ from __future__ import absolute_import, unicode_literals
 
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
-
 from course_access_groups.serializers import (
     CourseAccessGroupSerializer,
     MembershipSerializer,
@@ -33,7 +32,7 @@ class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
         return self.model.objects.all()
 
 
-class MemberViewSet(CommonAuthMixin, viewsets.ModelViewSet):
+class MembershipViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     model = Membership
     pagination_class = LimitOffsetPagination
     serializer_class = MembershipSerializer

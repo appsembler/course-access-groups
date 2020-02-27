@@ -6,14 +6,17 @@ Test the authentication and permission of Course Access Groups.
 from __future__ import absolute_import, unicode_literals
 
 import pytest
+from mock import patch, Mock
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
+from django.contrib.sites.models import Site
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
-from organizations.models import UserOrganizationMapping
+from organizations.models import Organization, UserOrganizationMapping
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
+    get_current_organization,
     CommonAuthMixin,
     IsSiteAdminUser,
 )
@@ -23,6 +26,48 @@ from test_utils.factories import (
     SiteFactory,
     UserFactory,
 )
+
+
+@pytest.mark.django_db
+class TestCurrentOrgHelper(object):
+    def test_no_site(self):
+        """
+        Ensure no sites are handled properly.
+        """
+        request = Mock(get_host=Mock(return_value='my_site.org'))
+        with pytest.raises(Site.DoesNotExist):
+            get_current_organization(request)
+
+    def test_no_organization(self):
+        """
+        Ensure no orgs are handled properly.
+        """
+        site = SiteFactory(domain='my_site.org')
+        request = Mock(get_host=Mock(return_value=site.domain))
+        with pytest.raises(Organization.DoesNotExist):
+            get_current_organization(request)
+
+    def test_two_organizations(self):
+        """
+        Ensure multiple orgs to be forbidden.
+        """
+        site = SiteFactory(domain='my_site.org')
+        OrganizationFactory.create_batch(2, sites=[site])
+        request = Mock(get_host=Mock(return_value=site.domain))
+
+        with pytest.raises(Organization.MultipleObjectsReturned):
+            get_current_organization(request)
+
+    def test_single_organization(self):
+        """
+        Ensure multiple orgs to be forbidden.
+        """
+        my_site = SiteFactory(domain='my_site.org')
+        other_site = SiteFactory(domain='other_site.org')  # ensure no collision.
+        my_org = OrganizationFactory.create(sites=[my_site])
+        OrganizationFactory.create(sites=[other_site])  # ensure no collision.
+        request = Mock(get_host=Mock(return_value=my_site.domain))
+        assert my_org == get_current_organization(request)
 
 
 @pytest.mark.django_db
@@ -84,25 +129,26 @@ class TestSiteAdminPermissions(object):
         permission = IsSiteAdminUser().has_permission(self.request, None)
         assert not permission, 'username: "{username}"'.format(username=username)
 
-    @pytest.mark.parametrize('username, allow', [
-        ('regular_user', False),
-        ('staff_user', True),
-        ('super_user', True),
-        ('superstaff_user', True),
-        ('alpha_nonadmin', False),
-        ('alpha_site_admin', True),
-        ('nosite_staff', False),
+    @pytest.mark.parametrize('username, allow, log_call_count', [
+        ('regular_user', False, 1),
+        ('staff_user', True, 0),  # Site-wide staff are exempted from org checks.
+        ('super_user', True, 0),  # Superusers are exempted from org checks.
+        ('superstaff_user', True, 0),  # Superusers are exempted from org checks.
+        ('alpha_nonadmin', False, 1),
+        ('alpha_site_admin', False, 1),
+        ('nosite_staff', False, 1),
     ])
-    def test_multiple_user_orgs(self, username, allow):
+    def test_multiple_user_orgs(self, username, allow, log_call_count):
         """
-        Allow users to have multiple orgs.
-
-        Probably we'll remove this features, but this ensures Tahoe doesn't go crazy.
+        Prevent users from having multiple orgs.
         """
         self.request.user = get_user_model().objects.get(username=username)
         org2 = OrganizationFactory(sites=[self.site])
         UserOrganizationMapping.objects.create(user=self.request.user, organization=org2),
-        permission = IsSiteAdminUser().has_permission(self.request, None)
+
+        with patch('course_access_groups.permissions.log') as mock_log:
+            permission = IsSiteAdminUser().has_permission(self.request, None)
+            assert mock_log.exception.call_count == log_call_count
         assert permission == allow, 'Incorrect permission for user: "{username}"'.format(username=username)
 
 

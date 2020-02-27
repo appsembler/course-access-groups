@@ -5,16 +5,35 @@ Course Access Groups permission and authentication classes.
 
 from __future__ import absolute_import, unicode_literals
 
+import logging
 from rest_framework.authentication import (
     BasicAuthentication,
     SessionAuthentication,
     TokenAuthentication,
 )
+from django.contrib.sites.models import Site
 from django.contrib.sites import shortcuts as sites_shortcuts
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from rest_framework.permissions import IsAuthenticated
 from organizations.models import Organization, UserOrganizationMapping
 from rest_framework.permissions import BasePermission
+
+
+log = logging.getLogger(__name__)
+
+
+def get_current_organization(request):
+    """
+    Return a single organization for the current site.
+
+    :param request:
+    :raise Site.DoesNotExist when the site isn't found.
+    :raise Organization.DoesNotExist when the organization isn't found.
+    :raise Organization.MultipleObjectsReturned when more than one organization is returned.
+    :return Organization.
+    """
+    current_site = sites_shortcuts.get_current_site(request)
+    return Organization.objects.get(sites__in=[current_site])
 
 
 def is_site_admin_user(request):
@@ -36,10 +55,18 @@ def is_site_admin_user(request):
     if is_active_staff_or_superuser(request.user):
         return True
 
-    current_site = sites_shortcuts.get_current_site(request)
-    org_ids = Organization.objects.filter(sites__in=[current_site]).values_list('id', flat=True)
+    try:
+        # Ensure strict one site per organization to simplify security checks.
+        current_organization = get_current_organization(request)
+    except (Site.DoesNotExist, Organization.DoesNotExist, Organization.MultipleObjectsReturned):
+        log.exception(
+            'Course Access Group: This module expects a one:one relationship between organizations and sites. '
+            'This exception should not happen.'
+        )
+        return False
+
     return UserOrganizationMapping.objects.filter(
-        organization_id__in=org_ids,
+        organization=current_organization,
         user=request.user,
         is_active=True,
         is_amc_admin=True,
