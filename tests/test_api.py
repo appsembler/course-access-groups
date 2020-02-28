@@ -286,7 +286,6 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
         assert MembershipRule.objects.count() == expected_post_delete_count
 
 
-@pytest.mark.skip('Broken for now, will re-enable soon.')
 class TestGroupCourseViewSet(ViewSetTestBase):
     """
     Tests for the GroupCourseViewSet APIs.
@@ -300,43 +299,78 @@ class TestGroupCourseViewSet(ViewSetTestBase):
         results = response.json()['results']
         assert results == []
 
-    def test_list_links(self, client):
-        GroupCourseFactory.create_batch(3, group=CourseAccessGroupFactory.create())
-        response = client.get(self.url)
-        assert response.status_code == 200
-        results = response.json()['results']
-        assert len(results) == 3
-
-    def test_one_link(self, client):
-        link = GroupCourseFactory.create()
-        response = client.get('/group-courses/{}/'.format(link.id))
-        result = response.json()
-        assert result == {
-            'id': link.id,
-            'course': str(link.course.id),
-            'course_name': link.course.display_name_with_default,
-            'group': link.group.id,
-            'group_name': link.group.name,
-        }
-
-    def test_add_link(self, client):
-        assert not GroupCourse.objects.count()
-        group = CourseAccessGroupFactory.create()
+    @pytest.mark.parametrize('org_name, status_code, expected_count', [
+        ['my_org', 200, 3],
+        ['other_org', 200, 0],
+    ])
+    def test_list_links(self, client, org_name, status_code, expected_count):
+        org = Organization.objects.get(name=org_name)
         course = CourseOverviewFactory.create()
+        OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
+        GroupCourseFactory.create_batch(3, group__organization=org, course=course)
+        response = client.get(self.url)
+        assert response.status_code == 200, response.content
+        results = response.json()['results']
+        assert len(results) == expected_count
+
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', 200, False],
+        ['other_org', 404, True],
+    ])
+    def test_one_link(self, client, org_name, status_code, skip_response_check):
+        org = Organization.objects.get(name=org_name)
+        link = GroupCourseFactory.create(group__organization=org)
+        OrganizationCourse.objects.create(course_id=text_type(link.course.id), organization=org)
+        response = client.get('/group-courses/{}/'.format(link.id))
+        assert response.status_code == status_code, response.content
+        result = response.json()
+        assert skip_response_check or (result == {
+            'id': link.id,
+            'course': {
+                'id': text_type(link.course.id),
+                'name': link.course.display_name_with_default,
+            },
+            'group': {
+                'id': link.group.id,
+                'name': link.group.name,
+            },
+        }), 'Verify the serializer results.'
+
+    @pytest.mark.parametrize('group_org, course_org, status_code, expected_count, check_new_link', [
+        ['my_org', 'my_org', 201, 1, True],  # Should work for own courses and groups
+        ['my_org', 'other_org', 400, 0, False],  # Should not work other org's courses
+        ['other_org', 'my_org', 400, 0, False],  # Should not work for other org's groups
+    ])
+    def test_add_link(self, client, group_org, course_org, status_code, expected_count, check_new_link):
+        assert not GroupCourse.objects.count()
+        org = Organization.objects.get(name=group_org)
+        group = CourseAccessGroupFactory.create(organization=org)
+        course = CourseOverviewFactory.create()
+        OrganizationCourse.objects.create(
+            course_id=text_type(course.id),
+            organization=Organization.objects.get(name=course_org),
+        )
         response = client.post(self.url, {
             'group': group.id,
-            'course': str(course.id),
+            'course': text_type(course.id),
         })
-        assert response.status_code == 201
-        new_link = GroupCourse.objects.get()
-        assert new_link.group.id == group.id
-        assert new_link.course.id == course.id
+        assert GroupCourse.objects.count() == expected_count
+        assert response.status_code == status_code, response.content
+        if check_new_link:
+            new_link = GroupCourse.objects.get()
+            assert new_link.group.id == group.id
+            assert new_link.course.id == course.id
 
-    def test_delete_link(self, client):
+    @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
+        ['my_org', 204, 0],
+        ['other_org', 404, 1],
+    ])
+    def test_delete_link(self, client, org_name, status_code, expected_post_delete_count):
         """
         Ensure link deletion is possible via the API.
         """
-        link = GroupCourseFactory.create()
+        org = Organization.objects.get(name=org_name)
+        link = GroupCourseFactory.create(group__organization=org)
         response = client.delete('/group-courses/{}/'.format(link.id))
-        assert response.status_code == 204
-        assert not GroupCourse.objects.count()
+        assert response.status_code == status_code, response.content
+        assert GroupCourse.objects.count() == expected_post_delete_count

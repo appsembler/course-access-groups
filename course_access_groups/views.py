@@ -67,4 +67,7 @@ class GroupCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = GroupCourseSerializer
 
     def get_queryset(self):
-        return self.model.objects.all()
+        organization = get_current_organization(self.request)
+        return self.model.objects.filter(
+            group__in=CourseAccessGroup.objects.filter(organization=organization),
+        )
