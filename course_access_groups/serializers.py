@@ -41,6 +41,34 @@ class CourseKeyField(serializers.RelatedField):
         except InvalidKeyError as ex:
             raise serializers.ValidationError('Invalid course key: {msg}'.format(msg=str(ex)))
 
+
+class UserFieldWithPermission(serializers.RelatedField):
+    """
+    Serializer field for a model User foreign key with permission checks on the current organization.
+    """
+
+    def get_queryset(self):
+        organization = get_current_organization(self.context['request'])
+        return get_user_model().objects.filter(
+            id__in=UserOrganizationMapping.objects.filter(
+                organization=organization,
+            ).values('user_id'),
+        )
+
+    def to_internal_value(self, user_id):
+        try:
+            return self.get_queryset().get(id=user_id)
+        except get_user_model().DoesNotExist:
+            raise ValidationError('Invalid user key: {id}'.format(id=user_id))
+
+    def to_representation(self, user):
+        return {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+        }
+
+
 class CourseAccessGroupFieldWithPermission(serializers.RelatedField):
     """
     Serializer field for a model CourseAccessGroup foreign key with permission checks on the current organization.
@@ -76,21 +104,15 @@ class CourseAccessGroupSerializer(serializers.ModelSerializer):
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-    user_email = serializers.EmailField(source='user.email', read_only=True)
-    user_username = serializers.CharField(source='user.username', read_only=True)
-    group_name = serializers.CharField(source='group.name', read_only=True)
-    group_description = serializers.CharField(source='group.description', read_only=True)
+    user = UserFieldWithPermission()
+    group = CourseAccessGroupFieldWithPermission()
 
     class Meta:
         model = Membership
         fields = [
             'id',
             'user',
-            'user_email',
-            'user_username',
             'group',
-            'group_name',
-            'group_description',
         ]
 
 

@@ -115,7 +115,6 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
         assert CourseAccessGroup.objects.count() == expected_post_delete_count
 
 
-@pytest.mark.skip('Broken for now, will re-enable soon.')
 class TestMembershipViewSet(ViewSetTestBase):
     """
     Tests for the MembershipViewSet APIs.
@@ -129,48 +128,81 @@ class TestMembershipViewSet(ViewSetTestBase):
         results = response.json()['results']
         assert results == []
 
-    def test_list_memberships(self, client):
-        MembershipFactory.create_batch(3, group=CourseAccessGroupFactory.create())
+    @pytest.mark.parametrize('org_name, status_code, expected_count', [
+        ['my_org', 200, 3],
+        ['other_org', 200, 0],
+    ])
+    def test_list_memberships(self, client, org_name, status_code, expected_count):
+        org = Organization.objects.get(name=org_name)
+        MembershipFactory.create_batch(3, group__organization=org)
         response = client.get(self.url)
-        assert response.status_code == 200
         results = response.json()['results']
-        assert len(results) == 3
+        assert response.status_code == status_code, response.content
+        assert len(results) == expected_count
 
-    def test_one_membership(self, client):
-        membership = MembershipFactory.create()
+    @pytest.mark.parametrize('group_org, status_code, skip_response_check', [
+        ['my_org', 200, False],
+        ['other_org', 404, True],
+    ])
+    def test_one_membership(self, client, group_org, status_code, skip_response_check):
+        org = Organization.objects.get(name=group_org)
+        membership = MembershipFactory.create(group__organization=org)
         response = client.get('/memberships/{}/'.format(membership.id))
+        assert response.status_code == status_code, response.content
         result = response.json()
-        assert result == {
+        assert skip_response_check or (result == {
             'id': membership.id,
-            'user': membership.user.id,
-            'user_email': membership.user.email,
-            'user_username': membership.user.username,
-            'group': membership.group.id,
-            'group_name': membership.group.name,
-            'group_description': membership.group.description,
-        }
+            'user': {
+                'id': membership.user.id,
+                'email': membership.user.email,
+                'username': membership.user.username,
+            },
+            'group': {
+                'id': membership.group.id,
+                'name': membership.group.name,
+            },
+        }), 'Verify the serializer results.'
 
-    def test_add_membership(self, client):
+    @pytest.mark.parametrize('group_org, user_org, status_code, expected_count, check_new_membership', [
+        ['my_org', 'my_org', 201, 1, True],  # Should work for own users and groups
+        ['my_org', 'other_org', 400, 0, False],  # Should not work other org's users
+        ['other_org', 'my_org', 400, 0, False],  # Should not work for other org's groups
+    ])
+    def test_add_membership(self, client, group_org, user_org, status_code, expected_count, check_new_membership):
         assert not Membership.objects.count()
-        group = CourseAccessGroupFactory.create()
+        group = CourseAccessGroupFactory.create(
+            organization=Organization.objects.get(name=group_org),
+        )
         user = UserFactory.create()
+        UserOrganizationMapping.objects.create(
+            organization=Organization.objects.get(name=user_org),
+            user=user,
+        )
         response = client.post(self.url, {
             'group': group.id,
             'user': user.id,
         })
-        assert response.status_code == 201
-        new_membership = Membership.objects.get()
-        assert new_membership.group.id == group.id
-        assert new_membership.user.id == user.id
+        assert response.status_code == status_code, response.content
+        assert Membership.objects.count() == expected_count
+        if check_new_membership:
+            new_membership = Membership.objects.get()
+            assert new_membership.group.id == group.id
+            assert new_membership.user.id == user.id
 
-    def test_delete_membership(self, client):
+    @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
+        ['my_org', 204, 0],
+        ['other_org', 404, 1],
+    ])
+    def test_delete_membership(self, client, org_name, status_code, expected_post_delete_count):
         """
         Ensure membership deletion is possible via the API.
         """
-        membership = MembershipFactory.create()
+        org = Organization.objects.get(name=org_name)
+        membership = MembershipFactory.create(group__organization=org)
+        UserOrganizationMapping.objects.create(user=membership.user, organization=org)
         response = client.delete('/memberships/{}/'.format(membership.id))
-        assert response.status_code == 204
-        assert not Membership.objects.count()
+        assert response.status_code == status_code, response.content
+        assert Membership.objects.count() == expected_post_delete_count
 
 
 class TestMembershipRuleViewSet(ViewSetTestBase):
