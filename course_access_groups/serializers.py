@@ -2,9 +2,14 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from six import text_type
+from django.contrib.auth import get_user_model
+
+from organizations.models import UserOrganizationMapping, OrganizationCourse
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
     CourseAccessGroup,
@@ -12,6 +17,7 @@ from course_access_groups.models import (
     Membership,
     MembershipRule,
 )
+from course_access_groups.permissions import get_current_organization
 
 
 class CourseKeyField(serializers.RelatedField):
@@ -37,12 +43,10 @@ class CourseKeyField(serializers.RelatedField):
 
 
 class CourseAccessGroupSerializer(serializers.ModelSerializer):
-    organization_name = serializers.CharField(source='organization.name', read_only=True)
-
     class Meta:
         model = CourseAccessGroup
         fields = [
-            'id', 'name', 'description', 'organization', 'organization_name',
+            'id', 'name', 'description',
         ]
 
 
