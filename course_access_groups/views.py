@@ -52,7 +52,10 @@ class MembershipRuleViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = MembershipRuleSerializer
 
     def get_queryset(self):
-        return self.model.objects.all()
+        organization = get_current_organization(self.request)
+        return self.model.objects.filter(
+            group__in=CourseAccessGroup.objects.filter(organization=organization),
+        )
 
 
 class GroupCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):

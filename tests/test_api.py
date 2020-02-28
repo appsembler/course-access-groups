@@ -173,7 +173,6 @@ class TestMembershipViewSet(ViewSetTestBase):
         assert not Membership.objects.count()
 
 
-@pytest.mark.skip('Broken for now, will re-enable soon.')
 class TestMembershipRuleViewSet(ViewSetTestBase):
     """
     Tests for the MembershipRuleViewSet APIs.
@@ -183,52 +182,76 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
 
     def test_no_rules(self, client):
         response = client.get(self.url)
-        assert response.status_code == 200
+        assert response.status_code == 200, response.content
         results = response.json()['results']
         assert results == []
 
-    def test_list_rules(self, client):
-        MembershipRuleFactory.create_batch(3, group=CourseAccessGroupFactory.create())
+    @pytest.mark.parametrize('org_name, status_code, expected_count', [
+        ['my_org', 200, 3],
+        ['other_org', 200, 0],
+    ])
+    def test_list_rules(self, client, org_name, status_code, expected_count):
+        org = Organization.objects.get(name=org_name)
+        MembershipRuleFactory.create_batch(3, group__organization=org)
         response = client.get(self.url)
-        assert response.status_code == 200
-        results = response.json()['results']
-        assert len(results) == 3
+        assert response.status_code == status_code, response.content
+        assert response.json()['count'] == expected_count
 
-    def test_one_rule(self, client):
-        rule = MembershipRuleFactory.create()
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', 200, False],
+        ['other_org', 404, True],
+    ])
+    def test_one_rule(self, client, org_name, status_code, skip_response_check):
+        org = Organization.objects.get(name=org_name)
+        rule = MembershipRuleFactory.create(group__organization=org)
         response = client.get('/membership-rules/{}/'.format(rule.id))
         result = response.json()
-        assert result == {
+        assert response.status_code == status_code, response.content
+        assert skip_response_check or (result == {
             'id': rule.id,
             'name': rule.name,
             'domain': rule.domain,
-            'group': rule.group.id,
-            'group_name': rule.group.name,
-        }
+            'group': {
+                'id': rule.group.id,
+                'name': rule.group.name,
+            },
+        }), 'Verify the serializer results.'
 
-    def test_add_rule(self, client):
+    @pytest.mark.parametrize('org_name, status_code, expected_count, check_new_rule', [
+        ['my_org', 201, 1, True],
+        ['other_org', 400, 0, False],
+    ])
+    def test_add_rule(self, client, org_name, status_code, expected_count, check_new_rule):
         assert not MembershipRule.objects.count()
-        group = CourseAccessGroupFactory.create()
-        domain = 'example.org'
+        org = Organization.objects.get(name=org_name)
+        group = CourseAccessGroupFactory.create(organization=org)
+        rule_domain = 'example.org'
         response = client.post(self.url, {
             'group': group.id,
             'name': 'Community assignment',
-            'domain': domain,
+            'domain': rule_domain,
         })
-        assert response.status_code == 201
-        new_rule = MembershipRule.objects.get()
-        assert new_rule.group.id == group.id
-        assert new_rule.domain == domain
-        assert new_rule.name == 'Community assignment'
+        assert response.status_code == status_code, response.content
+        assert MembershipRule.objects.count() == expected_count
+        if check_new_rule:
+            new_rule = MembershipRule.objects.get()
+            assert new_rule.group.id == group.id
+            assert new_rule.domain == rule_domain
+            assert new_rule.name == 'Community assignment'
 
-    def test_delete_rule(self, client):
+    @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
+        ['my_org', 204, 0],
+        ['other_org', 404, 1],
+    ])
+    def test_delete_rule(self, client, org_name, status_code, expected_post_delete_count):
         """
         Ensure rule deletion is possible via the API.
         """
-        rule = MembershipRuleFactory.create()
+        org = Organization.objects.get(name=org_name)
+        rule = MembershipRuleFactory.create(group__organization=org)
         response = client.delete('/membership-rules/{}/'.format(rule.id))
-        assert response.status_code == 204
-        assert not MembershipRule.objects.count()
+        assert response.status_code == status_code, response.content
+        assert MembershipRule.objects.count() == expected_post_delete_count
 
 
 @pytest.mark.skip('Broken for now, will re-enable soon.')

@@ -41,6 +41,31 @@ class CourseKeyField(serializers.RelatedField):
         except InvalidKeyError as ex:
             raise serializers.ValidationError('Invalid course key: {msg}'.format(msg=str(ex)))
 
+class CourseAccessGroupFieldWithPermission(serializers.RelatedField):
+    """
+    Serializer field for a model CourseAccessGroup foreign key with permission checks on the current organization.
+    """
+
+    def get_queryset(self):
+        organization = get_current_organization(self.context['request'])
+        return CourseAccessGroup.objects.filter(
+            organization=organization,
+        )
+
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(pk=data)
+        except CourseAccessGroup.DoesNotExist:
+            raise ValidationError('Invalid group id: {id}'.format(
+                id=data,
+            ))
+
+    def to_representation(self, value):
+        return {
+            'id': value.pk,
+            'name': value.name,
+        }
+
 
 class CourseAccessGroupSerializer(serializers.ModelSerializer):
     class Meta:
@@ -70,7 +95,7 @@ class MembershipSerializer(serializers.ModelSerializer):
 
 
 class MembershipRuleSerializer(serializers.ModelSerializer):
-    group_name = serializers.CharField(source='group.name', read_only=True)
+    group = CourseAccessGroupFieldWithPermission()
 
     class Meta:
         model = MembershipRule
@@ -79,7 +104,6 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
             'name',
             'domain',
             'group',
-            'group_name',
         ]
 
 
