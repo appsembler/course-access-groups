@@ -87,8 +87,10 @@ def user_has_public_access_to_course(user, course):
     return OrganizationCourse.objects.filter(
         course_id=PublicCourse.objects.filter(course=course).values('course_id'),
         organization_id__in=UserOrganizationMapping.objects.filter(
+            is_active=True,
             user=user,
         ).values('organization_id'),
+        active=True,
     )
 
 
