@@ -29,6 +29,12 @@ router.register(
 )
 
 router.register(
+    r'public-courses',
+    views.PublicCourseViewSet,
+    base_name='public-courses',
+)
+
+router.register(
     r'group-courses',
     views.GroupCourseViewSet,
     base_name='group-courses',

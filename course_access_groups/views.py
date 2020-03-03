@@ -8,17 +8,20 @@ from __future__ import absolute_import, unicode_literals
 
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
+from organizations.models import OrganizationCourse
 from course_access_groups.serializers import (
     CourseAccessGroupSerializer,
     MembershipSerializer,
     MembershipRuleSerializer,
     GroupCourseSerializer,
+    PublicCourseSerializer,
 )
 from course_access_groups.models import (
     CourseAccessGroup,
     Membership,
     MembershipRule,
     GroupCourse,
+    PublicCourse,
 )
 from course_access_groups.permissions import get_current_organization, CommonAuthMixin
 
@@ -65,6 +68,24 @@ class MembershipRuleViewSet(CommonAuthMixin, viewsets.ModelViewSet):
         organization = get_current_organization(self.request)
         return self.model.objects.filter(
             group__in=CourseAccessGroup.objects.filter(organization=organization),
+        )
+
+
+class PublicCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
+    """
+    API ViewSet to mark specific courses as public to circumvent the Course Access Group rules.
+    """
+
+    model = PublicCourse
+    pagination_class = LimitOffsetPagination
+    serializer_class = PublicCourseSerializer
+
+    def get_queryset(self):
+        organization = get_current_organization(self.request)
+        course_links = OrganizationCourse.objects.filter(organization=organization, active=True)
+
+        return self.model.objects.filter(
+            course_id__in=course_links.values('course_id'),
         )
 
 

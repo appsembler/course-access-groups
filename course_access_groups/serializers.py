@@ -16,6 +16,7 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
     MembershipRule,
+    PublicCourse,
 )
 from course_access_groups.permissions import get_current_organization
 
@@ -149,6 +150,17 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
             'name',
             'domain',
             'group',
+        ]
+
+
+class PublicCourseSerializer(serializers.ModelSerializer):
+    course = CourseKeyFieldWithPermission(source='course_id')
+
+    class Meta:
+        model = PublicCourse
+        fields = [
+            'id',
+            'course',
         ]
 
 
