@@ -2,9 +2,14 @@
 
 from __future__ import absolute_import, unicode_literals
 
+from six import text_type
+from django.contrib.auth import get_user_model
+
+from organizations.models import UserOrganizationMapping, OrganizationCourse
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
     CourseAccessGroup,
@@ -12,61 +17,130 @@ from course_access_groups.models import (
     Membership,
     MembershipRule,
 )
+from course_access_groups.permissions import get_current_organization
 
 
-class CourseKeyField(serializers.RelatedField):
+class CourseKeyFieldWithPermission(serializers.RelatedField):
     """
-    Serializer field for a model CourseKey field.
+    Serializer field for a model CourseKey field with permission checks on the current organization.
 
-    This is copied from the openedx.core.lib.api.serializers module but enhanced with `RelatedField`.
+    This inspired by the openedx.core.lib.api.serializers.
     """
 
     def get_queryset(self):
-        return CourseOverview.objects.values_list('id', flat=True)
-
-    def to_representation(self, data):
-        """Convert a course key to unicode. """
-        return str(data)
+        organization = get_current_organization(self.context['request'])
+        organization_courses = OrganizationCourse.objects.filter(organization=organization)
+        return CourseOverview.objects.filter(
+            id__in=organization_courses.values('course_id'),
+        )
 
     def to_internal_value(self, data):
-        """Convert unicode to a course key. """
+        """
+        Convert a unicode to a course key.
+        """
+        validation_error = ValidationError('Invalid course key: {id}'.format(id=data))
+
         try:
-            return CourseKey.from_string(data)
+            course_key = CourseKey.from_string(data)
         except InvalidKeyError as ex:
-            raise serializers.ValidationError('Invalid course key: {msg}'.format(msg=str(ex)))
+            raise validation_error
+
+        try:
+            return self.get_queryset().get(id=course_key).id
+        except CourseOverview.DoesNotExist:
+            raise validation_error
+
+    def to_representation(self, course_key):
+        """
+        Course API representation.
+        """
+        try:
+            course = self.get_queryset().get(id=course_key)
+        except CourseOverview.DoesNotExist:
+            raise ValidationError('Something went wrong with your request.')
+
+        return {
+            'id': text_type(course.id),
+            'name': course.display_name_with_default,
+        }
+
+
+class UserFieldWithPermission(serializers.RelatedField):
+    """
+    Serializer field for a model User foreign key with permission checks on the current organization.
+    """
+
+    def get_queryset(self):
+        organization = get_current_organization(self.context['request'])
+        return get_user_model().objects.filter(
+            id__in=UserOrganizationMapping.objects.filter(
+                organization=organization,
+            ).values('user_id'),
+        )
+
+    def to_internal_value(self, user_id):
+        try:
+            return self.get_queryset().get(id=user_id)
+        except get_user_model().DoesNotExist:
+            raise ValidationError('Invalid user key: {id}'.format(id=user_id))
+
+    def to_representation(self, user):
+        return {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+        }
+
+
+class CourseAccessGroupFieldWithPermission(serializers.RelatedField):
+    """
+    Serializer field for a model CourseAccessGroup foreign key with permission checks on the current organization.
+    """
+
+    def get_queryset(self):
+        organization = get_current_organization(self.context['request'])
+        return CourseAccessGroup.objects.filter(
+            organization=organization,
+        )
+
+    def to_internal_value(self, data):
+        try:
+            return self.get_queryset().get(pk=data)
+        except CourseAccessGroup.DoesNotExist:
+            raise ValidationError('Invalid group id: {id}'.format(
+                id=data,
+            ))
+
+    def to_representation(self, value):
+        return {
+            'id': value.pk,
+            'name': value.name,
+        }
 
 
 class CourseAccessGroupSerializer(serializers.ModelSerializer):
-    organization_name = serializers.CharField(source='organization.name', read_only=True)
-
     class Meta:
         model = CourseAccessGroup
         fields = [
-            'id', 'name', 'description', 'organization', 'organization_name',
+            'id', 'name', 'description',
         ]
 
 
 class MembershipSerializer(serializers.ModelSerializer):
-    user_email = serializers.EmailField(source='user.email', read_only=True)
-    user_username = serializers.CharField(source='user.username', read_only=True)
-    group_name = serializers.CharField(source='group.name', read_only=True)
-    group_description = serializers.CharField(source='group.description', read_only=True)
+    user = UserFieldWithPermission()
+    group = CourseAccessGroupFieldWithPermission()
 
     class Meta:
         model = Membership
         fields = [
             'id',
             'user',
-            'user_email',
-            'user_username',
             'group',
-            'group_name',
-            'group_description',
         ]
 
 
 class MembershipRuleSerializer(serializers.ModelSerializer):
-    group_name = serializers.CharField(source='group.name', read_only=True)
+    group = CourseAccessGroupFieldWithPermission()
 
     class Meta:
         model = MembershipRule
@@ -75,21 +149,17 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
             'name',
             'domain',
             'group',
-            'group_name',
         ]
 
 
 class GroupCourseSerializer(serializers.ModelSerializer):
-    course = CourseKeyField(source='course_id')
-    course_name = serializers.CharField(source='course.display_name_with_default', read_only=True)
-    group_name = serializers.CharField(source='group.name', read_only=True)
+    course = CourseKeyFieldWithPermission(source='course_id')
+    group = CourseAccessGroupFieldWithPermission()
 
     class Meta:
         model = GroupCourse
         fields = [
             'id',
             'course',
-            'course_name',
             'group',
-            'group_name',
         ]
