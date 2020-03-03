@@ -5,7 +5,11 @@ Admins for the Course Access Groups module.
 
 from __future__ import absolute_import, unicode_literals
 
-
+from six import text_type
+from opaque_keys.edx.keys import CourseKey
+from opaque_keys import InvalidKeyError
+from django import forms
+from django.core.exceptions import ValidationError
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
@@ -14,6 +18,7 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
     MembershipRule,
+    PublicCourse,
 )
 
 
@@ -153,3 +158,60 @@ class MembershipRuleAdmin(admin.ModelAdmin):
         Get the organization name.
         """
         return rule.group.organization.name
+
+
+class PublicCourseForm(forms.ModelForm):
+    course = forms.CharField()
+
+    def clean_course(self):
+        course = self.cleaned_data['course']
+        if course and not isinstance(course, CourseKey):
+            try:
+                course = CourseKey.from_string(course)
+            except InvalidKeyError as e:
+                raise ValidationError('Invalid Key Error: {}'.format(e.message))
+
+        return course
+
+    class Meta:
+        model = PublicCourse
+        fields = ['course']
+
+
+@admin.register(PublicCourse)
+class PublicCourseAdmin(admin.ModelAdmin):
+    """
+    Admin for PublicCourse model.
+    """
+
+    list_display = [
+        'course_name',
+        'course_id',
+    ]
+
+    list_display_links = list_display
+
+    search_fields = [
+        'course__display_name',
+    ]
+
+    ordering = ['-created']
+    form = PublicCourseForm
+
+    def get_readonly_fields(self, request, obj=None):
+        if obj:
+            return ['course']
+
+        return []
+
+    def course_id(self, public_course):
+        """
+        Get the course id.
+        """
+        return text_type(public_course.course.id)
+
+    def course_name(self, public_course):
+        """
+        Get the course name.
+        """
+        return public_course.course.display_name_with_default
