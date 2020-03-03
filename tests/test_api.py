@@ -8,6 +8,13 @@ from __future__ import absolute_import, unicode_literals
 from six import text_type
 import pytest
 
+from rest_framework.status import (
+    HTTP_200_OK,
+    HTTP_201_CREATED,
+    HTTP_204_NO_CONTENT,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+)
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from course_access_groups.models import (
     CourseAccessGroup,
@@ -67,8 +74,8 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
         assert response.json()['results'] == []
 
     @pytest.mark.parametrize('org_name, status_code, expected_count', [
-        ['my_org', 200, 3],
-        ['other_org', 200, 0],
+        ['my_org', HTTP_200_OK, 3],
+        ['other_org', HTTP_200_OK, 0],
     ])
     def test_list_groups(self, client, org_name, status_code, expected_count):
         org = Organization.objects.get(name=org_name)
@@ -78,8 +85,8 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
         assert response.json()['count'] == expected_count
 
     @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
-        ['my_org', 200, False],
-        ['other_org', 404, True],
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
     ])
     def test_one_group(self, client, org_name, status_code, skip_response_check):
         org = Organization.objects.get(name=org_name)
@@ -99,13 +106,13 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
             'name': 'Awesome Group',
             'description': 'My group',
         })
-        assert response.status_code == 201, response.content
+        assert response.status_code == HTTP_201_CREATED, response.content
         new_group = CourseAccessGroup.objects.get()
         assert new_group.name == 'Awesome Group'
 
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
-        ['my_org', 204, 0],
-        ['other_org', 404, 1],
+        ['my_org', HTTP_204_NO_CONTENT, 0],
+        ['other_org', HTTP_404_NOT_FOUND, 1],
     ])
     def test_delete_group(self, client, org_name, status_code, expected_post_delete_count):
         org = Organization.objects.get(name=org_name)
@@ -124,25 +131,25 @@ class TestMembershipViewSet(ViewSetTestBase):
 
     def test_no_memberships(self, client):
         response = client.get(self.url)
-        assert response.status_code == 200
+        assert response.status_code == HTTP_200_OK
         results = response.json()['results']
         assert results == []
 
-    @pytest.mark.parametrize('org_name, status_code, expected_count', [
-        ['my_org', 200, 3],
-        ['other_org', 200, 0],
+    @pytest.mark.parametrize('org_name, expected_count', [
+        ['my_org', 3],
+        ['other_org', 0],
     ])
-    def test_list_memberships(self, client, org_name, status_code, expected_count):
+    def test_list_memberships(self, client, org_name, expected_count):
         org = Organization.objects.get(name=org_name)
         MembershipFactory.create_batch(3, group__organization=org)
         response = client.get(self.url)
         results = response.json()['results']
-        assert response.status_code == status_code, response.content
+        assert response.status_code == HTTP_200_OK, response.content
         assert len(results) == expected_count
 
     @pytest.mark.parametrize('group_org, status_code, skip_response_check', [
-        ['my_org', 200, False],
-        ['other_org', 404, True],
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
     ])
     def test_one_membership(self, client, group_org, status_code, skip_response_check):
         org = Organization.objects.get(name=group_org)
@@ -164,9 +171,9 @@ class TestMembershipViewSet(ViewSetTestBase):
         }), 'Verify the serializer results.'
 
     @pytest.mark.parametrize('group_org, user_org, status_code, expected_count, check_new_membership', [
-        ['my_org', 'my_org', 201, 1, True],  # Should work for own users and groups
-        ['my_org', 'other_org', 400, 0, False],  # Should not work other org's users
-        ['other_org', 'my_org', 400, 0, False],  # Should not work for other org's groups
+        ['my_org', 'my_org', HTTP_201_CREATED, 1, True],  # Should work for own users and groups
+        ['my_org', 'other_org', HTTP_400_BAD_REQUEST, 0, False],  # Should not work other org's users
+        ['other_org', 'my_org', HTTP_400_BAD_REQUEST, 0, False],  # Should not work for other org's groups
     ])
     def test_add_membership(self, client, group_org, user_org, status_code, expected_count, check_new_membership):
         assert not Membership.objects.count()
@@ -190,8 +197,8 @@ class TestMembershipViewSet(ViewSetTestBase):
             assert new_membership.user.id == user.id
 
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
-        ['my_org', 204, 0],
-        ['other_org', 404, 1],
+        ['my_org', HTTP_204_NO_CONTENT, 0],
+        ['other_org', HTTP_404_NOT_FOUND, 1],
     ])
     def test_delete_membership(self, client, org_name, status_code, expected_post_delete_count):
         """
@@ -214,13 +221,13 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
 
     def test_no_rules(self, client):
         response = client.get(self.url)
-        assert response.status_code == 200, response.content
+        assert response.status_code == HTTP_200_OK, response.content
         results = response.json()['results']
         assert results == []
 
     @pytest.mark.parametrize('org_name, status_code, expected_count', [
-        ['my_org', 200, 3],
-        ['other_org', 200, 0],
+        ['my_org', HTTP_200_OK, 3],
+        ['other_org', HTTP_200_OK, 0],
     ])
     def test_list_rules(self, client, org_name, status_code, expected_count):
         org = Organization.objects.get(name=org_name)
@@ -230,8 +237,8 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
         assert response.json()['count'] == expected_count
 
     @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
-        ['my_org', 200, False],
-        ['other_org', 404, True],
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
     ])
     def test_one_rule(self, client, org_name, status_code, skip_response_check):
         org = Organization.objects.get(name=org_name)
@@ -250,8 +257,8 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
         }), 'Verify the serializer results.'
 
     @pytest.mark.parametrize('org_name, status_code, expected_count, check_new_rule', [
-        ['my_org', 201, 1, True],
-        ['other_org', 400, 0, False],
+        ['my_org', HTTP_201_CREATED, 1, True],
+        ['other_org', HTTP_400_BAD_REQUEST, 0, False],
     ])
     def test_add_rule(self, client, org_name, status_code, expected_count, check_new_rule):
         assert not MembershipRule.objects.count()
@@ -272,8 +279,8 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
             assert new_rule.name == 'Community assignment'
 
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
-        ['my_org', 204, 0],
-        ['other_org', 404, 1],
+        ['my_org', HTTP_204_NO_CONTENT, 0],
+        ['other_org', HTTP_404_NOT_FOUND, 1],
     ])
     def test_delete_rule(self, client, org_name, status_code, expected_post_delete_count):
         """
@@ -295,13 +302,13 @@ class TestGroupCourseViewSet(ViewSetTestBase):
 
     def test_no_links(self, client):
         response = client.get(self.url)
-        assert response.status_code == 200
+        assert response.status_code == HTTP_200_OK
         results = response.json()['results']
         assert results == []
 
     @pytest.mark.parametrize('org_name, status_code, expected_count', [
-        ['my_org', 200, 3],
-        ['other_org', 200, 0],
+        ['my_org', HTTP_200_OK, 3],
+        ['other_org', HTTP_200_OK, 0],
     ])
     def test_list_links(self, client, org_name, status_code, expected_count):
         org = Organization.objects.get(name=org_name)
@@ -309,13 +316,13 @@ class TestGroupCourseViewSet(ViewSetTestBase):
         OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
         GroupCourseFactory.create_batch(3, group__organization=org, course=course)
         response = client.get(self.url)
-        assert response.status_code == 200, response.content
+        assert response.status_code == HTTP_200_OK, response.content
         results = response.json()['results']
         assert len(results) == expected_count
 
     @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
-        ['my_org', 200, False],
-        ['other_org', 404, True],
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
     ])
     def test_one_link(self, client, org_name, status_code, skip_response_check):
         org = Organization.objects.get(name=org_name)
@@ -337,9 +344,9 @@ class TestGroupCourseViewSet(ViewSetTestBase):
         }), 'Verify the serializer results.'
 
     @pytest.mark.parametrize('group_org, course_org, status_code, expected_count, check_new_link', [
-        ['my_org', 'my_org', 201, 1, True],  # Should work for own courses and groups
-        ['my_org', 'other_org', 400, 0, False],  # Should not work other org's courses
-        ['other_org', 'my_org', 400, 0, False],  # Should not work for other org's groups
+        ['my_org', 'my_org', HTTP_201_CREATED, 1, True],  # Should work for own courses and groups
+        ['my_org', 'other_org', HTTP_400_BAD_REQUEST, 0, False],  # Should not work other org's courses
+        ['other_org', 'my_org', HTTP_400_BAD_REQUEST, 0, False],  # Should not work for other org's groups
     ])
     def test_add_link(self, client, group_org, course_org, status_code, expected_count, check_new_link):
         assert not GroupCourse.objects.count()
@@ -362,8 +369,8 @@ class TestGroupCourseViewSet(ViewSetTestBase):
             assert new_link.course.id == course.id
 
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
-        ['my_org', 204, 0],
-        ['other_org', 404, 1],
+        ['my_org', HTTP_204_NO_CONTENT, 0],
+        ['other_org', HTTP_404_NOT_FOUND, 1],
     ])
     def test_delete_link(self, client, org_name, status_code, expected_post_delete_count):
         """
