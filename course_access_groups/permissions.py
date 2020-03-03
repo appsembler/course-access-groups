@@ -5,6 +5,7 @@ Course Access Groups permission and authentication classes.
 
 from __future__ import absolute_import, unicode_literals
 
+from six import text_type
 import logging
 from rest_framework.authentication import (
     BasicAuthentication,
@@ -15,9 +16,10 @@ from django.contrib.sites.models import Site
 from django.contrib.sites import shortcuts as sites_shortcuts
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from rest_framework.permissions import IsAuthenticated
-from organizations.models import Organization, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from rest_framework.permissions import BasePermission
 
+from course_access_groups.models import PublicCourse
 
 log = logging.getLogger(__name__)
 
@@ -71,6 +73,23 @@ def is_site_admin_user(request):
         is_active=True,
         is_amc_admin=True,
     ).exists()
+
+
+def user_has_public_access_to_course(user, course):
+    """
+    Check PublicCourse access within the user's organization(s).
+
+    :param user: User model object.
+    :param course: CourseOverview model object.
+    :return: bool.
+    """
+
+    return OrganizationCourse.objects.filter(
+        course_id=PublicCourse.objects.filter(course=course).values('course_id'),
+        organization_id__in=UserOrganizationMapping.objects.filter(
+            user=user,
+        ).values('organization_id'),
+    )
 
 
 class IsSiteAdminUser(BasePermission):

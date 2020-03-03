@@ -106,6 +106,14 @@ class MembershipRule(utils_models.TimeStampedModel):
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
 
 
+class PublicCourse(utils_models.TimeStampedModel):
+    """
+    Model to mark courses as public to exempt from the Course Access Group rules.
+    """
+
+    course = models.OneToOneField(CourseOverview, on_delete=models.CASCADE)
+
+
 class GroupCourse(utils_models.TimeStampedModel):
     """
     Many-to-many relationship to set which course belongs to which group.
