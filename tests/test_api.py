@@ -5,6 +5,7 @@ Tests for the CAG API ViewSets.
 
 from __future__ import absolute_import, unicode_literals
 
+import json
 from six import text_type
 import pytest
 
@@ -109,6 +110,23 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
         assert response.status_code == HTTP_201_CREATED, response.content
         new_group = CourseAccessGroup.objects.get()
         assert new_group.name == 'Awesome Group'
+
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
+    ])
+    def test_edit_group(self, client, org_name, status_code, skip_response_check):
+        org = Organization.objects.get(name=org_name)
+        group_before = CourseAccessGroupFactory.create(organization=org)
+        url = '/course-access-groups/{}/'.format(group_before.id)
+        response = client.patch(url, content_type='application/json', data=json.dumps({
+            'name': 'Awesome Group',
+        }))
+        assert response.status_code == status_code, response.content
+
+        if not skip_response_check:
+            group_after = CourseAccessGroup.objects.get()
+            assert group_after.name == 'Awesome Group'
 
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
         ['my_org', HTTP_204_NO_CONTENT, 0],

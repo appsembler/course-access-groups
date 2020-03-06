@@ -4,112 +4,112 @@
 #
 #    make upgrade
 #
-appdirs==1.4.3
-argparse==1.4.0
-astroid==1.5.2
-atomicwrites==1.3.0
-attrs==19.3.0
-backports.functools-lru-cache==1.6.1
-backports.os==0.1.1
-caniusepython3==7.2.0
-certifi==2019.11.28
-chardet==3.0.4
-click-log==0.1.8
-click==7.0
-code-annotations==0.3.3
-codecov==2.0.15
-configparser==4.0.2
-contextlib2==0.6.0.post1
-coverage==5.0.3
-diff-cover==2.6.0
-distlib==0.3.0
-django-model-utils==3.0.0
-django-waffle==0.19.0
-django==1.11.28
-djangorestframework-jwt==1.11.0
-djangorestframework-oauth==1.1.0
-djangorestframework==3.6.4
-edx-django-oauth2-provider==1.3.5
-edx-django-utils==2.0.4
-edx-drf-extensions==2.4.6
-edx-i18n-tools==0.5.0
-edx-lint==0.5.5
-edx-opaque-keys==0.4.4
-git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
-enum34==1.1.6
-factory_boy==2.8.1
-faker==3.0.1
-filelock==3.0.12
-fs==2.4.11
-funcsigs==1.0.2
-future==0.18.2
-futures==3.3.0 ; python_version == "2.7"
-idna==2.8
-importlib-metadata==1.5.0
-importlib-resources==1.0.2
+appdirs==1.4.3            # via -r requirements/quality.txt, -r requirements/travis.txt, fs, virtualenv
+argparse==1.4.0           # via -r requirements/quality.txt, caniusepython3
+astroid==1.5.2            # via -r requirements/quality.txt, edx-lint, pylint, pylint-celery
+atomicwrites==1.3.0       # via -r requirements/quality.txt, pytest
+attrs==19.3.0             # via -r requirements/quality.txt, pytest
+backports.functools-lru-cache==1.6.1  # via -r requirements/quality.txt, astroid, caniusepython3, isort, pylint
+backports.os==0.1.1       # via -r requirements/quality.txt, fs, path.py
+caniusepython3==7.2.0     # via -r requirements/quality.txt
+certifi==2019.11.28       # via -r requirements/quality.txt, -r requirements/travis.txt, requests
+chardet==3.0.4            # via -r requirements/quality.txt, -r requirements/travis.txt, requests
+click-log==0.1.8          # via -r requirements/quality.txt, edx-lint
+click==7.0                # via -r requirements/pip-tools.txt, -r requirements/quality.txt, click-log, code-annotations, edx-lint, pip-tools
+code-annotations==0.3.3   # via -r requirements/quality.txt
+codecov==2.0.16           # via -r requirements/travis.txt
+configparser==4.0.2       # via -r requirements/quality.txt, -r requirements/travis.txt, importlib-metadata, pydocstyle, pylint
+contextlib2==0.6.0.post1  # via -r requirements/quality.txt, -r requirements/travis.txt, importlib-metadata, virtualenv, zipp
+coverage==5.0.3           # via -r requirements/quality.txt, -r requirements/travis.txt, codecov, pytest-cov
+diff-cover==2.6.0         # via -r requirements/dev.in
+distlib==0.3.0            # via -r requirements/quality.txt, -r requirements/travis.txt, caniusepython3, virtualenv
+django-model-utils==3.0.0  # via -c requirements/constraints.txt, -r requirements/quality.txt, edx-organizations
+django-waffle==0.20.0     # via -r requirements/quality.txt, edx-django-utils, edx-drf-extensions
+django==1.11.29           # via -r requirements/quality.txt, code-annotations, django-model-utils, edx-django-oauth2-provider, edx-django-utils, edx-drf-extensions, edx-i18n-tools, edx-organizations, rest-condition
+djangorestframework-jwt==1.11.0  # via -r requirements/quality.txt, edx-drf-extensions
+djangorestframework-oauth==1.1.0  # via -r requirements/quality.txt, edx-organizations
+djangorestframework==3.6.4  # via -r requirements/quality.txt, edx-drf-extensions, edx-organizations, rest-condition
+edx-django-oauth2-provider==1.3.5  # via -r requirements/quality.txt, edx-organizations
+edx-django-utils==3.0     # via -r requirements/quality.txt, edx-drf-extensions
+edx-drf-extensions==3.0.0  # via -r requirements/quality.txt, edx-organizations
+edx-i18n-tools==0.5.0     # via -r requirements/dev.in
+edx-lint==0.5.5           # via -c requirements/constraints.txt, -r requirements/quality.txt
+edx-opaque-keys==0.4.4    # via -c requirements/constraints.txt, -r requirements/quality.txt, edx-drf-extensions, edx-organizations
+git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4  # via -r requirements/quality.txt
+enum34==1.1.9             # via -r requirements/quality.txt, astroid, fs
+factory_boy==2.8.1        # via -r requirements/quality.txt
+faker==3.0.1              # via -r requirements/quality.txt, factory-boy
+filelock==3.0.12          # via -r requirements/travis.txt, tox, virtualenv
+fs==2.4.11                # via -r requirements/quality.txt, xblock
+funcsigs==1.0.2           # via -r requirements/quality.txt, mock, pytest
+future==0.18.2            # via -r requirements/quality.txt, backports.os, pyjwkest
+futures==3.3.0 ; python_version == "2.7"  # via -c requirements/constraints.txt, -r requirements/quality.txt, caniusepython3, isort
+idna==2.9                 # via -r requirements/quality.txt, -r requirements/travis.txt, requests
+importlib-metadata==1.5.0  # via -r requirements/quality.txt, -r requirements/travis.txt, importlib-resources, path.py, pluggy, pytest, tox, virtualenv
+importlib-resources==1.2.0  # via -r requirements/travis.txt, virtualenv
 inflect==3.0.2            # via jinja2-pluralize
-ipaddress==1.0.23
-isort==4.3.21
+ipaddress==1.0.23         # via -r requirements/quality.txt, faker
+isort==4.3.21             # via -r requirements/quality.txt, pylint
 jinja2-pluralize==0.3.0   # via diff-cover
-jinja2==2.11.1
-lazy-object-proxy==1.4.3
-lxml==4.5.0
-markupsafe==1.1.1
-mccabe==0.6.1
-mock==3.0.5
-more-itertools==5.0.0
-newrelic==5.6.0.135
-packaging==20.1
+jinja2==2.11.1            # via -r requirements/quality.txt, code-annotations, diff-cover, jinja2-pluralize
+lazy-object-proxy==1.4.3  # via -r requirements/quality.txt, astroid
+lxml==4.5.0               # via -r requirements/quality.txt, xblock
+markupsafe==1.1.1         # via -r requirements/quality.txt, jinja2, xblock
+mccabe==0.6.1             # via -r requirements/quality.txt, pylint
+mock==3.0.5               # via -r requirements/quality.txt
+more-itertools==5.0.0     # via -c requirements/constraints.txt, -r requirements/quality.txt, pytest
+newrelic==5.8.0.136       # via -r requirements/quality.txt, edx-django-utils
+packaging==20.3           # via -r requirements/quality.txt, -r requirements/travis.txt, caniusepython3, pytest, tox
 path.py==11.5.2           # via edx-i18n-tools
-pathlib2==2.3.5
-pbr==5.4.4
-pillow==6.2.2
-pip-tools==4.4.1
-pluggy==0.13.1
+pathlib2==2.3.5           # via -r requirements/quality.txt, -r requirements/travis.txt, importlib-metadata, importlib-resources, pytest, pytest-django, virtualenv
+pbr==5.4.4                # via -r requirements/quality.txt, stevedore
+pillow==6.2.2             # via -r requirements/quality.txt, edx-organizations
+pip-tools==4.5.1          # via -r requirements/pip-tools.txt
+pluggy==0.13.1            # via -r requirements/quality.txt, -r requirements/travis.txt, diff-cover, pytest, tox
 polib==1.1.0              # via edx-i18n-tools
-psutil==1.2.1
-py==1.8.1
-pycodestyle==2.5.0
-pycryptodomex==3.9.6
-pydocstyle==3.0.0
+psutil==1.2.1             # via -r requirements/quality.txt, edx-django-utils, edx-drf-extensions
+py==1.8.1                 # via -r requirements/quality.txt, -r requirements/travis.txt, pytest, tox
+pycodestyle==2.5.0        # via -r requirements/quality.txt
+pycryptodomex==3.9.7      # via -r requirements/quality.txt, pyjwkest
+pydocstyle==3.0.0         # via -r requirements/quality.txt
 pygments==2.5.2           # via diff-cover
-pyjwkest==1.3.2
-pyjwt==1.7.1
-pylint-celery==0.3
-pylint-django==0.7.2
-pylint-plugin-utils==0.6
-pylint==1.7.1
-pymongo==3.10.1
-pyparsing==2.4.6
-pytest-cov==2.8.1
-pytest-django==3.8.0
-pytest==4.6.9
-python-dateutil==2.8.1
-python-slugify==4.0.0
-pytz==2019.3
-pyyaml==5.3
-requests==2.22.0
-rest-condition==1.0.3
-scandir==1.10.0
-semantic-version==2.8.4
-shortuuid==0.5.0
-singledispatch==3.4.0.3
-six==1.14.0
-snowballstemmer==2.0.0
-stevedore==1.32.0
-text-unidecode==1.3
-toml==0.10.0
-tox-battery==0.5.2
-tox==3.14.4
-typing==3.7.4.1
-urllib3==1.25.8
-virtualenv==20.0.3
-wcwidth==0.1.8
-web-fragments==0.3.1
-webob==1.8.6
-wrapt==1.11.2
-xblock==1.2.9
-zipp==1.1.0
+pyjwkest==1.3.2           # via -r requirements/quality.txt, edx-drf-extensions
+pyjwt==1.7.1              # via -r requirements/quality.txt, djangorestframework-jwt
+pylint-celery==0.3        # via -r requirements/quality.txt, edx-lint
+pylint-django==0.7.2      # via -r requirements/quality.txt, edx-lint
+pylint-plugin-utils==0.6  # via -r requirements/quality.txt, pylint-celery, pylint-django
+pylint==1.7.1             # via -r requirements/quality.txt, edx-lint, pylint-celery, pylint-django, pylint-plugin-utils
+pymongo==3.10.1           # via -r requirements/quality.txt, edx-opaque-keys
+pyparsing==2.4.6          # via -r requirements/quality.txt, -r requirements/travis.txt, packaging
+pytest-cov==2.8.1         # via -r requirements/quality.txt
+pytest-django==3.8.0      # via -r requirements/quality.txt
+pytest==4.6.9             # via -r requirements/quality.txt, pytest-cov, pytest-django
+python-dateutil==2.8.1    # via -r requirements/quality.txt, edx-drf-extensions, faker, xblock
+python-slugify==4.0.0     # via -r requirements/quality.txt, code-annotations
+pytz==2019.3              # via -r requirements/quality.txt, django, fs, xblock
+pyyaml==5.3               # via -r requirements/quality.txt, code-annotations, edx-i18n-tools, xblock
+requests==2.23.0          # via -r requirements/quality.txt, -r requirements/travis.txt, caniusepython3, codecov, edx-drf-extensions, pyjwkest
+rest-condition==1.0.3     # via -r requirements/quality.txt, edx-drf-extensions
+scandir==1.10.0           # via -r requirements/quality.txt, -r requirements/travis.txt, pathlib2
+semantic-version==2.8.4   # via -r requirements/quality.txt, edx-drf-extensions
+shortuuid==0.5.0          # via -r requirements/quality.txt, edx-django-oauth2-provider
+singledispatch==3.4.0.3   # via -r requirements/quality.txt, -r requirements/travis.txt, astroid, importlib-resources, pylint
+six==1.14.0               # via -r requirements/pip-tools.txt, -r requirements/quality.txt, -r requirements/travis.txt, astroid, diff-cover, django-waffle, edx-drf-extensions, edx-i18n-tools, edx-lint, edx-opaque-keys, faker, fs, mock, more-itertools, packaging, pathlib2, pip-tools, pydocstyle, pyjwkest, pylint, pytest, python-dateutil, singledispatch, stevedore, tox, virtualenv, xblock
+snowballstemmer==2.0.0    # via -r requirements/quality.txt, pydocstyle
+stevedore==1.32.0         # via -r requirements/quality.txt, code-annotations, edx-opaque-keys
+text-unidecode==1.3       # via -r requirements/quality.txt, faker, python-slugify
+toml==0.10.0              # via -r requirements/travis.txt, tox
+tox-battery==0.5.2        # via -r requirements/travis.txt
+tox==3.14.5               # via -r requirements/travis.txt, tox-battery
+typing==3.7.4.1           # via -r requirements/quality.txt, -r requirements/travis.txt, fs, importlib-resources
+urllib3==1.25.8           # via -r requirements/quality.txt, -r requirements/travis.txt, requests
+virtualenv==20.0.8        # via -r requirements/travis.txt, tox
+wcwidth==0.1.8            # via -r requirements/quality.txt, pytest
+web-fragments==0.3.1      # via -r requirements/quality.txt, xblock
+webob==1.8.6              # via -r requirements/quality.txt, xblock
+wrapt==1.12.0             # via -r requirements/quality.txt, astroid
+xblock==1.2.9             # via -r requirements/quality.txt
+zipp==1.2.0               # via -r requirements/quality.txt, -r requirements/travis.txt, importlib-metadata, importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

@@ -1,5 +1,5 @@
 """
-An app to customize courses access by grouping learners and assigning different permissions to groups..
+An Open edX plugin to customize courses access by grouping learners and assigning different permissions to groups..
 """
 
 from __future__ import absolute_import, unicode_literals

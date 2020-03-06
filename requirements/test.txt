@@ -4,76 +4,76 @@
 #
 #    make upgrade
 #
-appdirs==1.4.3
+appdirs==1.4.3            # via -r requirements/base.txt, fs
 atomicwrites==1.3.0       # via pytest
 attrs==19.3.0             # via pytest
-backports.os==0.1.1
-certifi==2019.11.28
-chardet==3.0.4
+backports.os==0.1.1       # via -r requirements/base.txt, fs
+certifi==2019.11.28       # via -r requirements/base.txt, requests
+chardet==3.0.4            # via -r requirements/base.txt, requests
 click==7.0                # via code-annotations
-code-annotations==0.3.3
+code-annotations==0.3.3   # via -r requirements/test.in
 configparser==4.0.2       # via importlib-metadata
-contextlib2==0.6.0.post1  # via importlib-metadata, zipp
+contextlib2==0.6.0.post1  # via importlib-metadata
 coverage==5.0.3           # via pytest-cov
-django-model-utils==3.0.0
-django-waffle==0.19.0
-djangorestframework-jwt==1.11.0
-djangorestframework-oauth==1.1.0
-djangorestframework==3.6.4
-edx-django-oauth2-provider==1.3.5
-edx-django-utils==2.0.4
-edx-drf-extensions==2.4.6
-edx-opaque-keys==0.4.4
-git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
-enum34==1.1.6
-factory_boy==2.8.1
+django-model-utils==3.0.0  # via -c requirements/constraints.txt, -r requirements/base.txt, edx-organizations
+django-waffle==0.20.0     # via -r requirements/base.txt, edx-django-utils, edx-drf-extensions
+djangorestframework-jwt==1.11.0  # via -r requirements/base.txt, edx-drf-extensions
+djangorestframework-oauth==1.1.0  # via -r requirements/base.txt, edx-organizations
+djangorestframework==3.6.4  # via -r requirements/base.txt, edx-drf-extensions, edx-organizations, rest-condition
+edx-django-oauth2-provider==1.3.5  # via -r requirements/base.txt, edx-organizations
+edx-django-utils==3.0     # via -r requirements/base.txt, edx-drf-extensions
+edx-drf-extensions==3.0.0  # via -r requirements/base.txt, edx-organizations
+edx-opaque-keys==0.4.4    # via -c requirements/constraints.txt, -r requirements/base.txt, edx-drf-extensions, edx-organizations
+git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4  # via -r requirements/base.txt
+enum34==1.1.9             # via -r requirements/base.txt, fs
+factory_boy==2.8.1        # via -r requirements/test.in
 faker==3.0.1              # via factory-boy
-fs==2.4.11
+fs==2.4.11                # via -r requirements/base.txt, xblock
 funcsigs==1.0.2           # via mock, pytest
-future==0.18.2
-idna==2.8
+future==0.18.2            # via -r requirements/base.txt, backports.os, pyjwkest
+idna==2.9                 # via -r requirements/base.txt, requests
 importlib-metadata==1.5.0  # via pluggy, pytest
 ipaddress==1.0.23         # via faker
 jinja2==2.11.1            # via code-annotations
-lxml==4.5.0
-markupsafe==1.1.1
-mock==3.0.5
-more-itertools==5.0.0     # via pytest
-newrelic==5.6.0.135
-packaging==20.1           # via pytest
+lxml==4.5.0               # via -r requirements/base.txt, xblock
+markupsafe==1.1.1         # via -r requirements/base.txt, jinja2, xblock
+mock==3.0.5               # via -r requirements/test.in
+more-itertools==5.0.0     # via -c requirements/constraints.txt, pytest
+newrelic==5.8.0.136       # via -r requirements/base.txt, edx-django-utils
+packaging==20.3           # via pytest
 pathlib2==2.3.5           # via importlib-metadata, pytest, pytest-django
-pbr==5.4.4
-pillow==6.2.2
+pbr==5.4.4                # via -r requirements/base.txt, stevedore
+pillow==6.2.2             # via -r requirements/base.txt, edx-organizations
 pluggy==0.13.1            # via pytest
-psutil==1.2.1
+psutil==1.2.1             # via -r requirements/base.txt, edx-django-utils, edx-drf-extensions
 py==1.8.1                 # via pytest
-pycryptodomex==3.9.6
-pyjwkest==1.3.2
-pyjwt==1.7.1
-pymongo==3.10.1
+pycryptodomex==3.9.7      # via -r requirements/base.txt, pyjwkest
+pyjwkest==1.3.2           # via -r requirements/base.txt, edx-drf-extensions
+pyjwt==1.7.1              # via -r requirements/base.txt, djangorestframework-jwt
+pymongo==3.10.1           # via -r requirements/base.txt, edx-opaque-keys
 pyparsing==2.4.6          # via packaging
-pytest-cov==2.8.1
-pytest-django==3.8.0
-pytest==4.6.9
-python-dateutil==2.8.1
+pytest-cov==2.8.1         # via -r requirements/test.in
+pytest-django==3.8.0      # via -r requirements/test.in
+pytest==4.6.9             # via -r requirements/test.in, pytest-cov, pytest-django
+python-dateutil==2.8.1    # via -r requirements/base.txt, edx-drf-extensions, faker, xblock
 python-slugify==4.0.0     # via code-annotations
-pytz==2019.3
-pyyaml==5.3
-requests==2.22.0
-rest-condition==1.0.3
+pytz==2019.3              # via -r requirements/base.txt, django, fs, xblock
+pyyaml==5.3               # via -r requirements/base.txt, code-annotations, xblock
+requests==2.23.0          # via -r requirements/base.txt, edx-drf-extensions, pyjwkest
+rest-condition==1.0.3     # via -r requirements/base.txt, edx-drf-extensions
 scandir==1.10.0           # via pathlib2
-semantic-version==2.8.4
-shortuuid==0.5.0
-six==1.14.0
-stevedore==1.32.0
+semantic-version==2.8.4   # via -r requirements/base.txt, edx-drf-extensions
+shortuuid==0.5.0          # via -r requirements/base.txt, edx-django-oauth2-provider
+six==1.14.0               # via -r requirements/base.txt, django-waffle, edx-drf-extensions, edx-opaque-keys, faker, fs, mock, more-itertools, packaging, pathlib2, pyjwkest, pytest, python-dateutil, stevedore, xblock
+stevedore==1.32.0         # via -r requirements/base.txt, code-annotations, edx-opaque-keys
 text-unidecode==1.3       # via faker, python-slugify
-typing==3.7.4.1
-urllib3==1.25.8
+typing==3.7.4.1           # via -r requirements/base.txt, fs
+urllib3==1.25.8           # via -r requirements/base.txt, requests
 wcwidth==0.1.8            # via pytest
-web-fragments==0.3.1
-webob==1.8.6
-xblock==1.2.9
-zipp==1.1.0               # via importlib-metadata
+web-fragments==0.3.1      # via -r requirements/base.txt, xblock
+webob==1.8.6              # via -r requirements/base.txt, xblock
+xblock==1.2.9             # via -r requirements/base.txt
+zipp==1.2.0               # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

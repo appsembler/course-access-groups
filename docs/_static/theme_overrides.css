@@ -8,3 +8,15 @@
 .wy-table-responsive {
     overflow: visible !important;
 }
+
+.wy-side-nav-search {
+    background-color: #f6f8f9;
+}
+
+.wy-side-nav-search>a, .wy-side-nav-search .wy-dropdown>a{
+    color: #343131;
+}
+
+.wy-side-nav-search>div.version {
+    color: rgba(0, 0, 0, 0.58);
+}

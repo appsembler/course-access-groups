@@ -3,9 +3,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-course-access-groups
+Course Access Groups
 ===============================
-An app to customize courses access by grouping learners and assigning different permissions to groups.
+An Open edX plugin to customize courses access by grouping learners and assigning different permissions to groups.
 
 Contents:
 
@@ -14,10 +14,14 @@ Contents:
 
    readme
    getting_started
+   rest_api
+   user_stories
+   engineering_design
    testing
    internationalization
-   modules
    changelog
+
+.. TODO: Add `modules` chapter to the list above once we have clean code docs
 
 
 Indices and tables
@@ -26,4 +30,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
