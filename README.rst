@@ -4,14 +4,6 @@ Course Access Groups
 |pypi-badge| |travis-badge| |codecov-badge| |doc-badge| |pyversions-badge|
 |license-badge|
 
-The ``README.rst`` file should start with a brief description of the
-repository, which sets it in the context of other repositories under the
-``Appsembler`` organization. It should make clear where this fits in to
-the overall Open edX related codebase.
-
-An app to customize courses access by grouping learners and assigning
-different permissions to groups.
-
 
 Overview
 --------
@@ -25,35 +17,31 @@ Learners upon registration will be automatically
 assigned to a specific group, from which it'll be possible to see which
 courses they'll be able to see and enroll in.
 
+The classic example is that you'd want to offer different courses to your
+``customers``, ``employees`` and offer some courses for everyone. Hence you'd
+need to make two groups and assign courses to only learners within those
+groups while mark some courses as public ones.
 
 Documentation
 -------------
 
 The full documentation is at https://course-access-groups.readthedocs.org.
 
-Quickstart Instructions
------------------------
 
-Install this plugin via ``pip``. Then configure your Ansibe
-``server-vars.yml`` with the following:
+Supported Open edX Version
+--------------------------
 
-.. code:: yaml
+The bad news, there's none. The good news is that there's a plan to make it
+work with the upstream Open edX versions out of the box.
 
-    ACCESS_CONTROL_BACKENDS:
-        course.enroll:
-            NAME: course_access_groups.acl_backends:dummy_backend
-        course.load:
-            NAME: course_access_groups.acl_backends:dummy_backend
-        course.see_in_catalog:
-            NAME: course_access_groups.acl_backends:dummy_backend
+The even better news, is that you can get this plugin to work by
+cherry-picking the following pull requests:
+
+ * The `Access Control Backends pull request`_.
+ * The `USER_ACCOUNT_ACTIVATED signal`_.
 
 .. _Access Control Backends pull request: https://github.com/appsembler/edx-platform/pull/491
-
-This plugin requires some changes on the Open edX Platform which can be found
-in the `Access Control Backends pull request`_.
-
-The intention is to make this plugin work in the Open edX Platform out of the
-box but today, that's not the case the pull request should be cherry-picked.
+.. _USER_ACCOUNT_ACTIVATED signal: https://github.com/edx/edx-platform/pull/23296
 
 License
 -------

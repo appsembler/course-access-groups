@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Views for course_access_groups.
+API Endpoints for Course Access Groups.
 """
 
 from __future__ import absolute_import, unicode_literals
@@ -24,6 +24,13 @@ from course_access_groups.permissions import get_current_organization, CommonAut
 
 
 class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
+    """REST API endpoints to manage Course Access Groups.
+
+    These endpoints follows the standard Django Rest Framework ViewSet API structure.
+
+    GET /course-access-groups/
+    """
+
     model = CourseAccessGroup
     pagination_class = LimitOffsetPagination
     serializer_class = CourseAccessGroupSerializer

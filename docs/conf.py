@@ -15,13 +15,14 @@ serve to show the default.
 
 from __future__ import absolute_import, unicode_literals
 
+import datetime
 import io
 import os
 import re
 import sys
 from subprocess import check_call
 
-import edx_theme
+import sphinx_rtd_theme
 from django import setup as django_setup
 from django.conf import settings
 from django.utils import six
@@ -45,6 +46,7 @@ sys.path.append(REPO_ROOT)
 VERSION = get_version('../course_access_groups', '__init__.py')
 
 # Configure Django for autodoc usage
+
 settings.configure()
 django_setup()
 
@@ -66,7 +68,7 @@ django_setup()
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'edx_theme',
+    'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
@@ -97,8 +99,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'course-access-groups'
-copyright = edx_theme.COPYRIGHT  # pylint: disable=redefined-builtin
-author = edx_theme.AUTHOR
+copyright = '{year} NodeRabbit, Inc. (d/b/a Appsembler).'.format(year=datetime.datetime.now().year)  # pylint: disable=redefined-builtin
+author = 'Omar Al-Ithawi <omar@appsembler.com>'
 project_title = 'Course Access Groups'
 documentation_title = "{project_title}".format(project_title=project_title)
 
@@ -169,7 +171,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 
-html_theme = 'edx_theme'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -177,8 +179,7 @@ html_theme = 'edx_theme'
 #
 # html_theme_options = {}
 
-# Add any paths that contain custom themes here, relative to this directory.
-html_theme_path = [edx_theme.get_html_theme_path()]
+html_css_files = ['theme_overrides.css']
 
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
@@ -192,7 +193,7 @@ html_theme_path = [edx_theme.get_html_theme_path()]
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
 #
-# html_logo = None
+html_logo = 'appsembler-logo.svg'
 
 # The name of an image file (relative to this directory) to use as a favicon of
 # the docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -368,7 +369,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
     (master_doc, project_title, documentation_title,
-     author, project_title, 'An app to customize courses access by grouping learners and assigning different permissions to groups.',
+     author, project_title, 'An Open edX plugin to customize courses access by grouping learners and assigning different permissions to groups.',
      'Miscellaneous'),
 ]
 
