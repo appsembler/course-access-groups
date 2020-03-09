@@ -230,14 +230,83 @@ Rules for Automatic User Membership
 These endpoints lets us to manage rules for automatic membership based on
 email address.
 
-
 .. note::
 
     The membership rules are only activated after the learner (user)
     activates their email address. Before that, the learner will be considered
     as without a group.
 
+List Membership Rules
+~~~~~~~~~~~~~~~~~~~~~
+
+This endpoint returns a paginated list of JSON objects in "results".
+Each object represents a single membership rule.
+Besides the ``id`` and the ``name`` properties, each rule JSON has a
+``domain`` which is the email domain name to match the users for.
+
+
+The membership rule JSON also has a sub-object representing a
+Course Access Group.
+
+
+.. code-block:: bash
+
+    GET /course_access_groups/api/v1/membership-rules/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/membership-rules/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": 8,
+          "name": "Assign customers",
+          "domain": "customer1.xyz",
+          "group": {
+            "id": 1,
+            "name": "Customers"
+          }
+        },
+        {
+          "id": 9,
+          "name": "Assign another customer",
+          "domain": "company2.xyz.uk",
+          "group": {
+            "id": 1,
+            "name": "Customers"
+          }
+        }
+      ]
+    }
+
+Adding, Modifying and Deleting Memberships
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The membership rule endpoints lets us to add, modify and delete
+the membership rules in a similar way to the Course Access Groups
+API endpoints.
+
+To add a new membership rule make ``POST`` request with a JSON payload:
 
 .. note::
 
-    This section is a work in progress.
+    The ``group`` parameter is the Course Access Group ``id`` property which
+    can be obtained from the Course Access Groups list API endpoint.
+
+
+.. code-block:: bash
+
+    POST /course_access_groups/api/v1/membership-rules/
+    {"name": "XYZ Customers", "domain": "company.xyz", "group": 2}
+
+To modify a membership rule ``PATCH`` request should be used.
+
+    POST /course_access_groups/api/v1/membership-rules/5/
+    {"group": 3}
+
+To delete a membership rule:
+
+.. code-block:: bash
+
+    DELETE /course_access_groups/api/v1/membership-rules/5/
