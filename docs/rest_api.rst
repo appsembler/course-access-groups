@@ -128,7 +128,7 @@ This endpoint returns a paginated list of JSON objects in "results".
 Each object represents a single a course link to a Course Access Group. The
 term "link" is only used for documentation purposes instead of the technical
 name ``Group Course``.
-Each link JSON has a single property ``id`` which can be used for to delete
+Each link JSON has a single property ``id`` which can be used to delete
 the link. The link JSON also has two sub-objects representing a course and a
 Course Access Group.
 
@@ -163,7 +163,7 @@ Course Access Group.
             "id": 2,
             "name": "Employees"
           }
-        },
+        }
       ]
     }
 
@@ -190,8 +190,8 @@ To add a new link make ``POST`` request with a JSON payload:
 
 To modify a link ``PATCH`` request should be used:
 
-    POST /course_access_groups/api/v1/group-courses/
-    {"course": "course-v1:Blue+Python+2020_Fall",}
+    POST /course_access_groups/api/v1/group-courses/2/
+    {"course": "course-v1:Blue+Python+2020_Fall"}
 
 To delete a link:
 
@@ -218,10 +218,88 @@ User Membership in Course Access Groups
 
 These endpoints lets us to add and remove users from Course Access Groups.
 
+List Memberships
+~~~~~~~~~~~~~~~~
+
+This endpoint returns a paginated list of JSON objects in "results".
+Each object represents a single a user membership in a Course Access Group.
+Each membership JSON has a single property ``id`` which can be used to delete
+the membership.
+The membership JSON also has two sub-objects representing a user and a
+Course Access Group.
+
+
+.. code-block:: bash
+
+    GET /course_access_groups/api/v1/memberships/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/memberships/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": 5,
+          "user": {
+            "id": 2,
+            "username": "ali",
+            "email": "ali@corp.com"
+          },
+          "group": {
+            "id": 1,
+            "name": "Employees"
+          }
+        },
+        {
+          "id": 6,
+          "user": {
+            "id": 3,
+            "username": "Mike",
+            "email": "mike@customer.com"
+          },
+          "group": {
+            "id": 2,
+            "name": "Customers"
+          }
+        }
+      ]
+    }
+
+Adding, Modifying and Deleting Memberships
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The membership endpoints lets us to add, modify and delete
+the memberships in a similar way to the Course Access Groups API endpoints.
+
+To add a new membership make ``POST`` request with a JSON payload:
 
 .. note::
 
-    This section is a work in progress.
+    The ``group`` parameter is the Course Access Group ``id`` property which
+    can be obtained from the Course Access Groups list API endpoint.
+    Similarly the ``user`` parameter is the user identifier.
+
+
+.. code-block:: bash
+
+    POST /course_access_groups/api/v1/memberships/
+    {"user": 857, "group": 2}
+
+To modify a membership ``PATCH`` request should be used.
+
+.. note::
+
+    A user can have a membership to a single group.
+
+    POST /course_access_groups/api/v1/memberships/5/
+    {"group": 3}
+
+To delete a membership:
+
+.. code-block:: bash
+
+    DELETE /course_access_groups/api/v1/memberships/5/
 
 
 Rules for Automatic User Membership
