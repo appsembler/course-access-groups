@@ -96,7 +96,6 @@ class MembershipRule(utils_models.TimeStampedModel):
     """
 
     name = models.CharField(max_length=255, help_text='A description for this assignment rule.')
-    # TODO: Add a new wild-card rule to assign learners with no rules to a specific group.
     domain = models.CharField(
         max_length=255,
         db_index=True,
@@ -104,6 +103,14 @@ class MembershipRule(utils_models.TimeStampedModel):
         help_text='The learner email domain e.g. "example.com".',
     )
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
+
+
+class PublicCourse(utils_models.TimeStampedModel):
+    """
+    Model to mark courses as public to exempt from the Course Access Group rules.
+    """
+
+    course = models.OneToOneField(CourseOverview, on_delete=models.CASCADE)
 
 
 class GroupCourse(utils_models.TimeStampedModel):

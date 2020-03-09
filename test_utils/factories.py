@@ -11,6 +11,7 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
     MembershipRule,
+    PublicCourse,
 )
 from organizations.models import Organization
 
@@ -81,6 +82,13 @@ class CourseOverviewFactory(factory.DjangoModelFactory):
     @factory.lazy_attribute
     def display_name(self):
         return "{} Course".format(self.id)
+
+
+class PublicCourseFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = PublicCourse
+
+    course = factory.SubFactory(CourseOverviewFactory)
 
 
 class GroupCourseFactory(factory.DjangoModelFactory):

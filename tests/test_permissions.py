@@ -6,25 +6,29 @@ Test the authentication and permission of Course Access Groups.
 from __future__ import absolute_import, unicode_literals
 
 import pytest
+from six import text_type
 from mock import patch, Mock
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from django.contrib.sites.models import Site
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
-from organizations.models import Organization, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
     get_current_organization,
+    user_has_public_access_to_course,
     CommonAuthMixin,
     IsSiteAdminUser,
 )
 
 from test_utils.factories import (
+    CourseOverviewFactory,
     OrganizationFactory,
     SiteFactory,
     UserFactory,
+    PublicCourseFactory,
 )
 
 
@@ -181,6 +185,38 @@ class TestStaffSuperuserHelper(object):
         user = get_user_model().objects.get(username=username)
         user.is_active = False
         assert not is_active_staff_or_superuser(user)
+
+
+@pytest.mark.django_db
+class TestHasPublicAccessToCourseHelper(object):
+    """
+    Tests for the permissions.user_has_public_access_to_course helper.
+    """
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.my_org = OrganizationFactory.create()
+        self.other_org = OrganizationFactory.create()
+        self.my_user = UserFactory.create()
+        self.other_user = UserFactory.create()
+        self.my_course = CourseOverviewFactory.create()
+        self.other_course = CourseOverviewFactory.create()
+
+        OrganizationCourse.objects.create(organization=self.other_org, course_id=text_type(self.other_course))
+        OrganizationCourse.objects.create(organization=self.my_org, course_id=text_type(self.my_course))
+        UserOrganizationMapping.objects.create(user=self.my_user, organization=self.my_org)
+        UserOrganizationMapping.objects.create(user=self.other_user, organization=self.other_org)
+
+    def test_courses_not_public_by_default(self):
+        assert not user_has_public_access_to_course(self.my_user, self.my_course)
+
+    def test_access_for_public_courses(self):
+        PublicCourseFactory.create(course=self.my_course)
+        assert user_has_public_access_to_course(self.my_user, self.my_course)
+
+    def test_no_access_for_public_courses_to_other_org_users(self):
+        PublicCourseFactory.create(course=self.my_course)
+        assert not user_has_public_access_to_course(self.other_user, self.my_course)
 
 
 class TestCommonAuthMixin(object):

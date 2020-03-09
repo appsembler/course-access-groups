@@ -14,6 +14,7 @@ from test_utils.factories import (
     MembershipFactory,
     OrganizationFactory,
     GroupCourseFactory,
+    PublicCourseFactory,
 )
 from organizations.models import OrganizationCourse, UserOrganizationMapping
 from course_access_groups.acl_backends import user_has_access
@@ -105,4 +106,20 @@ class TestAclBackend(object):
         group = CourseAccessGroupFactory.create()
         GroupCourseFactory.create(course=self.course, group=group)
         MembershipFactory.create(user=self.user, group=group)
+        assert user_has_access(self.user, self.course, default_has_access, {}) == default_has_access
+
+    @pytest.mark.parametrize('default_has_access', [False, True])
+    def test_allow_public_courses(self, default_has_access):
+        """
+        Public courses should be allowed to non-members.
+
+        Via the `PublicCourse` model.
+        """
+        org = OrganizationFactory.create()
+        OrganizationCourse.objects.create(course_id=six.text_type(self.course.id), organization=org)
+        UserOrganizationMapping.objects.create(
+            user=self.user,
+            organization=org,
+        )
+        PublicCourseFactory.create(course=self.course)
         assert user_has_access(self.user, self.course, default_has_access, {}) == default_has_access
