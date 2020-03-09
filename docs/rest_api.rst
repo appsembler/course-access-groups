@@ -200,23 +200,81 @@ To delete a link:
     DELETE /course_access_groups/api/v1/group-courses/2/
 
 
-Marking Courses as Public
+Setting Courses as Public
 -------------------------
+When the course access group feature is enabled, by default all courses are
+private and only accessible to learners with memberships to groups that
+have those courses.
 
-These endpoints allow mark courses as a public.
-This means the course is available to
-all site learners regardless of their Course Access Groups membership.
+However, some users could have no group membership so they won't have access
+to the private courses. To make a course available to both learners with and
+without a group membership a course should be made public.
+
+This endpoint sets the course to be public.
+
+List Public Courses
+~~~~~~~~~~~~~~~~~~~
+
+This endpoint returns a paginated list of JSON objects in "results".
+Each JSON object represents a course being public.
+Each JSON object has a single property ``id`` which can be used to
+make the course private.
+The JSON object also has a sub-object representing a course.
+
+
+.. code-block:: bash
+
+    GET /course_access_groups/api/v1/public-courses/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/public-courses/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": 9,
+          "course": {
+            "id": "course-v1:Red+Python+2020",
+            "name": "Introduction to Python"
+          }
+        },
+        {
+          "id": 10,
+          "course": {
+            "id": "course-v1:Blue+SQL+2020",
+            "name": "Advanced Postgres Deployments"
+          }
+        }
+      ]
+    }
+
+Making a Course Public or Private
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``POST`` request can be used to make a course public with the following
+JSON payload format:
 
 .. note::
 
-    This section is a work in progress.
+    The ``course`` parameter is the Course ``id`` property which
+    can be obtained from the Course API endpoint.
 
+.. code-block:: bash
+
+    POST /course_access_groups/api/v1/public-courses/
+    {"course": "course-v1:Red+Python+2020"}
+
+To make a course private:
+
+.. code-block:: bash
+
+    DELETE /course_access_groups/api/v1/public-courses/10/
 
 
 User Membership in Course Access Groups
 ---------------------------------------
 
-These endpoints lets us to add and remove users from Course Access Groups.
+This endpoint lets us to add and remove users from Course Access Groups.
 
 List Memberships
 ~~~~~~~~~~~~~~~~
