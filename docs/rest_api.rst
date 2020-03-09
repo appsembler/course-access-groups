@@ -222,7 +222,7 @@ List Memberships
 ~~~~~~~~~~~~~~~~
 
 This endpoint returns a paginated list of JSON objects in "results".
-Each object represents a single a user membership in a Course Access Group.
+Each object represents a single user membership in a Course Access Group.
 Each membership JSON has a single property ``id`` which can be used to delete
 the membership.
 The membership JSON also has two sub-objects representing a user and a
@@ -269,7 +269,7 @@ Adding, Modifying and Deleting Memberships
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-The membership endpoints lets us to add, modify and delete
+The membership endpoints lets us add, modify and delete
 the memberships in a similar way to the Course Access Groups API endpoints.
 
 To add a new membership make ``POST`` request with a JSON payload:
