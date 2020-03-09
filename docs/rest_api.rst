@@ -122,9 +122,82 @@ Linking Courses to Course Access Groups
 These endpoints lets us to add and remove courses from Course Access Groups.
 
 
+List Links
+~~~~~~~~~~
+This endpoint returns a paginated list of JSON objects in "results".
+Each object represents a single a course link to a Course Access Group. The
+term "link" is only used for documentation purposes instead of the technical
+name ``Group Course``.
+Each link JSON has a single property ``id`` which can be used for to delete
+the link. The link JSON also has two sub-objects representing a course and a
+Course Access Group.
+
+
+.. code-block:: bash
+
+    GET /course_access_groups/api/v1/group-courses/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/group-courses/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": 1,
+          "course": {
+            "id": "course-v1:Red+Python+2020",
+            "name": "Introduction to Python"
+          },
+          "group": {
+            "id": 1,
+            "name": "Customers"
+          }
+        },
+        {
+          "id": 2,
+          "course": {
+            "id": "course-v1:Blue+SQL+2020",
+            "name": "Advanced Postgres Deployments"
+          },
+          "group": {
+            "id": 2,
+            "name": "Employees"
+          }
+        },
+      ]
+    }
+
+Adding, Modifying and Deleting Links
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+The link (``Group Course``) endpoints lets us to add, modify and delete
+the links in a similar way to the Course Access Groups API endpoints.
+
+To add a new link make ``POST`` request with a JSON payload:
+
 .. note::
 
-    This section is a work in progress.
+    The ``group`` parameter is the Course Access Group ``id`` property which
+    can be obtained from the Course Access Groups list API endpoint.
+    Similarly the ``course`` parameter is the course identifier.
+
+
+.. code-block:: bash
+
+    POST /course_access_groups/api/v1/group-courses/
+    {"course": "course-v1:Red+Python+2020", "group": 2}
+
+To modify a link ``PATCH`` request should be used:
+
+    POST /course_access_groups/api/v1/group-courses/
+    {"course": "course-v1:Blue+Python+2020_Fall",}
+
+To delete a link:
+
+.. code-block:: bash
+
+    DELETE /course_access_groups/api/v1/group-courses/2/
 
 
 Marking Courses as Public
