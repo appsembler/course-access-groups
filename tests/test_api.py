@@ -22,12 +22,14 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
     MembershipRule,
+    PublicCourse,
 )
 from test_utils.factories import (
     CourseOverviewFactory,
     MembershipFactory,
     MembershipRuleFactory,
     GroupCourseFactory,
+    PublicCourseFactory,
 )
 from test_utils.factories import (
     UserFactory,
@@ -309,6 +311,108 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
         response = client.delete('/membership-rules/{}/'.format(rule.id))
         assert response.status_code == status_code, response.content
         assert MembershipRule.objects.count() == expected_post_delete_count
+
+
+class TestPublicCourseViewSet(ViewSetTestBase):
+    """
+    Tests for the PublicCourseViewSet APIs.
+
+    The word "flag" here is short for "PublicCourse flag".
+    """
+
+    url = '/public-courses/'
+
+    def test_no_flags(self, client):
+        """
+        Sanity check for an empty list of PublicCourse flags.
+        """
+        response = client.get(self.url)
+        assert response.status_code == HTTP_200_OK
+        results = response.json()['results']
+        assert results == []
+
+    @pytest.mark.parametrize('org_name, status_code, expected_count', [
+        ['my_org', HTTP_200_OK, 3],
+        ['other_org', HTTP_200_OK, 0],
+    ])
+    def test_list_flags(self, client, org_name, status_code, expected_count):
+        """
+        List flags correctly with permissions checks.
+        """
+        org = Organization.objects.get(name=org_name)
+        courses = [flag.course for flag in PublicCourseFactory.create_batch(3)]
+        _course_org_links = [
+            OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
+            for course in courses
+        ]
+        response = client.get(self.url)
+        assert response.status_code == HTTP_200_OK, response.content
+        results = response.json()['results']
+        assert len(results) == expected_count
+
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
+    ])
+    def test_one_flag(self, client, org_name, status_code, skip_response_check):
+        """
+        Check serialized PublicCourse flag.
+        """
+        org = Organization.objects.get(name=org_name)
+        flag = PublicCourseFactory.create()
+        OrganizationCourse.objects.create(course_id=text_type(flag.course.id), organization=org)
+        response = client.get('/public-courses/{}/'.format(flag.id))
+        assert response.status_code == status_code, response.content
+        result = response.json()
+        assert skip_response_check or (result == {
+            'id': flag.id,
+            'course': {
+                'id': text_type(flag.course.id),
+                'name': flag.course.display_name_with_default,
+            },
+        }), 'Verify the serializer results.'
+
+    @pytest.mark.parametrize('org_name, status_code, expected_count, check_new_flag, message', [
+        ['my_org', HTTP_201_CREATED, 1, True, 'Should work for own courses'],
+        ['other_org', HTTP_400_BAD_REQUEST, 0, False, 'Should not work for other org courses'],
+    ])
+    def test_add_flag(self, client, org_name, status_code, expected_count, check_new_flag, message):
+        """
+        Check API POST to add new PublicCourse flag.
+        """
+        assert not PublicCourse.objects.count()
+        org = Organization.objects.get(name=org_name)
+        course = CourseOverviewFactory.create()
+        OrganizationCourse.objects.create(
+            course_id=text_type(course.id),
+            organization=org,
+        )
+        response = client.post(self.url, {
+            'course': text_type(course.id),
+        })
+        assert PublicCourse.objects.count() == expected_count, message
+        assert response.status_code == status_code, response.content
+        if check_new_flag:
+            new_flag = PublicCourse.objects.get()
+            assert new_flag.course.id == course.id
+
+    @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
+        ['my_org', HTTP_204_NO_CONTENT, 0],
+        ['other_org', HTTP_404_NOT_FOUND, 1],
+    ])
+    def test_delete_flag(self, client, org_name, status_code, expected_post_delete_count):
+        """
+        Ensure PublicCourse flag deletion is possible via the API.
+        """
+        org = Organization.objects.get(name=org_name)
+        flag = PublicCourseFactory.create()
+        OrganizationCourse.objects.create(
+            course_id=text_type(flag.course.id),
+            organization=org,
+        )
+        response = client.delete('/public-courses/{}/'.format(flag.id))
+        assert response.status_code == status_code, response.content
+        assert PublicCourse.objects.count() == expected_post_delete_count
 
 
 class TestGroupCourseViewSet(ViewSetTestBase):

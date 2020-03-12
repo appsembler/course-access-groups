@@ -16,6 +16,7 @@ from course_access_groups.models import (
     GroupCourse,
     Membership,
     MembershipRule,
+    PublicCourse,
 )
 from course_access_groups.permissions import get_current_organization
 
@@ -29,7 +30,7 @@ class CourseKeyFieldWithPermission(serializers.RelatedField):
 
     def get_queryset(self):
         organization = get_current_organization(self.context['request'])
-        organization_courses = OrganizationCourse.objects.filter(organization=organization)
+        organization_courses = OrganizationCourse.objects.filter(organization=organization, active=True)
         return CourseOverview.objects.filter(
             id__in=organization_courses.values('course_id'),
         )
@@ -75,6 +76,7 @@ class UserFieldWithPermission(serializers.RelatedField):
         return get_user_model().objects.filter(
             id__in=UserOrganizationMapping.objects.filter(
                 organization=organization,
+                is_active=True,
             ).values('user_id'),
         )
 
@@ -149,6 +151,17 @@ class MembershipRuleSerializer(serializers.ModelSerializer):
             'name',
             'domain',
             'group',
+        ]
+
+
+class PublicCourseSerializer(serializers.ModelSerializer):
+    course = CourseKeyFieldWithPermission(source='course_id')
+
+    class Meta:
+        model = PublicCourse
+        fields = [
+            'id',
+            'course',
         ]
 
 
