@@ -75,7 +75,7 @@ def is_site_admin_user(request):
     ).exists()
 
 
-def user_has_public_access_to_course(user, course):
+def is_course_with_public_access(course):
     """
     Check PublicCourse access within the user's organization(s).
 
@@ -83,19 +83,7 @@ def user_has_public_access_to_course(user, course):
     :param course: CourseOverview model object.
     :return: bool.
     """
-    try:
-        PublicCourse.objects.get(course_id=course.id)
-    except PublicCourse.DoesNotExist:
-        return False
-
-    return OrganizationCourse.objects.filter(
-        course_id=course.id,
-        organization_id__in=UserOrganizationMapping.objects.filter(
-            is_active=True,
-            user=user,
-        ).values('organization_id'),
-        active=True,
-    )
+    return PublicCourse.objects.filter(course_id=course.id).exists()
 
 
 class IsSiteAdminUser(BasePermission):

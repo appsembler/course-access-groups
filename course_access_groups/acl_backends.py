@@ -15,7 +15,7 @@ from course_access_groups.models import (
 )
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
-    user_has_public_access_to_course,
+    is_course_with_public_access,
 )
 
 
@@ -88,7 +88,7 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
     if is_organization_staff(user, resource):
         return default_has_access
 
-    if user_has_public_access_to_course(user=user, course=resource):
+    if is_course_with_public_access(course=resource):
         return default_has_access
 
     user_groups = CourseAccessGroup.objects.filter(
