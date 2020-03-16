@@ -18,7 +18,7 @@ from test_utils.factories import (
     CourseAccessGroupFactory,
     MembershipRuleFactory,
 )
-from course_access_groups.singals import on_learner_account_activated
+from course_access_groups.signals import on_learner_account_activated
 
 
 @pytest.mark.django_db
