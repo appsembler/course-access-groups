@@ -218,6 +218,24 @@ class TestHasPublicAccessToCourseHelper(object):
         PublicCourseFactory.create(course=self.my_course)
         assert not user_has_public_access_to_course(self.other_user, self.my_course)
 
+    def test_with_course_descriptor(self):
+        """
+        Test when CourseDescriptorWithMixins is passed instead of CourseOverview.
+
+        Warning: This is a somewhat complex test case due to the inherent complexity with CourseDescriptorWithMixins
+                 class in Open edX. If it breaks and it took a lot of time to fix, please consider removing it
+                 and relying on manual testing instead.
+        """
+        PublicCourseFactory.create(course=self.my_course)
+        course_descriptor = Mock()  # Anything other than CourseOverview
+        course_descriptor.id = self.my_course.id
+
+        def mock_check_rel_lookup_compatibility(model, *_args, **_kwargs):
+            return model != course_descriptor  # Make the Mock() object act like CourseDescriptorWithMixins.
+
+        with patch('django.db.models.sql.query.check_rel_lookup_compatibility', mock_check_rel_lookup_compatibility):
+            assert user_has_public_access_to_course(user=self.my_user, course=course_descriptor)
+
 
 class TestCommonAuthMixin(object):
     """

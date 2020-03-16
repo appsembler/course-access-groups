@@ -98,7 +98,7 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
     )
 
     return GroupCourse.objects.filter(
-        course=resource,
+        course_id=resource.id,
         group__in=user_groups,
     ).exists()
 
