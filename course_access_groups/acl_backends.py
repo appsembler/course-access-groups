@@ -91,6 +91,10 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
     if is_course_with_public_access(course=resource):
         return default_has_access
 
+    if not user.is_authenticated:
+        # AnonymousUser cannot have Membership.
+        return False
+
     user_groups = CourseAccessGroup.objects.filter(
         pk__in=Membership.objects.filter(
             user=user,

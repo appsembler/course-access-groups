@@ -7,6 +7,7 @@ from __future__ import absolute_import, unicode_literals
 
 import six
 import pytest
+from django.contrib.auth.models import AnonymousUser
 from test_utils.factories import (
     UserFactory,
     CourseAccessGroupFactory,
@@ -107,6 +108,14 @@ class TestAclBackend(object):
         GroupCourseFactory.create(course=self.course, group=group)
         MembershipFactory.create(user=self.user, group=group)
         assert user_has_access(self.user, self.course, default_has_access, {}) == default_has_access
+
+    @pytest.mark.parametrize('default_has_access', [False, True])
+    def test_disallow_anonymous_user(self, default_has_access):
+        """
+        AnonymousUser don't have access to private courses.
+        """
+        user = AnonymousUser()
+        assert not user_has_access(user, self.course, default_has_access, {})
 
     @pytest.mark.parametrize('default_has_access', [False, True])
     def test_allow_public_courses(self, default_has_access):

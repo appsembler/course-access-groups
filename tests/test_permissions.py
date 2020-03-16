@@ -6,10 +6,8 @@ Test the authentication and permission of Course Access Groups.
 from __future__ import absolute_import, unicode_literals
 
 import pytest
-from six import text_type
 from mock import patch, Mock
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AnonymousUser
 from django.contrib.sites import shortcuts as sites_shortcuts
 from django.contrib.sites.models import Site
 from rest_framework.authentication import TokenAuthentication
