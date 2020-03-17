@@ -72,7 +72,7 @@ class Membership(utils_models.TimeStampedModel):
         # Ideally an exception should be thrown if there's more than one organization
         # but such error is out of the scope of the CAG module.
         user_orgs = Organization.objects.filter(
-            pk__in=UserOrganizationMapping.objects.filter(user=user, is_active=True),
+            pk__in=UserOrganizationMapping.objects.filter(user=user, is_active=True).values('organization_id'),
         )
         rule = MembershipRule.objects.filter(
             domain=email_domain,
