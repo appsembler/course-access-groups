@@ -19,9 +19,44 @@ from rest_framework.permissions import IsAuthenticated
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from rest_framework.permissions import BasePermission
 
-from course_access_groups.models import PublicCourse
+from course_access_groups.models import (
+    CourseAccessGroup,
+    GroupCourse,
+    Membership,
+    PublicCourse,
+)
 
 log = logging.getLogger(__name__)
+
+
+def is_organization_staff(user, course):
+    """
+    Helper to check if the user is organization staff.
+
+    :param user: User to check access against.
+    :param course: The Course or CourseOverview object to check access for.
+
+    :return: bool
+
+    TODO: Handle single-site setups in which organization is not important
+    TODO: What if a course has two orgs? data leak I guess?
+    """
+    if not user.is_active:
+        # Checking for `user.is_active` again. Better to be safe than sorry.
+        return False
+
+    # Same as organization.api.get_course_organizations
+    course_org_ids = OrganizationCourse.objects.filter(
+        course_id=text_type(course.id),
+        active=True
+    ).values('organization_id')
+
+    return UserOrganizationMapping.objects.filter(
+        user=user,
+        organization_id__in=course_org_ids,
+        is_active=True,
+        is_amc_admin=True,
+    ).exists()
 
 
 def get_current_organization(request):
@@ -118,3 +153,36 @@ def is_active_staff_or_superuser(user):
     Checks if user is active staff or superuser.
     """
     return user and user.is_active and (user.is_staff or user.is_superuser)
+
+
+def user_has_access_to_course(user, course):
+    """
+    Main function to check if user has access.
+
+    :param user: User to check access against.
+    :param course: CourseDescriptorWithMixins or CourseOverview object to check access for.
+    :return: bool: whether the user is granted access or no.
+    """
+    if is_active_staff_or_superuser(user):
+        return True
+
+    if is_organization_staff(user, course):
+        return True
+
+    if is_course_with_public_access(course=course):
+        return True
+
+    if not user.is_authenticated:
+        # AnonymousUser cannot have Membership.
+        return False
+
+    user_groups = CourseAccessGroup.objects.filter(
+        pk__in=Membership.objects.filter(
+            user=user,
+        ).values('group_id'),
+    )
+
+    return GroupCourse.objects.filter(
+        course_id=course.id,
+        group__in=user_groups,
+    ).exists()

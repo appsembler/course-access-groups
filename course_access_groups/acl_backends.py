@@ -5,60 +5,13 @@ Access Control backends to implement the Course Access Groups.
 
 from __future__ import absolute_import, unicode_literals
 
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
-from organizations.models import OrganizationCourse, UserOrganizationMapping
-import six
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
+
+from courseware.access_utils import (
+    ACCESS_DENIED,
+    ACCESS_GRANTED,
 )
-from course_access_groups.permissions import (
-    is_active_staff_or_superuser,
-    is_course_with_public_access,
-)
-
-
-def is_organization_staff(user, course):
-    """
-    Helper to check if the user is organization staff.
-
-    :param user: User to check access against.
-    :param course: The Course or CourseOverview object to check access for.
-
-    :return: bool
-
-    TODO: Handle single-site setups in which organization is not important
-    TODO: What if a course has two orgs? data leak I guess?
-    TODO: Move to the `permissions.py` module.
-    """
-    if not user.is_active:
-        # Checking for `user.is_active` again. Better to be safe than sorry.
-        return False
-
-    # Same as organization.api.get_course_organizations
-    course_org_ids = OrganizationCourse.objects.filter(
-        course_id=six.text_type(course.id),
-        active=True
-    ).values('organization_id')
-
-    return UserOrganizationMapping.objects.filter(
-        user=user,
-        organization_id__in=course_org_ids,
-        is_active=True,
-        is_amc_admin=True,
-    ).exists()
-
-
-def is_feature_enabled():
-    """
-    Helper to check Site Configuration for ENABLE_COURSE_ACCESS_GROUPS.
-
-    # TODO: Move to its own file.
-
-    :return: bool
-    """
-    return bool(configuration_helpers.get_value('ENABLE_COURSE_ACCESS_GROUPS', default=False))
+from course_access_groups.feature import is_feature_enabled
+from course_access_groups.permissions import user_has_access_to_course
 
 
 def user_has_access(user, resource, default_has_access, options):  # pylint: disable=unused-argument
@@ -80,31 +33,12 @@ def user_has_access(user, resource, default_has_access, options):  # pylint: dis
         # i.e. Course Access Groups should not leak resources that Open edX don't want to permit.
         # e.g. In case the `course.is_deleted` feature is enabled, Open edX would prevent course access regardless
         # of the permission. It's good to have the CAG module future proof in case of such changes.
-        return False
-
-    if is_active_staff_or_superuser(user):
         return default_has_access
 
-    if is_organization_staff(user, resource):
-        return default_has_access
-
-    if is_course_with_public_access(course=resource):
-        return default_has_access
-
-    if not user.is_authenticated:
-        # AnonymousUser cannot have Membership.
-        return False
-
-    user_groups = CourseAccessGroup.objects.filter(
-        pk__in=Membership.objects.filter(
-            user=user,
-        ).values('group_id'),
-    )
-
-    return GroupCourse.objects.filter(
-        course_id=resource.id,
-        group__in=user_groups,
-    ).exists()
+    if user_has_access_to_course(user, resource):
+        return ACCESS_GRANTED
+    else:
+        return ACCESS_DENIED
 
 
 __all__ = ['user_has_access']
