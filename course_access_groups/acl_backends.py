@@ -10,7 +10,7 @@ from courseware.access_utils import (
     ACCESS_DENIED,
     ACCESS_GRANTED,
 )
-from course_access_groups.feature import is_feature_enabled
+from course_access_groups.feature_flag import is_feature_enabled
 from course_access_groups.permissions import user_has_access_to_course
 
 

@@ -41,6 +41,7 @@ def is_organization_staff(user, course):
     TODO: Handle single-site setups in which organization is not important
     TODO: What if a course has two orgs? data leak I guess?
     """
+
     if not user.is_active:
         # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
@@ -48,7 +49,7 @@ def is_organization_staff(user, course):
     # Same as organization.api.get_course_organizations
     course_org_ids = OrganizationCourse.objects.filter(
         course_id=text_type(course.id),
-        active=True
+        active=True,
     ).values('organization_id')
 
     return UserOrganizationMapping.objects.filter(
@@ -163,18 +164,18 @@ def user_has_access_to_course(user, course):
     :param course: CourseDescriptorWithMixins or CourseOverview object to check access for.
     :return: bool: whether the user is granted access or no.
     """
-    if is_active_staff_or_superuser(user):
-        return True
-
-    if is_organization_staff(user, course):
-        return True
-
     if is_course_with_public_access(course=course):
         return True
 
     if not user.is_authenticated:
         # AnonymousUser cannot have Membership.
         return False
+
+    if is_active_staff_or_superuser(user):
+        return True
+
+    if is_organization_staff(user, course):
+        return True
 
     user_groups = CourseAccessGroup.objects.filter(
         pk__in=Membership.objects.filter(

@@ -68,6 +68,10 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
+FEATURES = {  # Mock the edX Platform features.
+    'ORGANIZATIONS_APP': True,  # This app depends on the Organizations App.
+}
+
 ALLOWED_HOSTS = ['*']
 
 TEMPLATES = [
