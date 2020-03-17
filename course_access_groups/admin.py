@@ -13,6 +13,8 @@ from django.core.exceptions import ValidationError
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+
 from course_access_groups.models import (
     CourseAccessGroup,
     GroupCourse,
@@ -22,12 +24,41 @@ from course_access_groups.models import (
 )
 
 
+class CourseKeyFormMixin(object):
+    """
+    A form mixin to make it easy to enter course keys in admin.
+    """
+
+    def clean_course(self):
+        course = self.cleaned_data['course']
+        if course and not isinstance(course, CourseKey):
+            try:
+                course = CourseKey.from_string(course)
+            except InvalidKeyError as e:
+                raise ValidationError('Invalid Key Error: {}'.format(e.message))
+
+        if course:
+            try:
+                return CourseOverview.objects.get(pk=course)
+            except CourseOverview.DoesNotExist:
+                raise ValidationError('Course not found: {}'.format(course))
+
+
+class GroupCourseInlineForm(CourseKeyFormMixin, forms.ModelForm):
+    course = forms.CharField()
+
+    class Meta:
+        fields = ['course']
+        model = GroupCourse
+
+
 class GroupCourseInline(TabularInline):
     """
     Allow adding courses to groups.
     """
 
     model = GroupCourse
+    form = GroupCourseInlineForm
     extra = 2
 
 
@@ -160,18 +191,8 @@ class MembershipRuleAdmin(admin.ModelAdmin):
         return rule.group.organization.name
 
 
-class PublicCourseForm(forms.ModelForm):
+class PublicCourseForm(CourseKeyFormMixin, forms.ModelForm):
     course = forms.CharField()
-
-    def clean_course(self):
-        course = self.cleaned_data['course']
-        if course and not isinstance(course, CourseKey):
-            try:
-                course = CourseKey.from_string(course)
-            except InvalidKeyError as e:
-                raise ValidationError('Invalid Key Error: {}'.format(e.message))
-
-        return course
 
     class Meta:
         model = PublicCourse
