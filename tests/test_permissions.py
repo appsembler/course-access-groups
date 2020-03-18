@@ -6,7 +6,6 @@ Test the authentication and permission of Course Access Groups.
 from __future__ import absolute_import, unicode_literals
 
 import pytest
-from six import text_type
 from mock import patch, Mock
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
@@ -18,7 +17,7 @@ from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
     get_current_organization,
-    user_has_public_access_to_course,
+    is_course_with_public_access,
     CommonAuthMixin,
     IsSiteAdminUser,
 )
@@ -188,35 +187,36 @@ class TestStaffSuperuserHelper(object):
 
 
 @pytest.mark.django_db
-class TestHasPublicAccessToCourseHelper(object):
+class TestIsCourseWithPublicAccessHelper(object):
     """
-    Tests for the permissions.user_has_public_access_to_course helper.
+    Tests for the permissions.is_course_with_public_access helper.
     """
 
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.my_org = OrganizationFactory.create()
-        self.other_org = OrganizationFactory.create()
-        self.my_user = UserFactory.create()
-        self.other_user = UserFactory.create()
         self.my_course = CourseOverviewFactory.create()
-        self.other_course = CourseOverviewFactory.create()
-
-        OrganizationCourse.objects.create(organization=self.other_org, course_id=text_type(self.other_course))
-        OrganizationCourse.objects.create(organization=self.my_org, course_id=text_type(self.my_course))
-        UserOrganizationMapping.objects.create(user=self.my_user, organization=self.my_org)
-        UserOrganizationMapping.objects.create(user=self.other_user, organization=self.other_org)
 
     def test_courses_not_public_by_default(self):
-        assert not user_has_public_access_to_course(self.my_user, self.my_course)
+        assert not is_course_with_public_access(self.my_course)
 
     def test_access_for_public_courses(self):
         PublicCourseFactory.create(course=self.my_course)
-        assert user_has_public_access_to_course(self.my_user, self.my_course)
+        assert is_course_with_public_access(self.my_course)
 
-    def test_no_access_for_public_courses_to_other_org_users(self):
+    def test_with_course_descriptor(self):
+        """
+        Test when CourseDescriptorWithMixins is passed instead of CourseOverview.
+
+        Warning: This is a somewhat complex test case due to the inherent complexity with CourseDescriptorWithMixins
+                 class in Open edX. If it breaks and it took a lot of time to fix, please consider removing it
+                 and relying on manual testing instead.
+        """
         PublicCourseFactory.create(course=self.my_course)
-        assert not user_has_public_access_to_course(self.other_user, self.my_course)
+        course_descriptor = Mock()  # Anything other than CourseOverview
+        course_descriptor.id = self.my_course.id
+
+        with patch('django.db.models.sql.query.check_rel_lookup_compatibility', return_value=False):
+            assert is_course_with_public_access(course=course_descriptor)
 
 
 class TestCommonAuthMixin(object):

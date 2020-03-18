@@ -66,7 +66,7 @@ class TestMembershipRuleApply(object):
         assert not Membership.objects.count()
         user = UserFactory.create(is_active=True, email=email)
         group = CourseAccessGroupFactory.create()
-        UserOrganizationMapping.objects.create(user=user, organization=group.organization)
+        UserOrganizationMapping.objects.create(id=500, user=user, organization=group.organization)
         MembershipRule.objects.create(name='Something', domain='known_site.com', group=group)
 
         on_learner_account_activated(self.__class__, user)

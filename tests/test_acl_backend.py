@@ -7,6 +7,11 @@ from __future__ import absolute_import, unicode_literals
 
 import six
 import pytest
+from django.contrib.auth.models import AnonymousUser
+from courseware.access_utils import (
+    ACCESS_GRANTED,
+    ACCESS_DENIED,
+)
 from test_utils.factories import (
     UserFactory,
     CourseAccessGroupFactory,
@@ -29,6 +34,9 @@ class TestAclBackend(object):
     Testing the integration point with Open edX.
 
     Platforms' `default_has_access` is always checked via this backend.
+
+    TODO: Simplify most of the integration tests below into unit tests for
+          the `permissions.user_has_access_to_course` helper.
     """
 
     @pytest.fixture(autouse=True)
@@ -39,7 +47,7 @@ class TestAclBackend(object):
         self.user = UserFactory.create()
         self.course = CourseOverviewFactory.create()
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_blocked_by_default(self, default_has_access):
         """
         Ensure that a learner without a CAG Group has arbitrary access.
@@ -51,7 +59,7 @@ class TestAclBackend(object):
         """
         assert not user_has_access(self.user, self.course, default_has_access, {})
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_disabled_feature(self, default_has_access):
         """
         When the feature is disabled, the platform access rules (default_has_access) are applied.
@@ -61,7 +69,7 @@ class TestAclBackend(object):
         with patch_site_configs({'ENABLE_COURSE_ACCESS_GROUPS': False}):
             assert user_has_access(self.user, self.course, default_has_access, {}) == default_has_access
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_site_staff_have_access(self, default_has_access):
         """
         Site-wide staff access is controlled by the platform `default_has_access`.
@@ -69,7 +77,7 @@ class TestAclBackend(object):
         staff = UserFactory.create(is_staff=True)
         assert user_has_access(staff, self.course, default_has_access, {}) == default_has_access
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_superuser_have_access(self, default_has_access):
         """
         Superusers access is controlled by the platform `default_has_access`.
@@ -77,7 +85,7 @@ class TestAclBackend(object):
         superuser = UserFactory.create(is_superuser=True)
         assert user_has_access(superuser, self.course, default_has_access, {}) == default_has_access
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_org_admins_have_access(self, default_has_access):
         """
         Organization-wide admins have access to all org courses.
@@ -96,7 +104,7 @@ class TestAclBackend(object):
         inactive = UserFactory.create(is_active=False)
         assert not user_has_access(inactive, self.course, default_has_access, {})
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_allow_members(self, default_has_access):
         """
         Members have access to courses.
@@ -108,7 +116,15 @@ class TestAclBackend(object):
         MembershipFactory.create(user=self.user, group=group)
         assert user_has_access(self.user, self.course, default_has_access, {}) == default_has_access
 
-    @pytest.mark.parametrize('default_has_access', [False, True])
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
+    def test_disallow_anonymous_user(self, default_has_access):
+        """
+        AnonymousUser don't have access to private courses.
+        """
+        user = AnonymousUser()
+        assert not user_has_access(user, self.course, default_has_access, {})
+
+    @pytest.mark.parametrize('default_has_access', [ACCESS_DENIED, ACCESS_GRANTED])
     def test_allow_public_courses(self, default_has_access):
         """
         Public courses should be allowed to non-members.
