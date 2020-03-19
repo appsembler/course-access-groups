@@ -28,6 +28,8 @@ Documentation
 The full documentation is at https://course-access-groups.readthedocs.org.
 
 
+.. _supported_open_edx_version:
+
 Supported Open edX Version
 --------------------------
 
@@ -39,9 +41,11 @@ cherry-picking the following pull requests:
 
  * The `Access Control Backends pull request`_.
  * The `USER_ACCOUNT_ACTIVATED signal`_.
+ * The `edx-search integration with the "has_access" function`_.
 
 .. _Access Control Backends pull request: https://github.com/appsembler/edx-platform/pull/491
 .. _USER_ACCOUNT_ACTIVATED signal: https://github.com/edx/edx-platform/pull/23296
+.. _edx-search integration with the "has_access" function: https://github.com/appsembler/edx-search/pull/12
 
 License
 -------
