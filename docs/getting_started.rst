@@ -52,8 +52,8 @@ If something doesn't work for you, make sure you have all the required changes
 for your Open edX for. See the :ref:``supported_open_edx_version`` section for
 information about those required changes.
 
-Install Dependencies for Contriuting to This App
-------------------------------------------------
+Install Dependencies for Contributing to This App
+-------------------------------------------------
 If you have not already done so, create or activate a `virtualenv`_. Unless otherwise stated, assume all terminal code
 below is executed within the virtualenv.
 
