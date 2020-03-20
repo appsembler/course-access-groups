@@ -6,15 +6,17 @@ API Endpoints for Course Access Groups.
 from __future__ import absolute_import, unicode_literals
 
 
+from django.contrib.auth import get_user_model
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
-from organizations.models import OrganizationCourse
+from organizations.models import OrganizationCourse, UserOrganizationMapping
 from course_access_groups.serializers import (
     CourseAccessGroupSerializer,
     MembershipSerializer,
     MembershipRuleSerializer,
     GroupCourseSerializer,
     PublicCourseSerializer,
+    UserSerializer,
 )
 from course_access_groups.models import (
     CourseAccessGroup,
@@ -86,6 +88,29 @@ class PublicCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
 
         return self.model.objects.filter(
             course_id__in=course_links.values('course_id'),
+        )
+
+
+class UsersViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    API ViewSet to retrieve user information with their Course Access Group associations.
+
+    This ViewSet is provide only the minimal user information like email and username.
+    For more detailed user information other specialised APIs should be used.
+    """
+
+    model = get_user_model()
+    pagination_class = LimitOffsetPagination
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        organization = get_current_organization(self.request)
+        return self.model.objects.filter(
+            pk__in=UserOrganizationMapping.objects.filter(
+                organization=organization,
+                is_active=True,  # TODO: Add test for `is_active`
+                is_amc_admin=False,  # Site admins shouldn't be included in the API.
+            ).values('user_id'),
         )
 
 

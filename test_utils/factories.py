@@ -13,7 +13,7 @@ from course_access_groups.models import (
     MembershipRule,
     PublicCourse,
 )
-from organizations.models import Organization
+from organizations.models import Organization, UserOrganizationMapping
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -22,6 +22,9 @@ class UserFactory(factory.DjangoModelFactory):
 
     class Meta(object):
         model = get_user_model()
+
+    class Params(object):
+        organization = None
 
 
 class OrganizationFactory(factory.DjangoModelFactory):
@@ -40,6 +43,24 @@ class OrganizationFactory(factory.DjangoModelFactory):
         if extracted:
             for site in extracted:
                 self.sites.add(site)
+
+
+class UserOrganizationMappingFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = UserOrganizationMapping
+
+    user = factory.SubFactory(UserFactory)
+    organization = factory.SubFactory(OrganizationFactory)
+
+    @classmethod
+    def create_for(cls, organization, users):
+        """
+        Associate list of users with a certain organization.
+        """
+        mappings = []
+        for user in users:
+            mappings.append(cls.create(organization=organization, user=user))
+        return mappings
 
 
 class CourseAccessGroupFactory(factory.DjangoModelFactory):

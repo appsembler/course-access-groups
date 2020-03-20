@@ -165,6 +165,30 @@ class PublicCourseSerializer(serializers.ModelSerializer):
         ]
 
 
+class MembershipSubSerializer(serializers.ModelSerializer):
+    group = CourseAccessGroupFieldWithPermission()
+
+    class Meta:
+        model = Membership
+        fields = [
+            'id',
+            'group',
+        ]
+
+
+class UserSerializer(serializers.ModelSerializer):
+    membership = MembershipSubSerializer(read_only=True)
+
+    class Meta:
+        model = get_user_model()
+        fields = [
+            'id',
+            'username',
+            'email',
+            'membership',
+        ]
+
+
 class GroupCourseSerializer(serializers.ModelSerializer):
     course = CourseKeyFieldWithPermission(source='course_id')
     group = CourseAccessGroupFieldWithPermission()
