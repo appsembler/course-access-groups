@@ -30,6 +30,7 @@ from test_utils.factories import (
     MembershipRuleFactory,
     GroupCourseFactory,
     PublicCourseFactory,
+    UserOrganizationMappingFactory,
 )
 from test_utils.factories import (
     UserFactory,
@@ -230,6 +231,83 @@ class TestMembershipViewSet(ViewSetTestBase):
         response = client.delete('/memberships/{}/'.format(membership.id))
         assert response.status_code == status_code, response.content
         assert Membership.objects.count() == expected_post_delete_count
+
+
+class TestUserViewSet(ViewSetTestBase):
+    """
+    Tests for the UserViewSet APIs.
+    """
+
+    url = '/users/'
+
+    def test_no_users(self, client):
+        response = client.get(self.url)
+        assert response.status_code == HTTP_200_OK
+        results = response.json()['results']
+        assert results == []
+
+    @pytest.mark.parametrize('org_name, expected_count', [
+        ['my_org', 5],
+        ['other_org', 0],
+    ])
+    def test_list_users(self, client, org_name, expected_count):
+        org = Organization.objects.get(name=org_name)
+        # Two users without memberships
+        without_memberships = UserFactory.create_batch(2)
+        # Three additional users with memberships
+        with_memberships = [m.user for m in MembershipFactory.create_batch(3, group__organization=org)]
+        UserOrganizationMappingFactory.create_for(
+            org,
+            users=without_memberships + with_memberships,
+        )
+        response = client.get(self.url)
+        results = response.json()['results']
+        assert response.status_code == HTTP_200_OK, response.content
+        assert len(results) == expected_count
+
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
+    ])
+    def test_one_user_no_membership(self, client, org_name, status_code, skip_response_check):
+        """
+        Test JSON format for users without memberships.
+        """
+        org = Organization.objects.get(name=org_name)
+        user = UserFactory.create()
+        UserOrganizationMappingFactory.create(user=user, organization=org)
+        response = client.get('/users/{}/'.format(user.id))
+        assert response.status_code == status_code, response.content
+        result = response.json()
+        assert skip_response_check or (result == {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+            'membership': None,
+        }), 'Verify the serializer results.'
+
+    def test_one_user_with_membership(self, client):
+        """
+        Test JSON format for a user with membership.
+        """
+        user = UserFactory.create()
+        UserOrganizationMappingFactory.create(user=user, organization=self.my_org)
+        membership = MembershipFactory.create(group__organization=self.my_org, user=user)
+        response = client.get('/users/{}/'.format(user.id))
+        assert response.status_code == HTTP_200_OK, response.content
+        result = response.json()
+        assert result == {
+            'id': user.id,
+            'email': user.email,
+            'username': user.username,
+            'membership': {
+                'id': membership.id,
+                'group': {
+                    'id': membership.group.id,
+                    'name': membership.group.name,
+                }
+            },
+        }, 'Verify the serializer results.'
 
 
 class TestMembershipRuleViewSet(ViewSetTestBase):

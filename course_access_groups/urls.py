@@ -35,6 +35,12 @@ router.register(
 )
 
 router.register(
+    r'users',
+    views.UsersViewSet,
+    base_name='users',
+)
+
+router.register(
     r'group-courses',
     views.GroupCourseViewSet,
     base_name='group-courses',

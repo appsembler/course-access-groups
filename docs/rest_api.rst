@@ -271,8 +271,8 @@ To make a course private:
     DELETE /course_access_groups/api/v1/public-courses/10/
 
 
-User Membership in Course Access Groups
----------------------------------------
+Membership in Course Access Groups
+----------------------------------
 
 This endpoint lets us to add and remove users from Course Access Groups.
 
@@ -358,6 +358,57 @@ To delete a membership:
 .. code-block:: bash
 
     DELETE /course_access_groups/api/v1/memberships/5/
+
+
+User-Focused Course Access Group API
+------------------------------------
+
+This API is used to retrieve user information with their Course Access Group
+associations. This API is a read-only API.
+
+This ViewSet is provide only the minimal user information like email and
+username. For more detailed user information or modify the membership
+information other specialised APIs should be used.
+
+List Users
+~~~~~~~~~~
+
+This endpoint returns a paginated list of JSON objects in "results".
+Each object represents a single user membership in a Course Access Group.
+Each membership JSON has a single property ``id`` which can be used to delete
+the membership.
+The membership JSON also has two sub-objects representing a user and a
+Course Access Group.
+
+
+.. code-block:: bash
+
+    GET /course_access_groups/api/v1/users/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/users/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": 2,
+          "username": "ali",
+          "email": "ali@corp.com",
+          "membership": {
+            "id": 5,
+            "group": {
+              "id": 1,
+              "name": "Employees"
+            }
+          }
+        },
+        {
+          "id": 2,
+          "username": "ali",
+          "email": "ali@corp.com",
+          "membership": null
+        }
+    }
 
 
 Rules for Automatic User Membership
