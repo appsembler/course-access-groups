@@ -92,4 +92,4 @@ class TestCourseAccessGroupModel(object):
     def test_str(self):
         group = CourseAccessGroup(name='hello world')
         assert str(group) == 'hello world'
-        assert unicode(group) == 'hello world'
+        assert unicode(group) == 'hello world'  # noqa: F821

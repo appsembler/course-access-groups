@@ -105,4 +105,3 @@ class SiteFactory(factory.DjangoModelFactory):
 
     domain = factory.Sequence(lambda n: 'site-{}.example.com'.format(n))
     name = factory.Sequence(lambda n: 'Site {}'.format(n))
-

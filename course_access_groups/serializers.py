@@ -43,7 +43,7 @@ class CourseKeyFieldWithPermission(serializers.RelatedField):
 
         try:
             course_key = CourseKey.from_string(data)
-        except InvalidKeyError as ex:
+        except InvalidKeyError:
             raise validation_error
 
         try:

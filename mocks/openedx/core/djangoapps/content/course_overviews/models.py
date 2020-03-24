@@ -38,4 +38,4 @@ class CourseOverview(models.Model):
         return self.org
 
     def __str__(self):
-        return unicode(self.id)
+        return unicode(self.id)  # noqa: F821

@@ -12,7 +12,7 @@ from django.contrib.sites import shortcuts as sites_shortcuts
 from django.contrib.sites.models import Site
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from organizations.models import Organization, UserOrganizationMapping
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from course_access_groups.permissions import (
     is_active_staff_or_superuser,
