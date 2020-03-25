@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from student.models import UserProfile
 from course_access_groups.models import (
     CourseAccessGroup,
     GroupCourse,
@@ -17,15 +18,20 @@ from course_access_groups.models import (
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 
 
+class UserProfileFactory(factory.DjangoModelFactory):
+    name = factory.Sequence('Robot Mega {}'.format)
+
+    class Meta:
+        model = UserProfile
+
+
 class UserFactory(factory.DjangoModelFactory):
     email = factory.Sequence('robot{}@example.com'.format)
     username = factory.Sequence('robot{}'.format)
+    profile = factory.RelatedFactory(UserProfileFactory, 'user')
 
     class Meta(object):
         model = get_user_model()
-
-    class Params(object):
-        organization = None
 
 
 class OrganizationFactory(factory.DjangoModelFactory):

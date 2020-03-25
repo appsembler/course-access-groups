@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'mocks',
+    'student',
     'openedx.core.djangoapps.content.course_overviews',
     'organizations',
     'course_access_groups',
