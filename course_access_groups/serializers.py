@@ -189,6 +189,45 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
+class GroupCourseSubSerializer(serializers.ModelSerializer):
+    group = CourseAccessGroupFieldWithPermission()
+
+    class Meta:
+        model = GroupCourse
+        fields = [
+            'id',
+            'group',
+        ]
+
+
+class CourseOverviewSerializer(serializers.ModelSerializer):
+    id = serializers.CharField()
+    public_status = serializers.SerializerMethodField()
+    group_links = GroupCourseSubSerializer(many=True, read_only=True, source='group_courses')
+    name = serializers.CharField(source='display_name_with_default')
+
+    class Meta:
+        model = CourseOverview
+        fields = [
+            'id',
+            'name',
+            'public_status',
+            'group_links',
+        ]
+
+    def get_public_status(self, course):
+        try:
+            public_course = PublicCourse.objects.get(course_id=course.id)
+            return {
+                'id': public_course.id,
+                'is_public': True,
+            }
+        except PublicCourse.DoesNotExist:
+            return {
+                'is_public': False,
+            }
+
+
 class GroupCourseSerializer(serializers.ModelSerializer):
     course = CourseKeyFieldWithPermission(source='course_id')
     group = CourseAccessGroupFieldWithPermission()

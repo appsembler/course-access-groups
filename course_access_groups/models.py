@@ -121,7 +121,7 @@ class GroupCourse(utils_models.TimeStampedModel):
     extracting it here to make it easy to work with API ViewSets.
     """
 
-    course = models.ForeignKey(CourseOverview, related_name='group_course', on_delete=models.CASCADE)
+    course = models.ForeignKey(CourseOverview, related_name='group_courses', on_delete=models.CASCADE)
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
 
     class Meta(object):

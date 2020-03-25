@@ -7,11 +7,14 @@ from __future__ import absolute_import, unicode_literals
 
 
 from django.contrib.auth import get_user_model
+from opaque_keys.edx.keys import CourseKey
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from organizations.models import OrganizationCourse, UserOrganizationMapping
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.serializers import (
     CourseAccessGroupSerializer,
+    CourseOverviewSerializer,
     MembershipSerializer,
     MembershipRuleSerializer,
     GroupCourseSerializer,
@@ -47,6 +50,37 @@ class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     def get_queryset(self):
         organization = get_current_organization(self.request)
         return self.model.objects.filter(organization=organization)
+
+
+class CourseViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    API ViewSet to retrieve courses information with their Course Access Group associations.
+
+    This ViewSet is provide only the minimal course information like id and name.
+    For more detailed course information other specialised APIs should be used.
+    """
+
+    model = CourseOverview
+    pagination_class = LimitOffsetPagination
+    serializer_class = CourseOverviewSerializer
+    lookup_url_kwarg = 'pk'
+
+    def get_object(self):
+        """
+        Override the GenericAPIView.get_object to fix CourseKey related issue.
+        """
+        course_key = CourseKey.from_string(self.kwargs[self.lookup_url_kwarg])
+        self.kwargs[self.lookup_url_kwarg] = course_key
+        return super(CourseViewSet, self).get_object()
+
+    def get_queryset(self):
+        organization = get_current_organization(self.request)
+        return CourseOverview.objects.filter(
+            id__in=OrganizationCourse.objects.filter(
+                organization=organization,
+                active=True,
+            ).values('course_id'),
+        )
 
 
 class MembershipViewSet(CommonAuthMixin, viewsets.ModelViewSet):
