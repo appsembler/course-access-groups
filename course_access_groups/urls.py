@@ -36,7 +36,7 @@ router.register(
 
 router.register(
     r'users',
-    views.UsersViewSet,
+    views.UserViewSet,
     base_name='users',
 )
 
