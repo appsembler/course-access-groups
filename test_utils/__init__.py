@@ -12,8 +12,6 @@ from mock import patch
 from django.views import View
 import course_access_groups.views
 
-from test_utils.factories import UserFactory
-
 
 def patch_site_configs(values):
     """

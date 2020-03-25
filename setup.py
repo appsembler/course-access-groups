@@ -66,7 +66,8 @@ setup(
     name='course-access-groups',
     version=VERSION,
     description=(
-        'An Open edX plugin to customize courses access by grouping learners and assigning different permissions to groups.'
+        'An Open edX plugin to customize courses access by grouping learners '
+        'and assigning different permissions to groups.'
     ),
     long_description=README + '\n\n' + CHANGELOG,
     author='Appsembler',

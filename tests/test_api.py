@@ -419,7 +419,7 @@ class TestPublicCourseViewSet(ViewSetTestBase):
         """
         org = Organization.objects.get(name=org_name)
         courses = [flag.course for flag in PublicCourseFactory.create_batch(3)]
-        _course_org_links = [
+        _course_org_links = [  # noqa: F841
             OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
             for course in courses
         ]
