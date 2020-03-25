@@ -374,14 +374,13 @@ List Users
 ~~~~~~~~~~
 
 This endpoint returns a paginated list of JSON objects in "results".
-Each object represents a single user membership in a Course Access Group.
-Each membership JSON has a single property ``id`` which can be used to delete
-the membership.
-The membership JSON also has two sub-objects representing a user and a
-Course Access Group.
+Each object represents a single user in your organization.
+Each user JSON has a few personal information like ``email`` and ``username``.
+The user JSON also has a sub-object ``membership`` in a Course Access Group.
+The inline comments will explain in more details:
 
 
-.. code-block:: bash
+.. code-block:: javascript
 
     GET /course_access_groups/api/v1/users/
 
@@ -391,14 +390,14 @@ Course Access Group.
       "previous": null,
       "results": [
         {
-          "id": 2,
+          "id": 2,  // The User ID that can be used in the `/memberships/` endpoint
           "username": "ali",
           "email": "ali@corp.com",
-          "membership": {
-            "id": 5,
+          "membership": {  // Membership information
+            "id": 5,  // Use this `membership` ID to delete the membership via the `/memberships/` endpoint.
             "group": {
-              "id": 1,
-              "name": "Employees"
+              "id": 1,  // The Course Access Group ID
+              "name": "Employees"  // The Course Access Group name
             }
           }
         },
@@ -406,7 +405,7 @@ Course Access Group.
           "id": 2,
           "username": "ali",
           "email": "ali@corp.com",
-          "membership": null
+          "membership": null  // This user has no membership
         }
     }
 

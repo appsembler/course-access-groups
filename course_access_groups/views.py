@@ -91,7 +91,7 @@ class PublicCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
         )
 
 
-class UsersViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
+class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     """
     API ViewSet to retrieve user information with their Course Access Group associations.
 
