@@ -29,6 +29,7 @@ from test_utils.factories import (
     MembershipFactory,
     MembershipRuleFactory,
     GroupCourseFactory,
+    OrganizationCourseFactory,
     PublicCourseFactory,
     UserOrganizationMappingFactory,
 )
@@ -307,6 +308,94 @@ class TestUserViewSet(ViewSetTestBase):
                     'name': membership.group.name,
                 }
             },
+        }, 'Verify the serializer results.'
+
+
+class TestCourseViewSet(ViewSetTestBase):
+    """
+    Tests for the CourseViewSet APIs.
+    """
+
+    url = '/courses/'
+
+    def test_no_courses(self, client):
+        response = client.get(self.url)
+        assert response.status_code == HTTP_200_OK
+        results = response.json()['results']
+        assert results == []
+
+    @pytest.mark.parametrize('org_name, expected_count', [
+        ['my_org', 5],
+        ['other_org', 0],
+    ])
+    def test_list_courses(self, client, org_name, expected_count):
+        org = Organization.objects.get(name=org_name)
+        private_courses = CourseOverviewFactory.create_batch(2)
+        GroupCourseFactory.create_batch(2, course=private_courses[0], group__organization=org)
+        public_courses = [p.course for p in PublicCourseFactory.create_batch(3)]
+        OrganizationCourseFactory.create_for(
+            org,
+            courses=private_courses + public_courses,
+        )
+        response = client.get(self.url)
+        results = response.json()['results']
+        assert response.status_code == HTTP_200_OK, response.content
+        assert len(results) == expected_count
+
+    @pytest.mark.parametrize('org_name, status_code, skip_response_check', [
+        ['my_org', HTTP_200_OK, False],
+        ['other_org', HTTP_404_NOT_FOUND, True],
+    ])
+    def test_one_course_empty_info(self, client, org_name, status_code, skip_response_check):
+        """
+        Test JSON format for course without course access groups info.
+        """
+        org = Organization.objects.get(name=org_name)
+        course = CourseOverviewFactory.create()
+        OrganizationCourse.objects.create(
+            course_id=text_type(course.id),
+            organization=org,
+        )
+        response = client.get('{}{}/'.format(self.url, course.id))
+        assert response.status_code == status_code, response.content
+        result = response.json()
+        assert skip_response_check or (result == {
+            'id': text_type(course.id),
+            'name': course.display_name,
+            'public_status': {
+                'is_public': False,
+            },
+            'group_links': [],
+        }), 'Verify the serializer results.'
+
+    def test_one_course_full_info(self, client):
+        """
+        Test JSON format for course with course access groups info.
+        """
+        public_course = PublicCourseFactory.create()
+        course = public_course.course
+        OrganizationCourse.objects.create(
+            course_id=text_type(course.id),
+            organization=self.my_org,
+        )
+        group_course = GroupCourseFactory.create(course=course, group__organization=self.my_org)
+        response = client.get('{}{}/'.format(self.url, course.id))
+        assert response.status_code == HTTP_200_OK, response.content
+        result = response.json()
+        assert result == {
+            'id': text_type(course.id),
+            'name': course.display_name,
+            'public_status': {
+                'id': public_course.id,
+                'is_public': True,
+            },
+            'group_links': [{
+                'id': group_course.id,
+                'group': {
+                    'id': group_course.group.id,
+                    'name': group_course.group.name,
+                }
+            }],
         }, 'Verify the serializer results.'
 
 

@@ -115,6 +115,71 @@ Delete a Group
 
     DELETE /course_access_groups/api/v1/course-access-groups/2/
 
+Course-Focused Course Access Group API
+--------------------------------------
+
+This API is used to retrieve course information with their Course Access Group
+associations and their public status. This API is read-only.
+
+This ViewSet is provide only the minimal course information like id and
+course name. For more detailed user information or modify the courses
+information other specialised APIs should be used.
+
+List Courses
+~~~~~~~~~~~~
+
+This endpoint returns a paginated list of JSON objects in "results".
+Each object represents a single course.
+The course JSON also has two sub-objects ``public_status`` and
+``group_links``. The inline comments will explain more the properties in more
+details:
+
+
+.. code-block:: javascript
+
+    GET /course_access_groups/api/v1/group-courses/
+
+    {
+      "count": 50,
+      "next": "http://mydomain.com/course_access_groups/api/v1/courses/?limit=20&offset=20",
+      "previous": null,
+      "results": [
+        {
+          "id": "course-v1:Blue+Python+2020",  // Course ID
+          "name": "Introduction to Python",  // Course Name
+          "public_status": {
+            "is_public": false  // Either `true` or `false`
+          },
+          "group_links": []
+        },
+        {
+          "id": "course-v1:Blue+SQL+2020",
+          "name": "Advanced Postgres Deployments",
+          "public_status": {
+            "is_public": false
+          },
+          "group_links": [
+            {
+              "id": 1,  // GroupCourse linking ID to be used with the `/group-courses` API for deletion.
+              "group": {
+                "id": 1,  // Course Access Group ID
+                "name": "Employees"  // Course Access Group name
+              }
+            }
+          ]
+        },
+        {
+          "id": "course-v1:Blue+Coding+101",
+          "name": "Coding 101",
+          "public_status": {
+            "id": 1,  // PublicCourse status ID. Can be deleted via `/public-courses/`
+            "is_public": true
+          },
+          "group_links": []
+        }
+      ]
+    }
+
 
 Linking Courses to Course Access Groups
 ---------------------------------------
@@ -166,6 +231,7 @@ Course Access Group.
         }
       ]
     }
+
 
 Adding, Modifying and Deleting Links
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import, unicode_literals
 
+from six import text_type
 import factory
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
@@ -13,7 +14,7 @@ from course_access_groups.models import (
     MembershipRule,
     PublicCourse,
 )
-from organizations.models import Organization, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 
 
 class UserFactory(factory.DjangoModelFactory):
@@ -103,6 +104,28 @@ class CourseOverviewFactory(factory.DjangoModelFactory):
     @factory.lazy_attribute
     def display_name(self):
         return "{} Course".format(self.id)
+
+
+class OrganizationCourseFactory(factory.DjangoModelFactory):
+    class Meta(object):
+        model = OrganizationCourse
+
+    organization = factory.SubFactory(OrganizationFactory)
+
+    @factory.lazy_attribute
+    def course_id(self):
+        course = CourseOverviewFactory.create()
+        return text_type(course.id)
+
+    @classmethod
+    def create_for(cls, organization, courses):
+        """
+        Associate list of courses with a certain organization.
+        """
+        mappings = []
+        for course in courses:
+            mappings.append(cls.create(organization=organization, course_id=text_type(course.id)))
+        return mappings
 
 
 class PublicCourseFactory(factory.DjangoModelFactory):

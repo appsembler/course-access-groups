@@ -11,6 +11,12 @@ from course_access_groups import views
 router = routers.SimpleRouter()
 
 router.register(
+    r'courses',
+    views.CourseViewSet,
+    base_name='courses',
+)
+
+router.register(
     r'course-access-groups',
     views.CourseAccessGroupViewSet,
     base_name='course-access-groups',
