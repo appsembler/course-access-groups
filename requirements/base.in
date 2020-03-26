@@ -6,3 +6,4 @@ XBlock>=1.2.2              # Courseware component architecture
 django-model-utils
 git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
 edx-opaque-keys
+django-filter              # Filters for Django Rest Framework

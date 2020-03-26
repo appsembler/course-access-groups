@@ -15,6 +15,7 @@ code-annotations==0.3.3   # via -r requirements/test.in
 configparser==4.0.2       # via importlib-metadata
 contextlib2==0.6.0.post1  # via importlib-metadata
 coverage==5.0.3           # via pytest-cov
+django-filter==1.0.4      # via -r requirements/base.txt
 django-model-utils==3.0.0  # via -c requirements/constraints.txt, -r requirements/base.txt, edx-organizations
 django-waffle==0.20.0     # via -r requirements/base.txt, edx-django-utils, edx-drf-extensions
 djangorestframework-jwt==1.11.0  # via -r requirements/base.txt, edx-drf-extensions
