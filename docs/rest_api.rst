@@ -457,7 +457,8 @@ The inline comments will explain in more details:
       "results": [
         {
           "id": 2,  // The User ID that can be used in the `/memberships/` endpoint
-          "username": "ali",
+          "username": "ali",  // The short public username used in forums
+          "name": "Ali Al-Ithawi",  // The full name used in certificates
           "email": "ali@corp.com",
           "membership": {  // Membership information
             "id": 5,  // Use this `membership` ID to delete the membership via the `/memberships/` endpoint.
@@ -469,8 +470,9 @@ The inline comments will explain in more details:
         },
         {
           "id": 2,
-          "username": "ali",
-          "email": "ali@corp.com",
+          "username": "johnb",
+          "name": "John Baldwin",
+          "email": "john@community.org",
           "membership": null  // This user has no membership
         }
     }

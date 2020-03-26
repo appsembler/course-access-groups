@@ -277,12 +277,13 @@ class TestUserViewSet(ViewSetTestBase):
         org = Organization.objects.get(name=org_name)
         user = UserFactory.create()
         UserOrganizationMappingFactory.create(user=user, organization=org)
-        response = client.get('/users/{}/'.format(user.id))
+        response = client.get('{}{}/'.format(self.url, user.id))
         assert response.status_code == status_code, response.content
         result = response.json()
         assert skip_response_check or (result == {
             'id': user.id,
             'email': user.email,
+            'name': user.profile.name,
             'username': user.username,
             'membership': None,
         }), 'Verify the serializer results.'
@@ -294,12 +295,13 @@ class TestUserViewSet(ViewSetTestBase):
         user = UserFactory.create()
         UserOrganizationMappingFactory.create(user=user, organization=self.my_org)
         membership = MembershipFactory.create(group__organization=self.my_org, user=user)
-        response = client.get('/users/{}/'.format(user.id))
+        response = client.get('{}{}/'.format(self.url, user.id))
         assert response.status_code == HTTP_200_OK, response.content
         result = response.json()
         assert result == {
             'id': user.id,
             'email': user.email,
+            'name': user.profile.name,
             'username': user.username,
             'membership': {
                 'id': membership.id,

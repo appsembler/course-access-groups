@@ -177,6 +177,7 @@ class MembershipSubSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='profile.name', read_only=True)
     membership = MembershipSubSerializer(read_only=True)
 
     class Meta:
@@ -184,6 +185,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'username',
+            'name',
             'email',
             'membership',
         ]
