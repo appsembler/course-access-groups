@@ -445,6 +445,24 @@ Each user JSON has a few personal information like ``email`` and ``username``.
 The user JSON also has a sub-object ``membership`` in a Course Access Group.
 The inline comments will explain in more details:
 
+Query Parameters
+````````````````
+
+This endpoint supports the following query parameters e.g.
+``/course_access_groups/api/v1/users/?search=corp.com``
+
+===========   =======   ===============
+Name          Type      Description
+===========   =======   ===============
+search        string    Search for any text within the name, username and
+                        email of the user data.
+email_exact   string    Search for case-insensitive exact matches of a
+                        user email.
+group         number    Filter by Course Access Group ID.
+no_group      boolean   Use ``True`` to filter users with no group
+                        association. On the other hand ``False`` would filter
+                        all users with *any* group association.
+===========   =======   ===============
 
 .. code-block:: javascript
 

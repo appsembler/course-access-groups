@@ -7,11 +7,16 @@ from __future__ import absolute_import, unicode_literals
 
 
 from django.contrib.auth import get_user_model
+from django_filters.rest_framework import DjangoFilterBackend
 from opaque_keys.edx.keys import CourseKey
 from rest_framework import viewsets
+from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
 from organizations.models import OrganizationCourse, UserOrganizationMapping
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from course_access_groups.filters import (
+    UserFilter,
+)
 from course_access_groups.serializers import (
     CourseAccessGroupSerializer,
     CourseOverviewSerializer,
@@ -136,6 +141,9 @@ class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     model = get_user_model()
     pagination_class = LimitOffsetPagination
     serializer_class = UserSerializer
+    filter_class = UserFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['email', 'username', 'profile__name']
 
     def get_queryset(self):
         organization = get_current_organization(self.request)
