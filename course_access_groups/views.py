@@ -15,6 +15,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from organizations.models import OrganizationCourse, UserOrganizationMapping
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.filters import (
+    CourseOverviewFilter,
     UserFilter,
 )
 from course_access_groups.serializers import (
@@ -69,6 +70,9 @@ class CourseViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     pagination_class = LimitOffsetPagination
     serializer_class = CourseOverviewSerializer
     lookup_url_kwarg = 'pk'
+    filter_class = CourseOverviewFilter
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    search_fields = ['id', 'display_name']
 
     def get_object(self):
         """

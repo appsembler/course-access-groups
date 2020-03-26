@@ -110,7 +110,7 @@ class PublicCourse(utils_models.TimeStampedModel):
     Model to mark courses as public to exempt from the Course Access Group rules.
     """
 
-    course = models.OneToOneField(CourseOverview, on_delete=models.CASCADE)
+    course = models.OneToOneField(CourseOverview, related_name='public_course', on_delete=models.CASCADE)
 
 
 class GroupCourse(utils_models.TimeStampedModel):
