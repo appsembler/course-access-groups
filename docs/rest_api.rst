@@ -122,7 +122,7 @@ This API is used to retrieve course information with their Course Access Group
 associations and their public status. This API is read-only.
 
 This ViewSet is provide only the minimal course information like id and
-course name. For more detailed user information or modify the courses
+course name. For more detailed course information or modify the courses
 information other specialised APIs should be used.
 
 List Courses
@@ -135,9 +135,30 @@ The course JSON also has two sub-objects ``public_status`` and
 details:
 
 
+Query Parameters
+````````````````
+This endpoint supports the following query parameters e.g.
+``/course_access_groups/api/v1/courses/?search=python+course``
+
+===========   =======   ===============
+Name          Type      Description
+===========   =======   ===============
+search        string    Search for any text within the ID and name of the
+                        course.
+is_public     boolean   Whether the course is set to public via the
+                        ``/public-courses`` APIs.
+group         number    Filter by Course Access Group ID.
+                        A course could be association to multiple course
+                        access groups.
+no_group      boolean   Use ``True`` to filter courses with no group
+                        association. On the other hand ``False`` would filter
+                        all courses with *any* group association.
+===========   =======   ===============
+
+
 .. code-block:: javascript
 
-    GET /course_access_groups/api/v1/group-courses/
+    GET /course_access_groups/api/v1/courses/
 
     {
       "count": 50,
@@ -445,6 +466,25 @@ Each user JSON has a few personal information like ``email`` and ``username``.
 The user JSON also has a sub-object ``membership`` in a Course Access Group.
 The inline comments will explain in more details:
 
+Query Parameters
+````````````````
+
+This endpoint supports the following query parameters e.g.
+``/course_access_groups/api/v1/users/?search=corp.com``
+
+===========   =======   ===============
+Name          Type      Description
+===========   =======   ===============
+search        string    Search for any text within the name, username and
+                        email of the user data.
+email_exact   string    Search for case-insensitive exact matches of a
+                        user email.
+group         number    Filter by Course Access Group ID. A course can be
+                        a member of a single course access group.
+no_group      boolean   Use ``True`` to filter users with no group
+                        association. On the other hand ``False`` would filter
+                        all users with *any* group association.
+===========   =======   ===============
 
 .. code-block:: javascript
 

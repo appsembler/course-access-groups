@@ -9,6 +9,7 @@ import json
 from six import text_type
 import pytest
 
+from django.contrib.auth import get_user_model
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -17,6 +18,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND,
 )
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from course_access_groups.models import (
     CourseAccessGroup,
     GroupCourse,
@@ -313,6 +315,46 @@ class TestUserViewSet(ViewSetTestBase):
         }, 'Verify the serializer results.'
 
 
+class TestUserViewSetFilters(ViewSetTestBase):
+    """
+    Tests for the UserViewSet API filters.
+    """
+
+    url = '/users/'
+    non_member_email = 'non_member@example.com'
+    member_email = 'member@example.com'
+
+    @pytest.fixture(autouse=True)
+    def users_setup(self):
+        omar = UserFactory.create(email=self.non_member_email)
+        user1 = MembershipFactory.create(user__email=self.member_email).user
+        user2 = MembershipFactory.create().user
+        UserOrganizationMappingFactory.create_for(
+            self.my_org,
+            users=[omar, user1, user2],
+        )
+
+    def test_search_filter(self, client):
+        response = client.get('{}?search={}'.format(self.url, 'non_member'))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['email'] == self.non_member_email, response.content
+
+    def test_no_group_filter(self, client):
+        response = client.get('{}?no_group={}'.format(self.url, 'True'))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['email'] == self.non_member_email, response.content
+
+    def test_group_id_filter(self, client):
+        user = get_user_model().objects.get(email=self.member_email)
+        group = user.membership.group
+        response = client.get('{}?group={}'.format(self.url, group.id))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['email'] == user.email, response.content
+
+
 class TestCourseViewSet(ViewSetTestBase):
     """
     Tests for the CourseViewSet APIs.
@@ -399,6 +441,49 @@ class TestCourseViewSet(ViewSetTestBase):
                 }
             }],
         }, 'Verify the serializer results.'
+
+
+class TestCourseViewSetFilters(ViewSetTestBase):
+    """
+    Tests for the CourseOverviewViewSet API filters.
+    """
+
+    url = '/courses/'
+    public_course = 'Course: Public Course'
+    private_course = 'Course: I have no groups'
+    group_course = 'Course: I am in a Group'
+
+    @pytest.fixture(autouse=True)
+    def users_setup(self):
+        public = PublicCourseFactory.create(course__display_name=self.public_course).course
+        private = CourseOverviewFactory.create(display_name=self.private_course)
+        link = GroupCourseFactory.create(
+            course__display_name=self.group_course,
+            group__organization=self.my_org,
+        )
+        in_group = link.course
+        OrganizationCourseFactory.create_for(self.my_org, courses=[public, private, in_group])
+
+    def test_search_filter(self, client):
+        public = CourseOverview.objects.get(display_name=self.public_course)
+        response = client.get('{}?search={}'.format(self.url, public.id))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['name'] == self.public_course, response.content
+
+    def test_no_group_and_is_public_filter(self, client):
+        response = client.get('{}?no_group=True&is_public=False'.format(self.url))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['name'] == self.private_course, response.content
+
+    def test_group_id_filter(self, client):
+        in_group = CourseOverview.objects.get(display_name=self.group_course)
+        group = in_group.group_courses.get().group
+        response = client.get('{}?group={}'.format(self.url, group.id))
+        results = response.json()['results']
+        assert len(results) == 1, response.content
+        assert results[0]['name'] == self.group_course, response.content
 
 
 class TestMembershipRuleViewSet(ViewSetTestBase):
