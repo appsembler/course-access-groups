@@ -3,7 +3,6 @@
 Course Access Groups permission and authentication classes.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from six import text_type
 import logging

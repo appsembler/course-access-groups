@@ -3,7 +3,6 @@
 Test the authentication and permission of Course Access Groups.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 import pytest
 from mock import patch, Mock

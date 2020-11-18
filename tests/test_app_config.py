@@ -3,7 +3,6 @@
 Tests for the CourseAccessGroupsConfig, mostly for the Open edX plugin system.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from course_access_groups import apps
 

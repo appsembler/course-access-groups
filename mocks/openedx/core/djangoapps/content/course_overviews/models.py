@@ -7,7 +7,7 @@ Overview
 The purpose of this module is to provide the minimum models in order to mock
 Course Access Group interaction with the edx-platform models.
 """
-from __future__ import absolute_import, unicode_literals
+
 
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -38,4 +38,4 @@ class CourseOverview(models.Model):
         return self.org
 
     def __str__(self):
-        return unicode(self.id)  # noqa: F821
+        return str(self.id)  # noqa: F821

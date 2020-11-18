@@ -2,7 +2,7 @@
 """
 URLs for course_access_groups.
 """
-from __future__ import absolute_import, unicode_literals
+
 
 from rest_framework import routers
 from course_access_groups import views

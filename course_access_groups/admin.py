@@ -3,7 +3,6 @@
 Admins for the Course Access Groups module.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from six import text_type
 from opaque_keys.edx.keys import CourseKey

@@ -3,8 +3,7 @@
 Tests for the `course-access-groups` models module.
 """
 
-from __future__ import absolute_import, unicode_literals
-
+import six
 import pytest
 from django.core.exceptions import ValidationError
 from organizations.models import UserOrganizationMapping
@@ -92,4 +91,4 @@ class TestCourseAccessGroupModel(object):
     def test_str(self):
         group = CourseAccessGroup(name='hello world')
         assert str(group) == 'hello world'
-        assert unicode(group) == 'hello world'  # noqa: F821
+        assert six.text_type(group) == 'hello world'

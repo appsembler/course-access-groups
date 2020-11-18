@@ -3,8 +3,6 @@
 Access Control backends to implement the Course Access Groups.
 """
 
-from __future__ import absolute_import, unicode_literals
-
 
 from courseware.access_utils import (
     ACCESS_DENIED,
