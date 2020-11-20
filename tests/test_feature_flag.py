@@ -3,7 +3,6 @@
 Tests for the feature flag helper.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 import pytest
 

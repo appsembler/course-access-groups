@@ -8,6 +8,8 @@ python:
 env:
   - TOXENV=py27-django111
   - TOXENV=py27-django111-check
+  - TOXENV=py3-django2
+  - TOXENV=py3-django2-check
   - TOXENV=docs
   - TOXENV=flake8
 

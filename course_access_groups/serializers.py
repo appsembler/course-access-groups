@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import, unicode_literals
 
 from six import text_type
 from django.contrib.auth import get_user_model

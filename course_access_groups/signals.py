@@ -3,7 +3,6 @@
 Signals and receivers for Course Access Groups.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from course_access_groups.models import Membership
 

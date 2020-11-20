@@ -3,7 +3,6 @@
 Database models for course_access_groups.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 from django.contrib.auth import get_user_model
 from django.utils.encoding import python_2_unicode_compatible

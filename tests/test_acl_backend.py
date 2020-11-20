@@ -3,7 +3,6 @@
 Testing the Access Control Backend `acl_backend.user_has_access`.
 """
 
-from __future__ import absolute_import, unicode_literals
 
 import six
 import pytest
