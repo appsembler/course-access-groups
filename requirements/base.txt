@@ -24,7 +24,7 @@ enum34==1.1.9             # via fs
 fs==2.4.11                # via xblock
 future==0.18.2            # via backports.os, pyjwkest
 idna==2.9                 # via requests
-lxml==4.5.0               # via xblock
+lxml==4.6.2               # via xblock
 markupsafe==1.1.1         # via xblock
 newrelic==5.8.0.136       # via edx-django-utils
 pbr==5.4.4                # via stevedore
