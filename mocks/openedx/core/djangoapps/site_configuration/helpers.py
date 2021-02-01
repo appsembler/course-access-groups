@@ -9,7 +9,7 @@ MOCK_SITE_CONFIG_VALUES = {
 }
 
 
-def get_value(val_name, default=None, **kwargs):  # pylint: disable=unused-argument
+def get_value(val_name, default=None, **kwargs):
     """
     Mock openedx.core.djangoapps.site_configuration.helpers.get_value.
     """

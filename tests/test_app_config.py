@@ -7,7 +7,7 @@ Tests for the CourseAccessGroupsConfig, mostly for the Open edX plugin system.
 from course_access_groups import apps
 
 
-class TestCourseAccessGroupsConfig(object):
+class TestCourseAccessGroupsConfig:
     """
     Testing CourseAccessGroupsConfig.
     """

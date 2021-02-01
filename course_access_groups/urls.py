@@ -5,51 +5,51 @@ URLs for course_access_groups.
 
 
 from rest_framework import routers
-from course_access_groups import views
 
+from course_access_groups import views
 
 router = routers.SimpleRouter()
 
 router.register(
     r'courses',
     views.CourseViewSet,
-    base_name='courses',
+    basename='courses',
 )
 
 router.register(
     r'course-access-groups',
     views.CourseAccessGroupViewSet,
-    base_name='course-access-groups',
+    basename='course-access-groups',
 )
 
 router.register(
     r'memberships',
     views.MembershipViewSet,
-    base_name='memberships',
+    basename='memberships',
 )
 
 router.register(
     r'membership-rules',
     views.MembershipRuleViewSet,
-    base_name='membership-rules',
+    basename='membership-rules',
 )
 
 router.register(
     r'public-courses',
     views.PublicCourseViewSet,
-    base_name='public-courses',
+    basename='public-courses',
 )
 
 router.register(
     r'users',
     views.UserViewSet,
-    base_name='users',
+    basename='users',
 )
 
 router.register(
     r'group-courses',
     views.GroupCourseViewSet,
-    base_name='group-courses',
+    basename='group-courses',
 )
 
 urlpatterns = router.urls

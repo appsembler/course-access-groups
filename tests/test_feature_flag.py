@@ -5,9 +5,7 @@ Tests for the feature flag helper.
 
 
 import pytest
-
-from course_access_groups.feature_flag import is_feature_enabled, ConfigurationError
-
+from course_access_groups.feature_flag import ConfigurationError, is_feature_enabled
 from test_utils import patch_site_configs
 
 

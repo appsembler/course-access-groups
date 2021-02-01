@@ -3,7 +3,7 @@ Mocks for the courseware.access_response Open edX module.
 """
 
 
-class AccessResponse(object):
+class AccessResponse:
     """
     Minimal mock class for `courseware.access_response.AccessResponse` in Open edX.
     """

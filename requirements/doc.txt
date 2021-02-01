@@ -4,93 +4,358 @@
 #
 #    make upgrade
 #
-alabaster==0.7.12         # via sphinx
-appdirs==1.4.3            # via -r requirements/test.txt, fs
-atomicwrites==1.3.0       # via -r requirements/test.txt, pytest
-attrs==19.3.0             # via -r requirements/test.txt, pytest
-babel==2.8.0              # via sphinx
-backports.os==0.1.1       # via -r requirements/test.txt, fs
-bleach==3.1.1             # via readme-renderer
-certifi==2019.11.28       # via -r requirements/test.txt, requests
-chardet==3.0.4            # via -r requirements/test.txt, doc8, requests
-click==7.0                # via -r requirements/test.txt, code-annotations
-code-annotations==0.3.3   # via -r requirements/test.txt
-configparser==4.0.2       # via -r requirements/test.txt, importlib-metadata
-contextlib2==0.6.0.post1  # via -r requirements/test.txt, importlib-metadata, zipp
-coverage==5.0.3           # via -r requirements/test.txt, pytest-cov
-django-filter==1.0.4      # via -r requirements/test.txt
-django-model-utils==3.0.0  # via -c requirements/constraints.txt, -r requirements/test.txt, edx-organizations
-django-waffle==0.20.0     # via -r requirements/test.txt, edx-django-utils, edx-drf-extensions
-django==1.11.29           # via -r requirements/test.txt, code-annotations, django-model-utils, edx-django-oauth2-provider, edx-django-utils, edx-drf-extensions, edx-organizations, rest-condition
-djangorestframework-jwt==1.11.0  # via -r requirements/test.txt, edx-drf-extensions
-djangorestframework-oauth==1.1.0  # via -r requirements/test.txt, edx-organizations
-djangorestframework==3.6.4  # via -r requirements/test.txt, edx-drf-extensions, edx-organizations, rest-condition
-doc8==0.8.0               # via -r requirements/doc.in
-docutils==0.16            # via doc8, readme-renderer, restructuredtext-lint, sphinx
-edx-django-oauth2-provider==1.3.5  # via -r requirements/test.txt, edx-organizations
-edx-django-utils==3.0     # via -r requirements/test.txt, edx-drf-extensions
-edx-drf-extensions==3.0.0  # via -r requirements/test.txt, edx-organizations
-edx-opaque-keys==0.4.4    # via -c requirements/constraints.txt, -r requirements/test.txt, edx-drf-extensions, edx-organizations
-git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4  # via -r requirements/test.txt
-edx-sphinx-theme==1.5.0   # via -r requirements/doc.in
-enum34==1.1.9             # via -r requirements/test.txt, fs
-factory_boy==2.8.1        # via -r requirements/test.txt
-faker==3.0.1              # via -r requirements/test.txt, factory-boy
-fs==2.4.11                # via -r requirements/test.txt, xblock
-funcsigs==1.0.2           # via -r requirements/test.txt, mock, pytest
-future==0.18.2            # via -r requirements/test.txt, backports.os, pyjwkest
-idna==2.9                 # via -r requirements/test.txt, requests
-imagesize==1.2.0          # via sphinx
-importlib-metadata==1.5.0  # via -r requirements/test.txt, pluggy, pytest
-ipaddress==1.0.23         # via -r requirements/test.txt, faker
-jinja2==2.11.1            # via -r requirements/test.txt, code-annotations, sphinx
-lxml==4.5.0               # via -r requirements/test.txt, xblock
-markupsafe==1.1.1         # via -r requirements/test.txt, jinja2, xblock
-mock==3.0.5               # via -r requirements/test.txt
-more-itertools==5.0.0     # via -c requirements/constraints.txt, -r requirements/test.txt, pytest
-newrelic==5.8.0.136       # via -r requirements/test.txt, edx-django-utils
-packaging==20.3           # via -r requirements/test.txt, pytest, sphinx
-pathlib2==2.3.5           # via -r requirements/test.txt, importlib-metadata, pytest, pytest-django
-pbr==5.4.4                # via -r requirements/test.txt, stevedore
-pillow==6.2.2             # via -r requirements/test.txt, edx-organizations
-pluggy==0.13.1            # via -r requirements/test.txt, pytest
-psutil==1.2.1             # via -r requirements/test.txt, edx-django-utils, edx-drf-extensions
-py==1.8.1                 # via -r requirements/test.txt, pytest
-pycryptodomex==3.9.7      # via -r requirements/test.txt, pyjwkest
-pygments==2.5.2           # via readme-renderer, sphinx
-pyjwkest==1.3.2           # via -r requirements/test.txt, edx-drf-extensions
-pyjwt==1.7.1              # via -r requirements/test.txt, djangorestframework-jwt
-pymongo==3.10.1           # via -r requirements/test.txt, edx-opaque-keys
-pyparsing==2.4.6          # via -r requirements/test.txt, packaging
-pytest-cov==2.8.1         # via -r requirements/test.txt
-pytest-django==3.8.0      # via -r requirements/test.txt
-pytest==4.6.9             # via -r requirements/test.txt, pytest-cov, pytest-django
-python-dateutil==2.8.1    # via -r requirements/test.txt, edx-drf-extensions, faker, xblock
-python-slugify==4.0.0     # via -r requirements/test.txt, code-annotations
-pytz==2019.3              # via -r requirements/test.txt, babel, django, fs, xblock
-pyyaml==5.3               # via -r requirements/test.txt, code-annotations, xblock
-readme-renderer==24.0     # via -r requirements/doc.in
-requests==2.23.0          # via -r requirements/test.txt, edx-drf-extensions, pyjwkest, sphinx
-rest-condition==1.0.3     # via -r requirements/test.txt, edx-drf-extensions
-restructuredtext-lint==1.3.0  # via doc8
-scandir==1.10.0           # via -r requirements/test.txt, pathlib2
-semantic-version==2.8.4   # via -r requirements/test.txt, edx-drf-extensions
-shortuuid==0.5.0          # via -r requirements/test.txt, edx-django-oauth2-provider
-six==1.14.0               # via -r requirements/test.txt, bleach, django-waffle, doc8, edx-drf-extensions, edx-opaque-keys, edx-sphinx-theme, faker, fs, mock, more-itertools, packaging, pathlib2, pyjwkest, pytest, python-dateutil, readme-renderer, sphinx, stevedore, xblock
-snowballstemmer==2.0.0    # via sphinx
-sphinx-rtd-theme==0.4.3   # via -r requirements/doc.in
-sphinx==1.8.5             # via -r requirements/doc.in, edx-sphinx-theme, sphinx-rtd-theme
-sphinxcontrib-websupport==1.1.2  # via sphinx
-stevedore==1.32.0         # via -r requirements/test.txt, code-annotations, doc8, edx-opaque-keys
-text-unidecode==1.3       # via -r requirements/test.txt, faker, python-slugify
-typing==3.7.4.1           # via -r requirements/test.txt, fs, sphinx
-urllib3==1.25.8           # via -r requirements/test.txt, requests
-wcwidth==0.1.8            # via -r requirements/test.txt, pytest
-web-fragments==0.3.1      # via -r requirements/test.txt, xblock
-webencodings==0.5.1       # via bleach
-webob==1.8.6              # via -r requirements/test.txt, xblock
-xblock==1.2.9             # via -r requirements/test.txt
-zipp==1.2.0               # via -r requirements/test.txt, importlib-metadata
+alabaster==0.7.12
+    # via sphinx
+appdirs==1.4.4
+    # via
+    #   -r requirements/test.txt
+    #   fs
+attrs==20.3.0
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+babel==2.9.0
+    # via sphinx
+bleach==3.2.3
+    # via readme-renderer
+certifi==2020.12.5
+    # via
+    #   -r requirements/test.txt
+    #   requests
+cffi==1.14.4
+    # via
+    #   -r requirements/test.txt
+    #   cryptography
+chardet==4.0.0
+    # via
+    #   -r requirements/test.txt
+    #   doc8
+    #   requests
+click==7.1.2
+    # via
+    #   -r requirements/test.txt
+    #   code-annotations
+code-annotations==1.0.2
+    # via -r requirements/test.txt
+coverage==5.4
+    # via
+    #   -r requirements/test.txt
+    #   pytest-cov
+cryptography==3.2.1
+    # via
+    #   -r requirements/test.txt
+    #   pyjwt
+django-crum==0.7.9
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+django-filter==2.4.0
+    # via -r requirements/test.txt
+django-model-utils==4.1.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
+django-simple-history==2.12.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
+django-waffle==2.1.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+    #   edx-drf-extensions
+django==2.2.17
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
+    #   code-annotations
+    #   django-crum
+    #   django-filter
+    #   django-model-utils
+    #   djangorestframework
+    #   drf-jwt
+    #   edx-django-utils
+    #   edx-drf-extensions
+    #   edx-organizations
+    #   rest-condition
+djangorestframework==3.12.2
+    # via
+    #   -r requirements/test.txt
+    #   drf-jwt
+    #   edx-drf-extensions
+    #   edx-organizations
+    #   rest-condition
+doc8==0.8.1
+    # via -r requirements/doc.in
+docutils==0.16
+    # via
+    #   doc8
+    #   readme-renderer
+    #   restructuredtext-lint
+    #   sphinx
+drf-jwt==1.17.3
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+edx-django-utils==3.13.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+edx-drf-extensions==6.4.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
+edx-opaque-keys==2.0.2
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+    #   edx-organizations
+https://github.com/appsembler/edx-organizations/archive/5.2.0-appsembler11.tar.gz
+    # via -r requirements/test.txt
+edx-sphinx-theme==1.6.1
+    # via -r requirements/doc.in
+factory-boy==3.1.0
+    # via -r requirements/test.txt
+faker==5.0.0
+    # via
+    #   -r requirements/test.txt
+    #   factory-boy
+fs==2.4.12
+    # via
+    #   -r requirements/test.txt
+    #   xblock
+future==0.18.2
+    # via
+    #   -r requirements/test.txt
+    #   pyjwkest
+idna==2.10
+    # via
+    #   -r requirements/test.txt
+    #   requests
+imagesize==1.2.0
+    # via sphinx
+importlib-metadata==2.1.1
+    # via
+    #   -r requirements/test.txt
+    #   pluggy
+    #   pytest
+iniconfig==1.1.1
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+jinja2==2.11.3
+    # via
+    #   -r requirements/test.txt
+    #   code-annotations
+    #   sphinx
+lxml==4.6.2
+    # via
+    #   -r requirements/test.txt
+    #   xblock
+markupsafe==1.1.1
+    # via
+    #   -r requirements/test.txt
+    #   jinja2
+    #   xblock
+mock==3.0.5
+    # via -r requirements/test.txt
+newrelic==5.24.0.153
+    # via
+    #   -c requirements/constraints.txt
+    #   -r requirements/test.txt
+    #   edx-django-utils
+packaging==20.9
+    # via
+    #   -r requirements/test.txt
+    #   bleach
+    #   pytest
+    #   sphinx
+pathlib2==2.3.5
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+pbr==5.5.1
+    # via
+    #   -r requirements/test.txt
+    #   stevedore
+pillow==7.2.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-organizations
+pluggy==0.13.1
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+psutil==5.8.0
+    # via
+    #   -r requirements/test.txt
+    #   edx-django-utils
+py==1.10.0
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+pycparser==2.20
+    # via
+    #   -r requirements/test.txt
+    #   cffi
+pycryptodomex==3.9.9
+    # via
+    #   -r requirements/test.txt
+    #   pyjwkest
+pygments==2.7.4
+    # via
+    #   doc8
+    #   readme-renderer
+    #   sphinx
+pyjwkest==1.4.2
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+pyjwt[crypto]==1.7.1
+    # via
+    #   -r requirements/test.txt
+    #   drf-jwt
+pymongo==3.11.2
+    # via
+    #   -r requirements/test.txt
+    #   edx-opaque-keys
+pyparsing==2.4.7
+    # via
+    #   -r requirements/test.txt
+    #   packaging
+pytest-cov==2.11.1
+    # via -r requirements/test.txt
+pytest-django==4.1.0
+    # via -r requirements/test.txt
+pytest==6.1.2
+    # via
+    #   -r requirements/test.txt
+    #   pytest-cov
+    #   pytest-django
+python-dateutil==2.8.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+    #   faker
+    #   xblock
+python-slugify==4.0.1
+    # via
+    #   -r requirements/test.txt
+    #   code-annotations
+pytz==2020.5
+    # via
+    #   -r requirements/test.txt
+    #   babel
+    #   django
+    #   fs
+    #   xblock
+pyyaml==5.3.1
+    # via
+    #   -r requirements/test.txt
+    #   code-annotations
+    #   xblock
+readme-renderer==28.0
+    # via -r requirements/doc.in
+requests==2.25.1
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+    #   pyjwkest
+    #   sphinx
+rest-condition==1.0.3
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+restructuredtext-lint==1.3.2
+    # via doc8
+semantic-version==2.8.5
+    # via
+    #   -r requirements/test.txt
+    #   edx-drf-extensions
+six==1.15.0
+    # via
+    #   -r requirements/test.txt
+    #   bleach
+    #   cryptography
+    #   django-simple-history
+    #   doc8
+    #   edx-drf-extensions
+    #   edx-opaque-keys
+    #   edx-sphinx-theme
+    #   fs
+    #   mock
+    #   pathlib2
+    #   pyjwkest
+    #   python-dateutil
+    #   readme-renderer
+    #   stevedore
+    #   xblock
+snowballstemmer==2.1.0
+    # via sphinx
+sphinx-rtd-theme==0.5.1
+    # via -r requirements/doc.in
+sphinx==3.4.3
+    # via
+    #   -r requirements/doc.in
+    #   edx-sphinx-theme
+    #   sphinx-rtd-theme
+sphinxcontrib-applehelp==1.0.2
+    # via sphinx
+sphinxcontrib-devhelp==1.0.2
+    # via sphinx
+sphinxcontrib-htmlhelp==1.0.3
+    # via sphinx
+sphinxcontrib-jsmath==1.0.1
+    # via sphinx
+sphinxcontrib-qthelp==1.0.3
+    # via sphinx
+sphinxcontrib-serializinghtml==1.1.4
+    # via sphinx
+sqlparse==0.4.1
+    # via
+    #   -r requirements/test.txt
+    #   django
+stevedore==1.32.0
+    # via
+    #   -r requirements/test.txt
+    #   code-annotations
+    #   doc8
+    #   edx-django-utils
+    #   edx-opaque-keys
+text-unidecode==1.3
+    # via
+    #   -r requirements/test.txt
+    #   faker
+    #   python-slugify
+toml==0.10.2
+    # via
+    #   -r requirements/test.txt
+    #   pytest
+typing==3.7.4.3
+    # via
+    #   -r requirements/test.txt
+    #   fs
+urllib3==1.26.3
+    # via
+    #   -r requirements/test.txt
+    #   requests
+web-fragments==1.0.0
+    # via
+    #   -r requirements/test.txt
+    #   xblock
+webencodings==0.5.1
+    # via bleach
+webob==1.8.6
+    # via
+    #   -r requirements/test.txt
+    #   xblock
+xblock==1.4.0
+    # via -r requirements/test.txt
+zipp==1.2.0
+    # via
+    #   -r requirements/test.txt
+    #   importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

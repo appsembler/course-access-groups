@@ -5,7 +5,7 @@ Feature helpers.
 
 from django.conf import settings
 
-from openedx.core.djangoapps.site_configuration import helpers as configuration_helpers
+from .openedx_modules import configuration_helpers
 
 
 class ConfigurationError(Exception):

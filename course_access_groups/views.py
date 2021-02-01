@@ -7,32 +7,24 @@ API Endpoints for Course Access Groups.
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from opaque_keys.edx.keys import CourseKey
+from organizations.models import OrganizationCourse, UserOrganizationMapping
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
-from organizations.models import OrganizationCourse, UserOrganizationMapping
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from course_access_groups.filters import (
-    CourseOverviewFilter,
-    UserFilter,
-)
-from course_access_groups.serializers import (
+
+from .filters import CourseOverviewFilter, UserFilter
+from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
+from .openedx_modules import CourseOverview
+from .permissions import CommonAuthMixin, get_current_organization
+from .serializers import (
     CourseAccessGroupSerializer,
     CourseOverviewSerializer,
-    MembershipSerializer,
-    MembershipRuleSerializer,
     GroupCourseSerializer,
+    MembershipRuleSerializer,
+    MembershipSerializer,
     PublicCourseSerializer,
-    UserSerializer,
+    UserSerializer
 )
-from course_access_groups.models import (
-    CourseAccessGroup,
-    Membership,
-    MembershipRule,
-    GroupCourse,
-    PublicCourse,
-)
-from course_access_groups.permissions import get_current_organization, CommonAuthMixin
 
 
 class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
@@ -68,7 +60,7 @@ class CourseViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     pagination_class = LimitOffsetPagination
     serializer_class = CourseOverviewSerializer
     lookup_url_kwarg = 'pk'
-    filter_class = CourseOverviewFilter
+    filterset_class = CourseOverviewFilter
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['id', 'display_name']
 
@@ -143,7 +135,7 @@ class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     model = get_user_model()
     pagination_class = LimitOffsetPagination
     serializer_class = UserSerializer
-    filter_class = UserFilter
+    filterset_class = UserFilter
     filter_backends = [DjangoFilterBackend, SearchFilter]
     search_fields = ['email', 'username', 'profile__name']
 

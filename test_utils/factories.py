@@ -1,41 +1,36 @@
 # -*- coding: utf-8 -*-
 
 
-from six import text_type
-import factory
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from opaque_keys.edx.keys import CourseKey
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from student.models import UserProfile
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
-    MembershipRule,
-    PublicCourse,
-)
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 
+import factory
+from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
+from factory.django import DjangoModelFactory
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from student.models import UserProfile
 
-class UserProfileFactory(factory.DjangoModelFactory):
+
+class UserProfileFactory(DjangoModelFactory):
     name = factory.Sequence('Robot Mega {}'.format)
 
     class Meta:
         model = UserProfile
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(DjangoModelFactory):
     email = factory.Sequence('robot{}@example.com'.format)
     username = factory.Sequence('robot{}'.format)
     profile = factory.RelatedFactory(UserProfileFactory, 'user')
 
-    class Meta(object):
+    class Meta:
         model = get_user_model()
 
 
-class OrganizationFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class OrganizationFactory(DjangoModelFactory):
+    class Meta:
         model = Organization
 
     name = factory.Sequence('organization name {}'.format)
@@ -52,8 +47,8 @@ class OrganizationFactory(factory.DjangoModelFactory):
                 self.sites.add(site)
 
 
-class UserOrganizationMappingFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class UserOrganizationMappingFactory(DjangoModelFactory):
+    class Meta:
         model = UserOrganizationMapping
 
     user = factory.SubFactory(UserFactory)
@@ -70,8 +65,8 @@ class UserOrganizationMappingFactory(factory.DjangoModelFactory):
         return mappings
 
 
-class CourseAccessGroupFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class CourseAccessGroupFactory(DjangoModelFactory):
+    class Meta:
         model = CourseAccessGroup
 
     name = factory.Sequence('Group {}'.format)
@@ -79,16 +74,16 @@ class CourseAccessGroupFactory(factory.DjangoModelFactory):
     description = factory.Sequence('Group desc. {}'.format)
 
 
-class MembershipFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class MembershipFactory(DjangoModelFactory):
+    class Meta:
         model = Membership
 
     group = factory.SubFactory(CourseAccessGroupFactory)
     user = factory.SubFactory(UserFactory)
 
 
-class MembershipRuleFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class MembershipRuleFactory(DjangoModelFactory):
+    class Meta:
         model = MembershipRule
 
     name = factory.Sequence('Rule {}'.format)
@@ -96,8 +91,8 @@ class MembershipRuleFactory(factory.DjangoModelFactory):
     group = factory.SubFactory(CourseAccessGroupFactory)
 
 
-class CourseOverviewFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class CourseOverviewFactory(DjangoModelFactory):
+    class Meta:
         model = CourseOverview
         django_get_or_create = ['id']
 
@@ -112,8 +107,8 @@ class CourseOverviewFactory(factory.DjangoModelFactory):
         return "{} Course".format(self.id)
 
 
-class OrganizationCourseFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class OrganizationCourseFactory(DjangoModelFactory):
+    class Meta:
         model = OrganizationCourse
 
     organization = factory.SubFactory(OrganizationFactory)
@@ -121,7 +116,7 @@ class OrganizationCourseFactory(factory.DjangoModelFactory):
     @factory.lazy_attribute
     def course_id(self):
         course = CourseOverviewFactory.create()
-        return text_type(course.id)
+        return str(course.id)
 
     @classmethod
     def create_for(cls, organization, courses):
@@ -130,26 +125,26 @@ class OrganizationCourseFactory(factory.DjangoModelFactory):
         """
         mappings = []
         for course in courses:
-            mappings.append(cls.create(organization=organization, course_id=text_type(course.id)))
+            mappings.append(cls.create(organization=organization, course_id=str(course.id)))
         return mappings
 
 
-class PublicCourseFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class PublicCourseFactory(DjangoModelFactory):
+    class Meta:
         model = PublicCourse
 
     course = factory.SubFactory(CourseOverviewFactory)
 
 
-class GroupCourseFactory(factory.DjangoModelFactory):
-    class Meta(object):
+class GroupCourseFactory(DjangoModelFactory):
+    class Meta:
         model = GroupCourse
 
     group = factory.SubFactory(CourseAccessGroupFactory)
     course = factory.SubFactory(CourseOverviewFactory)
 
 
-class SiteFactory(factory.DjangoModelFactory):
+class SiteFactory(DjangoModelFactory):
     class Meta:
         model = Site
 

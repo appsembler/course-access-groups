@@ -5,45 +5,37 @@ Tests for the CAG API ViewSets.
 
 
 import json
-from six import text_type
-import pytest
 
 from django.contrib.auth import get_user_model
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_204_NO_CONTENT,
     HTTP_400_BAD_REQUEST,
-    HTTP_404_NOT_FOUND,
+    HTTP_404_NOT_FOUND
 )
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+
+import pytest
+from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
-    MembershipRule,
-    PublicCourse,
-)
 from test_utils.factories import (
+    CourseAccessGroupFactory,
     CourseOverviewFactory,
+    GroupCourseFactory,
     MembershipFactory,
     MembershipRuleFactory,
-    GroupCourseFactory,
     OrganizationCourseFactory,
-    PublicCourseFactory,
-    UserOrganizationMappingFactory,
-)
-from test_utils.factories import (
-    UserFactory,
-    CourseAccessGroupFactory,
     OrganizationFactory,
+    PublicCourseFactory,
     SiteFactory,
+    UserFactory,
+    UserOrganizationMappingFactory
 )
 
 
 @pytest.mark.django_db
-class ViewSetTestBase(object):
+class ViewSetTestBase:
     """
     Base class for ViewSet test cases.
     """
@@ -52,7 +44,6 @@ class ViewSetTestBase(object):
 
     @pytest.fixture(autouse=True)
     def setup(self, client):
-        # pylint: disable=attribute-defined-outside-init
         client.defaults['SERVER_NAME'] = self.domain
         self.user = UserFactory.create(username='org_staff')
         self.site = SiteFactory.create(domain=self.domain)
@@ -396,14 +387,14 @@ class TestCourseViewSet(ViewSetTestBase):
         org = Organization.objects.get(name=org_name)
         course = CourseOverviewFactory.create()
         OrganizationCourse.objects.create(
-            course_id=text_type(course.id),
+            course_id=str(course.id),
             organization=org,
         )
         response = client.get('{}{}/'.format(self.url, course.id))
         assert response.status_code == status_code, response.content
         result = response.json()
         assert skip_response_check or (result == {
-            'id': text_type(course.id),
+            'id': str(course.id),
             'name': course.display_name,
             'public_status': {
                 'is_public': False,
@@ -418,7 +409,7 @@ class TestCourseViewSet(ViewSetTestBase):
         public_course = PublicCourseFactory.create()
         course = public_course.course
         OrganizationCourse.objects.create(
-            course_id=text_type(course.id),
+            course_id=str(course.id),
             organization=self.my_org,
         )
         group_course = GroupCourseFactory.create(course=course, group__organization=self.my_org)
@@ -426,7 +417,7 @@ class TestCourseViewSet(ViewSetTestBase):
         assert response.status_code == HTTP_200_OK, response.content
         result = response.json()
         assert result == {
-            'id': text_type(course.id),
+            'id': str(course.id),
             'name': course.display_name,
             'public_status': {
                 'id': public_course.id,
@@ -595,7 +586,7 @@ class TestPublicCourseViewSet(ViewSetTestBase):
         org = Organization.objects.get(name=org_name)
         courses = [flag.course for flag in PublicCourseFactory.create_batch(3)]
         _course_org_links = [  # noqa: F841
-            OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
+            OrganizationCourse.objects.create(course_id=str(course.id), organization=org)
             for course in courses
         ]
         response = client.get(self.url)
@@ -613,14 +604,14 @@ class TestPublicCourseViewSet(ViewSetTestBase):
         """
         org = Organization.objects.get(name=org_name)
         flag = PublicCourseFactory.create()
-        OrganizationCourse.objects.create(course_id=text_type(flag.course.id), organization=org)
+        OrganizationCourse.objects.create(course_id=str(flag.course.id), organization=org)
         response = client.get('/public-courses/{}/'.format(flag.id))
         assert response.status_code == status_code, response.content
         result = response.json()
         assert skip_response_check or (result == {
             'id': flag.id,
             'course': {
-                'id': text_type(flag.course.id),
+                'id': str(flag.course.id),
                 'name': flag.course.display_name_with_default,
             },
         }), 'Verify the serializer results.'
@@ -637,11 +628,11 @@ class TestPublicCourseViewSet(ViewSetTestBase):
         org = Organization.objects.get(name=org_name)
         course = CourseOverviewFactory.create()
         OrganizationCourse.objects.create(
-            course_id=text_type(course.id),
+            course_id=str(course.id),
             organization=org,
         )
         response = client.post(self.url, {
-            'course': text_type(course.id),
+            'course': str(course.id),
         })
         assert PublicCourse.objects.count() == expected_count, message
         assert response.status_code == status_code, response.content
@@ -660,7 +651,7 @@ class TestPublicCourseViewSet(ViewSetTestBase):
         org = Organization.objects.get(name=org_name)
         flag = PublicCourseFactory.create()
         OrganizationCourse.objects.create(
-            course_id=text_type(flag.course.id),
+            course_id=str(flag.course.id),
             organization=org,
         )
         response = client.delete('/public-courses/{}/'.format(flag.id))
@@ -688,7 +679,7 @@ class TestGroupCourseViewSet(ViewSetTestBase):
     def test_list_links(self, client, org_name, status_code, expected_count):
         org = Organization.objects.get(name=org_name)
         course = CourseOverviewFactory.create()
-        OrganizationCourse.objects.create(course_id=text_type(course.id), organization=org)
+        OrganizationCourse.objects.create(course_id=str(course.id), organization=org)
         GroupCourseFactory.create_batch(3, group__organization=org, course=course)
         response = client.get(self.url)
         assert response.status_code == HTTP_200_OK, response.content
@@ -702,14 +693,14 @@ class TestGroupCourseViewSet(ViewSetTestBase):
     def test_one_link(self, client, org_name, status_code, skip_response_check):
         org = Organization.objects.get(name=org_name)
         link = GroupCourseFactory.create(group__organization=org)
-        OrganizationCourse.objects.create(course_id=text_type(link.course.id), organization=org)
+        OrganizationCourse.objects.create(course_id=str(link.course.id), organization=org)
         response = client.get('/group-courses/{}/'.format(link.id))
         assert response.status_code == status_code, response.content
         result = response.json()
         assert skip_response_check or (result == {
             'id': link.id,
             'course': {
-                'id': text_type(link.course.id),
+                'id': str(link.course.id),
                 'name': link.course.display_name_with_default,
             },
             'group': {
@@ -729,12 +720,12 @@ class TestGroupCourseViewSet(ViewSetTestBase):
         group = CourseAccessGroupFactory.create(organization=org)
         course = CourseOverviewFactory.create()
         OrganizationCourse.objects.create(
-            course_id=text_type(course.id),
+            course_id=str(course.id),
             organization=Organization.objects.get(name=course_org),
         )
         response = client.post(self.url, {
             'group': group.id,
-            'course': text_type(course.id),
+            'course': str(course.id),
         })
         assert GroupCourse.objects.count() == expected_count
         assert response.status_code == status_code, response.content

@@ -3,25 +3,18 @@
 Tests for the `course-access-groups` models module.
 """
 
-import six
-import pytest
+
 from django.core.exceptions import ValidationError
 from organizations.models import UserOrganizationMapping
-from course_access_groups.models import (
-    CourseAccessGroup,
-    Membership,
-    MembershipRule,
-)
-from test_utils.factories import (
-    UserFactory,
-    CourseAccessGroupFactory,
-    MembershipRuleFactory,
-)
+
+import pytest
+from course_access_groups.models import CourseAccessGroup, Membership, MembershipRule
 from course_access_groups.signals import on_learner_account_activated
+from test_utils.factories import CourseAccessGroupFactory, MembershipRuleFactory, UserFactory
 
 
 @pytest.mark.django_db
-class TestMembershipRuleModel(object):
+class TestMembershipRuleModel:
     """
     Tests for MembershipRule model.
     """
@@ -49,7 +42,7 @@ class TestMembershipRuleModel(object):
 
 
 @pytest.mark.django_db
-class TestMembershipRuleApply(object):
+class TestMembershipRuleApply:
     """
     Test the on_learner_account_activated signal and its MembershipRule.apply_for_user helper.
     """
@@ -83,7 +76,7 @@ class TestMembershipRuleApply(object):
             on_learner_account_activated(self.__class__, user)
 
 
-class TestCourseAccessGroupModel(object):
+class TestCourseAccessGroupModel:
     """
     Tests for the CourseAccessGroup model.
     """
@@ -91,4 +84,4 @@ class TestCourseAccessGroupModel(object):
     def test_str(self):
         group = CourseAccessGroup(name='hello world')
         assert str(group) == 'hello world'
-        assert six.text_type(group) == 'hello world'
+        assert str(group) == 'hello world'

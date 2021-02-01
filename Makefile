@@ -44,7 +44,7 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	sed '/^[dD]jango==/d' requirements/test.txt > requirements/test.tmp
 	mv requirements/test.tmp requirements/test.txt
 
-quality: ## check coding style with pycodestyle and pylint
+quality: ## check coding style with flake8
 	tox -e quality
 
 pii_check: ## check for PII annotations on all Django models

@@ -10,12 +10,9 @@ Course Access Group interaction with the edx-platform models.
 
 
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
-
 from opaque_keys.edx.django.models import CourseKeyField
 
 
-@python_2_unicode_compatible
 class CourseOverview(models.Model):
     """
     Minimal mock model for the edx-platform 'CourseOverview' model.

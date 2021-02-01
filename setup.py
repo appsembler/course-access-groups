@@ -3,8 +3,6 @@
 """
 Package metadata for course_access_groups.
 """
-from __future__ import absolute_import, print_function
-
 import os
 import re
 import sys
@@ -77,7 +75,11 @@ setup(
         'course_access_groups',
     ],
     include_package_data=True,
-    install_requires=load_requirements('requirements/base.in'),
+    install_requires=[
+        # setup.py don't support installing from GitHub archive
+        'edx-organizations' if 'edx-organizations' in requirement else requirement
+        for requirement in load_requirements('requirements/base.in')
+    ],
     zip_safe=False,
     keywords='Django Appsembler',
     entry_points={
@@ -91,13 +93,10 @@ setup(
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Framework :: Django',
-        'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
     ],

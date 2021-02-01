@@ -4,26 +4,16 @@ Course Access Groups permission and authentication classes.
 """
 
 
-from six import text_type
 import logging
-from rest_framework.authentication import (
-    BasicAuthentication,
-    SessionAuthentication,
-    TokenAuthentication,
-)
-from django.contrib.sites.models import Site
-from django.contrib.sites import shortcuts as sites_shortcuts
-from openedx.core.lib.api.authentication import OAuth2Authentication
-from rest_framework.permissions import IsAuthenticated
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
-from rest_framework.permissions import BasePermission
 
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
-    PublicCourse,
-)
+from django.contrib.sites import shortcuts as sites_shortcuts
+from django.contrib.sites.models import Site
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
+from rest_framework.permissions import BasePermission, IsAuthenticated
+
+from .models import CourseAccessGroup, GroupCourse, Membership, PublicCourse
+from .openedx_modules import OAuth2Authentication
 
 log = logging.getLogger(__name__)
 
@@ -47,7 +37,7 @@ def is_organization_staff(user, course):
 
     # Same as organization.api.get_course_organizations
     course_org_ids = OrganizationCourse.objects.filter(
-        course_id=text_type(course.id),
+        course_id=str(course.id),
         active=True,
     ).values('organization_id')
 
@@ -131,7 +121,7 @@ class IsSiteAdminUser(BasePermission):
         return is_site_admin_user(request)
 
 
-class CommonAuthMixin(object):
+class CommonAuthMixin:
     """
     Provides a common authorization base for the Course Access Groups API views.
     """

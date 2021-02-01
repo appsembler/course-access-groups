@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-# pylint: disable=invalid-name
 """
 course-access-groups documentation build configuration file.
 
@@ -99,7 +98,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'course-access-groups'
-copyright = '{year} NodeRabbit, Inc. (d/b/a Appsembler).'.format(year=datetime.datetime.now().year)  # pylint: disable=redefined-builtin
+copyright = '{year} NodeRabbit, Inc. (d/b/a Appsembler).'.format(year=datetime.datetime.now().year)
 author = 'Omar Al-Ithawi <omar@appsembler.com>'
 project_title = 'Course Access Groups'
 documentation_title = "{project_title}".format(project_title=project_title)
@@ -483,7 +482,7 @@ intersphinx_mapping = {
 }
 
 
-def on_init(app):  # pylint: disable=unused-argument
+def on_init(app):
     """
     Run sphinx-apidoc after Sphinx initialization.
 

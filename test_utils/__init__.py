@@ -7,10 +7,10 @@ in multiple test modules (i.e. factoryboy factories, base test classes). So this
 """
 
 
-from mock import patch
-
 from django.views import View
+
 import course_access_groups.views
+from mock import patch
 
 
 def patch_site_configs(values):

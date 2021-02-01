@@ -8,14 +8,9 @@
 # pin when possible.  Writing an issue against the offending project and
 # linking to it here is good.
 
-# This packages is a backport which can only be installed on Python 2.7
-futures ; python_version == "2.7"
+Django>=2.0,<3
 
-# A dependency of pytest.  Pytest doesn't constrain it and 6.0.0 onward
-# only works with python 3
-more-itertools<6.0.0
-
-django-model-utils<=3.0.0  # Avoid installing 4.x.x which breaks the dependency tree
-edx-lint<=0.5.5            # Avoid dependency conflict
-django-model-utils==3.0.0
-edx-opaque-keys==0.4.4
+# Python 3.5 compatibility
+newrelic>=5.12.1.141,<6
+edx-lint<=1.5.0
+edx-opaque-keys<=2.0.2

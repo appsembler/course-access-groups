@@ -9,5 +9,6 @@ class UserProfile(models.Model):
     """
     The production model is student.models.UserProfile.
     """
-    user = models.OneToOneField(get_user_model(), unique=True, db_index=True, related_name='profile')
+    user = models.OneToOneField(get_user_model(), unique=True, db_index=True,
+                                on_delete=models.deletion.CASCADE, related_name='profile')
     name = models.CharField(blank=True, max_length=255, db_index=True)
