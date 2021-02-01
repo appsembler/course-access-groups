@@ -1,23 +1,16 @@
 # -*- coding: utf-8 -*-
 
 
-from six import text_type
 from django.contrib.auth import get_user_model
-
-from organizations.models import UserOrganizationMapping, OrganizationCourse
 from opaque_keys import InvalidKeyError
 from opaque_keys.edx.keys import CourseKey
+from organizations.models import OrganizationCourse, UserOrganizationMapping
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
-    MembershipRule,
-    PublicCourse,
-)
-from course_access_groups.permissions import get_current_organization
+
+from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
+from .openedx_modules import CourseOverview
+from .permissions import get_current_organization
 
 
 class CourseKeyFieldWithPermission(serializers.RelatedField):
@@ -60,7 +53,7 @@ class CourseKeyFieldWithPermission(serializers.RelatedField):
             raise ValidationError('Something went wrong with your request.')
 
         return {
-            'id': text_type(course.id),
+            'id': str(course.id),
             'name': course.display_name_with_default,
         }
 

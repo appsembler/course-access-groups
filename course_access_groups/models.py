@@ -5,16 +5,14 @@ Database models for course_access_groups.
 
 
 from django.contrib.auth import get_user_model
-from django.utils.encoding import python_2_unicode_compatible
 from django.db import models
 from model_utils import models as utils_models
 from organizations.models import Organization, UserOrganizationMapping
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 
-from course_access_groups.validators import validate_domain
+from .openedx_modules import CourseOverview
+from .validators import validate_domain
 
 
-@python_2_unicode_compatible
 class CourseAccessGroup(utils_models.TimeStampedModel):
     """
     Group of learners to determine which courses to show to them.
@@ -44,6 +42,7 @@ class Membership(utils_models.TimeStampedModel):
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
     user = models.OneToOneField(
         get_user_model(),
+        on_delete=models.CASCADE,
         help_text='Learner. A learner can only be enrolled in a single Course Access Group.'
     )
     automatic = models.BooleanField(
@@ -75,7 +74,7 @@ class Membership(utils_models.TimeStampedModel):
         )
         rule = MembershipRule.objects.filter(
             domain=email_domain,
-            group__organization=user_orgs,
+            group__organization__in=user_orgs,
         ).first()
 
         if rule:
@@ -123,5 +122,5 @@ class GroupCourse(utils_models.TimeStampedModel):
     course = models.ForeignKey(CourseOverview, related_name='group_courses', on_delete=models.CASCADE)
     group = models.ForeignKey(CourseAccessGroup, on_delete=models.CASCADE)
 
-    class Meta(object):
+    class Meta:
         unique_together = ['course', 'group']

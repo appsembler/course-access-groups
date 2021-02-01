@@ -6,9 +6,8 @@ Django applications, so these settings will not be used.
 """
 
 
-
-from os.path import abspath, dirname, join
 import sys
+from os.path import abspath, dirname, join
 
 DEBUG = True
 
@@ -66,7 +65,8 @@ LOCALE_PATHS = [
 ]
 
 REST_FRAMEWORK = {
-    'PAGE_SIZE': 20
+    'PAGE_SIZE': 20,
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
 }
 
 FEATURES = {  # Mock the edX Platform features.

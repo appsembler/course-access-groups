@@ -4,7 +4,6 @@ CAG unit test configuration and fixtures.
 
 
 import pytest
-
 from test_utils.factories import UserFactory
 
 

@@ -1,9 +1,9 @@
 # Core requirements for using this application
 -c constraints.txt
 
-Django>=1.11,<2.0          # Web application framework
-XBlock>=1.2.2              # Courseware component architecture
+Django                     # Web application framework
+XBlock                     # Courseware component architecture
 django-model-utils
-git+https://github.com/appsembler/edx-organizations.git@0.4.12-appsembler4
+https://github.com/appsembler/edx-organizations/archive/5.2.0-appsembler11.tar.gz
 edx-opaque-keys
 django-filter              # Filters for Django Rest Framework

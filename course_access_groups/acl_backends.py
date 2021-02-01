@@ -3,16 +3,12 @@
 Access Control backends to implement the Course Access Groups.
 """
 
-
-from courseware.access_utils import (
-    ACCESS_DENIED,
-    ACCESS_GRANTED,
-)
-from course_access_groups.feature_flag import is_feature_enabled
-from course_access_groups.permissions import user_has_access_to_course
+from .feature_flag import is_feature_enabled
+from .openedx_modules import ACCESS_DENIED, ACCESS_GRANTED
+from .permissions import user_has_access_to_course
 
 
-def user_has_access(user, resource, default_has_access, options):  # pylint: disable=unused-argument
+def user_has_access(user, resource, default_has_access, options):
     """
     The Access Control Backend to plug the Course Access Groups feature in Open edX.
 

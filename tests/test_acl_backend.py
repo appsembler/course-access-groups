@@ -4,29 +4,26 @@ Testing the Access Control Backend `acl_backend.user_has_access`.
 """
 
 
-import six
-import pytest
 from django.contrib.auth.models import AnonymousUser
-from courseware.access_utils import (
-    ACCESS_GRANTED,
-    ACCESS_DENIED,
-)
+from organizations.models import OrganizationCourse, UserOrganizationMapping
+
+import pytest
+from course_access_groups.acl_backends import user_has_access
+from course_access_groups.openedx_modules import ACCESS_DENIED, ACCESS_GRANTED
+from test_utils import patch_site_configs
 from test_utils.factories import (
-    UserFactory,
     CourseAccessGroupFactory,
     CourseOverviewFactory,
+    GroupCourseFactory,
     MembershipFactory,
     OrganizationFactory,
-    GroupCourseFactory,
     PublicCourseFactory,
+    UserFactory
 )
-from organizations.models import OrganizationCourse, UserOrganizationMapping
-from course_access_groups.acl_backends import user_has_access
-from test_utils import patch_site_configs
 
 
 @pytest.mark.django_db
-class TestAclBackend(object):
+class TestAclBackend:
     """
     Tests for the access control backend.
 
@@ -91,7 +88,7 @@ class TestAclBackend(object):
         """
         user = UserFactory.create()
         organization = OrganizationFactory.create()
-        OrganizationCourse.objects.create(course_id=six.text_type(self.course.id), organization=organization)
+        OrganizationCourse.objects.create(course_id=str(self.course.id), organization=organization)
         UserOrganizationMapping.objects.create(
             user=user,
             organization=organization,
@@ -131,7 +128,7 @@ class TestAclBackend(object):
         Via the `PublicCourse` model.
         """
         org = OrganizationFactory.create()
-        OrganizationCourse.objects.create(course_id=six.text_type(self.course.id), organization=org)
+        OrganizationCourse.objects.create(course_id=str(self.course.id), organization=org)
         UserOrganizationMapping.objects.create(
             user=self.user,
             organization=org,

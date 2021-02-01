@@ -4,34 +4,34 @@ Test the authentication and permission of Course Access Groups.
 """
 
 
-import pytest
-from mock import patch, Mock
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from django.contrib.sites.models import Site
+from organizations.models import Organization, UserOrganizationMapping
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
-from organizations.models import Organization, UserOrganizationMapping
-from openedx.core.lib.api.authentication import OAuth2Authentication
+
+import pytest
 from course_access_groups.permissions import (
-    is_active_staff_or_superuser,
-    get_current_organization,
-    is_course_with_public_access,
     CommonAuthMixin,
     IsSiteAdminUser,
+    get_current_organization,
+    is_active_staff_or_superuser,
+    is_course_with_public_access
 )
-
+from mock import Mock, patch
+from openedx.core.lib.api.authentication import OAuth2Authentication
 from test_utils.factories import (
     CourseOverviewFactory,
     OrganizationFactory,
-    SiteFactory,
-    UserFactory,
     PublicCourseFactory,
+    SiteFactory,
+    UserFactory
 )
 
 
 @pytest.mark.django_db
-class TestCurrentOrgHelper(object):
+class TestCurrentOrgHelper:
     def test_no_site(self):
         """
         Ensure no sites are handled properly.
@@ -73,7 +73,7 @@ class TestCurrentOrgHelper(object):
 
 
 @pytest.mark.django_db
-class TestSiteAdminPermissions(object):
+class TestSiteAdminPermissions:
     """
     Test for the IsSiteAdminUser permission class.
     """
@@ -101,7 +101,7 @@ class TestSiteAdminPermissions(object):
         self.request.META['HTTP_HOST'] = self.site.domain
         monkeypatch.setattr(sites_shortcuts, 'get_current_site', self.get_test_site)
 
-    def get_test_site(self, request):  # pylint: disable=unused-argument
+    def get_test_site(self, request):
         """
         Mock django.contrib.sites.shortcuts.get_current_site.
 
@@ -155,7 +155,7 @@ class TestSiteAdminPermissions(object):
 
 
 @pytest.mark.django_db
-class TestStaffSuperuserHelper(object):
+class TestStaffSuperuserHelper:
     """
     Tests for permissions.is_active_staff_or_superuser.
     """
@@ -169,7 +169,7 @@ class TestStaffSuperuserHelper(object):
         ('super_user', True),
         ('superstaff_user', True),
     ])
-    def test_active_user(self, standard_test_users, username, allow):  # pylint: disable=unused-argument
+    def test_active_user(self, standard_test_users, username, allow):
         user = get_user_model().objects.get(username=username)
         assert is_active_staff_or_superuser(user) == allow
 
@@ -179,14 +179,14 @@ class TestStaffSuperuserHelper(object):
         'super_user',
         'superstaff_user',
     ])
-    def test_inactive_user(self, standard_test_users, username):  # pylint: disable=unused-argument
+    def test_inactive_user(self, standard_test_users, username):
         user = get_user_model().objects.get(username=username)
         user.is_active = False
         assert not is_active_staff_or_superuser(user)
 
 
 @pytest.mark.django_db
-class TestIsCourseWithPublicAccessHelper(object):
+class TestIsCourseWithPublicAccessHelper:
     """
     Tests for the permissions.is_course_with_public_access helper.
     """
@@ -218,7 +218,7 @@ class TestIsCourseWithPublicAccessHelper(object):
             assert is_course_with_public_access(course=course_descriptor)
 
 
-class TestCommonAuthMixin(object):
+class TestCommonAuthMixin:
     """
     Tests for CommonAuthMixin.
 

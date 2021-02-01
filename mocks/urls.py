@@ -3,13 +3,13 @@ URLs module for development purposes.
 """
 
 
+from django.conf.urls import url
 from django.contrib import admin
-from django.conf.urls import include, url
-import course_access_groups.urls
+from django.urls import include, path
 
 admin.autodiscover()
 
-urlpatterns = (
-    url(r'^admin/', include(admin.site.urls)),
-    url(r'^', include(course_access_groups.urls)),
-)
+urlpatterns = [
+    path(r'admin/', admin.site.urls),
+    url(r'^', include('course_access_groups.urls')),
+]

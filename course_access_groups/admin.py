@@ -4,26 +4,18 @@ Admins for the Course Access Groups module.
 """
 
 
-from six import text_type
-from opaque_keys.edx.keys import CourseKey
-from opaque_keys import InvalidKeyError
 from django import forms
-from django.core.exceptions import ValidationError
 from django.contrib import admin
 from django.contrib.admin import TabularInline
+from django.core.exceptions import ValidationError
+from opaque_keys import InvalidKeyError
+from opaque_keys.edx.keys import CourseKey
 
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-
-from course_access_groups.models import (
-    CourseAccessGroup,
-    GroupCourse,
-    Membership,
-    MembershipRule,
-    PublicCourse,
-)
+from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
+from .openedx_modules import CourseOverview
 
 
-class CourseKeyFormMixin(object):
+class CourseKeyFormMixin:
     """
     A form mixin to make it easy to enter course keys in admin.
     """
@@ -228,7 +220,7 @@ class PublicCourseAdmin(admin.ModelAdmin):
         """
         Get the course id.
         """
-        return text_type(public_course.course.id)
+        return str(public_course.course.id)
 
     def course_name(self, public_course):
         """
