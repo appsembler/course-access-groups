@@ -100,7 +100,7 @@ pytz==2020.5
     #   django
     #   fs
     #   xblock
-pyyaml==5.3.1
+pyyaml==5.4
     # via xblock
 requests==2.25.1
     # via
