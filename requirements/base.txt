@@ -67,7 +67,7 @@ future==0.18.2
     # via pyjwkest
 idna==2.10
     # via requests
-lxml==4.6.2
+lxml==4.6.3
     # via xblock
 markupsafe==1.1.1
     # via xblock
