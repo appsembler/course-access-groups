@@ -6,68 +6,58 @@
 #
 appdirs==1.4.4
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   virtualenv
 certifi==2020.12.5
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   requests
 chardet==4.0.0
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   diff-cover
     #   requests
 click==7.1.2
     # via
-    #   -r requirements/pip-tools.txt
+    #   -r pip-tools.txt
     #   pip-tools
 codecov==2.1.11
-    # via -r requirements/travis.txt
+    # via -r travis.txt
 coverage==5.4
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   codecov
 diff-cover==4.2.1
-    # via -r requirements/dev.in
+    # via -r dev.in
 distlib==0.3.1
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   virtualenv
 django==2.2.17
     # via
-    #   -c requirements/constraints.txt
+    #   -c constraints.txt
     #   edx-i18n-tools
 edx-i18n-tools==0.5.3
-    # via -r requirements/dev.in
+    # via -r dev.in
 filelock==3.0.12
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
     #   virtualenv
 flake8==3.8.4
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 idna==2.10
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   requests
 importlib-metadata==2.1.1
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
-    #   flake8
+    #   -r quality.txt
     #   inflect
-    #   path
-    #   pluggy
-    #   tox
-    #   virtualenv
-importlib-resources==3.2.1
-    # via
-    #   -r requirements/travis.txt
-    #   virtualenv
 inflect==3.0.2
     # via jinja2-pluralize
 isort==4.3.21
-    # via -r requirements/quality.txt
+    # via -r quality.txt
 jinja2-pluralize==0.3.0
     # via diff-cover
 jinja2==2.11.3
@@ -78,42 +68,42 @@ markupsafe==1.1.1
     # via jinja2
 mccabe==0.6.1
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   flake8
 packaging==20.9
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
 path.py==12.5.0
     # via edx-i18n-tools
 path==13.1.0
     # via path.py
 pip-tools==5.5.0
-    # via -r requirements/pip-tools.txt
+    # via -r pip-tools.txt
 pluggy==0.13.1
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   diff-cover
     #   tox
 polib==1.1.0
     # via edx-i18n-tools
 py==1.10.0
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
 pycodestyle==2.6.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   flake8
 pyflakes==2.2.0
     # via
-    #   -r requirements/quality.txt
+    #   -r quality.txt
     #   flake8
 pygments==2.7.4
     # via diff-cover
 pyparsing==2.4.7
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   packaging
 pytz==2020.5
     # via django
@@ -121,11 +111,11 @@ pyyaml==5.3.1
     # via edx-i18n-tools
 requests==2.25.1
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   codecov
 six==1.15.0
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   edx-i18n-tools
     #   tox
     #   virtualenv
@@ -133,28 +123,26 @@ sqlparse==0.4.1
     # via django
 toml==0.10.2
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
 tox-battery==0.6.1
-    # via -r requirements/travis.txt
+    # via -r travis.txt
 tox==3.21.3
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox-battery
-urllib3==1.26.3
+urllib3==1.26.4
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   requests
 virtualenv==20.4.1
     # via
-    #   -r requirements/travis.txt
+    #   -r travis.txt
     #   tox
 zipp==1.2.0
     # via
-    #   -r requirements/quality.txt
-    #   -r requirements/travis.txt
+    #   -r quality.txt
     #   importlib-metadata
-    #   importlib-resources
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
