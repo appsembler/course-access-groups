@@ -129,7 +129,7 @@ stevedore==1.32.0
     #   edx-opaque-keys
 typing==3.7.4.3
     # via fs
-urllib3==1.26.4
+urllib3==1.26.5
     # via requests
 web-fragments==1.0.0
     # via xblock
