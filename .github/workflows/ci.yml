@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.5, 3.8]
+        python-version: [3.5]
         tox-env:
           - py3-django2
           - py3-django2-check
