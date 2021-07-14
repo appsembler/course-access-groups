@@ -27,5 +27,6 @@ jobs:
          pip install tox
      - name: Test with tox
        run: tox -e ${{ matrix.tox-env }}
-     - uses: codecov/codecov-action@v1
-       if: ${{ matrix.tox-env == "py3-django2" }}
+     - name: codecov
+       uses: codecov/codecov-action@v1
+       if: ${{ matrix.tox-env == 'py3-django2' }}
