@@ -1,7 +1,7 @@
 Course Access Groups
 ====================
 
-|pypi-badge| |travis-badge| |codecov-badge| |doc-badge| |pyversions-badge|
+|pypi-badge| |codecov-badge| |doc-badge| |pyversions-badge|
 |license-badge|
 
 
@@ -86,10 +86,6 @@ refer to this `list of resources`_ if you need any assistance.
 .. |pypi-badge| image:: https://img.shields.io/pypi/v/course-access-groups.svg
     :target: https://pypi.python.org/pypi/course-access-groups/
     :alt: PyPI
-
-.. |travis-badge| image:: https://travis-ci.org/appsembler/course-access-groups.svg?branch=master
-    :target: https://travis-ci.org/appsembler/course-access-groups
-    :alt: Travis
 
 .. |codecov-badge| image:: http://codecov.io/github/appsembler/course-access-groups/coverage.svg?branch=master
     :target: http://codecov.io/github/appsembler/course-access-groups?branch=master
