@@ -15,7 +15,7 @@ jobs:
           - py3-django2
           - py3-django2-check
           - docs
-          - flake8
+          - quality
     steps:
      - uses: actions/checkout@v2
      - name: Set up Python ${{ matrix.python-version }}

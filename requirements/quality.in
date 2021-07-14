@@ -1,5 +1,0 @@
-# Requirements for code quality checks
--c constraints.txt
-
-isort                     # to standardize order of imports
-flake8                    # Code quality checks
