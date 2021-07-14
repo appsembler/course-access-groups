@@ -5,6 +5,7 @@ Tests for the CAG API ViewSets.
 
 
 import pytest
+
 from course_access_groups.permissions import CommonAuthMixin
 from course_access_groups.views import CourseAccessGroupViewSet
 from test_utils import get_api_view_classes

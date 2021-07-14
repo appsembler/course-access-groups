@@ -1,16 +1,16 @@
 # -*- coding: utf-8 -*-
 
 
+import factory
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
-from opaque_keys.edx.keys import CourseKey
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
-
-import factory
-from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from factory.django import DjangoModelFactory
+from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from student.models import UserProfile
+
+from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 
 
 class UserProfileFactory(DjangoModelFactory):

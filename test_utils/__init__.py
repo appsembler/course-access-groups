@@ -8,9 +8,9 @@ in multiple test modules (i.e. factoryboy factories, base test classes). So this
 
 
 from django.views import View
+from mock import patch
 
 import course_access_groups.views
-from mock import patch
 
 
 def patch_site_configs(values):

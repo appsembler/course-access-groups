@@ -4,10 +4,10 @@ Tests for the `course-access-groups` models module.
 """
 
 
+import pytest
 from django.core.exceptions import ValidationError
 from organizations.models import UserOrganizationMapping
 
-import pytest
 from course_access_groups.models import CourseAccessGroup, Membership, MembershipRule
 from course_access_groups.signals import on_learner_account_activated
 from test_utils.factories import CourseAccessGroupFactory, MembershipRuleFactory, UserFactory
