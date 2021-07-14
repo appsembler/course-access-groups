@@ -14,6 +14,19 @@ Change Log
 Unreleased
 ~~~~~~~~~~
 
+[0.5.0] - 2021-07-14
+~~~~~~~~~~~~~~~~~~~~
+
+Added
+_____
+
+Fixes for Django 2.x
+
+Removed
+_______
+
+Dropped support for Python 2.x and Django 1.x
+
 [0.4.0] - 2021-01-27
 ~~~~~~~~~~~~~~~~~~~~
 
