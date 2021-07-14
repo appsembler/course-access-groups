@@ -6,7 +6,9 @@ Tests for the CAG API ViewSets.
 
 import json
 
+import pytest
 from django.contrib.auth import get_user_model
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from rest_framework.status import (
     HTTP_200_OK,
@@ -16,9 +18,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND
 )
 
-import pytest
 from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
-from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
 from test_utils.factories import (
     CourseAccessGroupFactory,
     CourseOverviewFactory,

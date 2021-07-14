@@ -4,14 +4,16 @@ Test the authentication and permission of Course Access Groups.
 """
 
 
+import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from django.contrib.sites.models import Site
+from mock import Mock, patch
+from openedx.core.lib.api.authentication import OAuth2Authentication
 from organizations.models import Organization, UserOrganizationMapping
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
 
-import pytest
 from course_access_groups.permissions import (
     CommonAuthMixin,
     IsSiteAdminUser,
@@ -19,8 +21,6 @@ from course_access_groups.permissions import (
     is_active_staff_or_superuser,
     is_course_with_public_access
 )
-from mock import Mock, patch
-from openedx.core.lib.api.authentication import OAuth2Authentication
 from test_utils.factories import (
     CourseOverviewFactory,
     OrganizationFactory,

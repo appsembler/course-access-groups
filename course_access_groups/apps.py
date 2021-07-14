@@ -5,7 +5,6 @@ Course Access Groups Django application initialization.
 
 
 from django.apps import AppConfig
-
 from openedx.core.djangoapps.plugins.constants import PluginSignals, PluginURLs, ProjectType
 
 

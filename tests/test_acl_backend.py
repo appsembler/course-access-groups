@@ -4,10 +4,10 @@ Testing the Access Control Backend `acl_backend.user_has_access`.
 """
 
 
+import pytest
 from django.contrib.auth.models import AnonymousUser
 from organizations.models import OrganizationCourse, UserOrganizationMapping
 
-import pytest
 from course_access_groups.acl_backends import user_has_access
 from course_access_groups.openedx_modules import ACCESS_DENIED, ACCESS_GRANTED
 from test_utils import patch_site_configs
