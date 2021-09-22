@@ -14,6 +14,8 @@ Change Log
 Unreleased
 ~~~~~~~~~~
 
+ * Added tests for modifying membership rule.
+ * Fixed documentation for modifying the membership rule.
 
 [0.5.1] - 2021-09-01
 ~~~~~~~~~~~~~~~~~~~~

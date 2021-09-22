@@ -542,6 +542,22 @@ class TestMembershipRuleViewSet(ViewSetTestBase):
             assert new_rule.domain == rule_domain
             assert new_rule.name == 'Community assignment'
 
+    @pytest.mark.parametrize('org_name, status_code, expected_name', [
+        ['my_org', HTTP_200_OK, 'Community group'],
+        ['other_org', HTTP_404_NOT_FOUND, 'old name'],
+    ])
+    def test_rule(self, client, org_name, status_code, expected_name):
+        org = Organization.objects.get(name=org_name)
+        rule = MembershipRuleFactory.create(group__organization=org, name='old name', domain='w3c.org')
+        assert rule.name == 'old name'
+        response = client.patch('/membership-rules/{}/'.format(rule.id), {
+            'name': 'Community group',
+            'domain': 'example.org',
+        }, content_type='application/json')
+        assert response.status_code == status_code, response.content
+        new_rule = MembershipRule.objects.get()
+        assert new_rule.name == expected_name
+
     @pytest.mark.parametrize('org_name, status_code, expected_post_delete_count', [
         ['my_org', HTTP_204_NO_CONTENT, 0],
         ['other_org', HTTP_404_NOT_FOUND, 1],

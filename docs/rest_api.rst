@@ -596,8 +596,8 @@ To add a new membership rule make ``POST`` request with a JSON payload:
 
 To modify a membership rule ``PATCH`` request should be used.
 
-    POST /course_access_groups/api/v1/membership-rules/5/
-    {"group": 3}
+    PATCH /course_access_groups/api/v1/membership-rules/5/
+    {"group": 3, "domain": "other_domain.io", "name": "new name goes here"}
 
 To delete a membership rule:
 
