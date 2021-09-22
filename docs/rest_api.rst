@@ -573,8 +573,8 @@ Course Access Group.
       ]
     }
 
-Adding, Modifying and Deleting Memberships
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adding, Modifying and Deleting Membership Rules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
 The membership rule endpoints lets us to add, modify and delete
@@ -595,6 +595,8 @@ To add a new membership rule make ``POST`` request with a JSON payload:
     {"name": "XYZ Customers", "domain": "company.xyz", "group": 2}
 
 To modify a membership rule ``PATCH`` request should be used.
+
+.. code-block:: bash
 
     PATCH /course_access_groups/api/v1/membership-rules/5/
     {"group": 3, "domain": "other_domain.io", "name": "new name goes here"}
