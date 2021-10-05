@@ -22,5 +22,5 @@ def on_learner_account_activated(sender, user, **kwargs):
         Membership.create_from_rules(user)
     except Exception:
         log.exception('Error receiving USER_ACCOUNT_ACTIVATED signal for user %s pk=%s, is_active=%s, sender=%s',
-                      user.email, user.pk, user.is_active, sender)
+                      user.email, user.pk, user.is_active, sender, exc_info=True)
         raise
