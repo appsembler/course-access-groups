@@ -7,19 +7,21 @@ Test the authentication and permission of Course Access Groups.
 import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
-from django.contrib.sites.models import Site
 from mock import Mock, patch
 from openedx.core.lib.api.authentication import OAuth2Authentication
 from organizations.models import Organization, UserOrganizationMapping
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
+from rest_framework.exceptions import PermissionDenied
 
 from course_access_groups.permissions import (
     CommonAuthMixin,
     IsSiteAdminUser,
     get_current_organization,
+    get_current_site,
+    get_requested_organization,
     is_active_staff_or_superuser,
-    is_course_with_public_access
+    is_course_with_public_access,
 )
 from test_utils.factories import (
     CourseOverviewFactory,
@@ -36,26 +38,37 @@ class TestCurrentOrgHelper:
         """
         Ensure no sites are handled properly.
         """
-        request = Mock(get_host=Mock(return_value='my_site.org'))
-        with pytest.raises(Site.DoesNotExist):
+        request = Mock(site=None)
+        with pytest.raises(Organization.DoesNotExist):
             get_current_organization(request)
 
     def test_no_organization(self):
         """
         Ensure no orgs are handled properly.
         """
-        site = SiteFactory(domain='my_site.org')
-        request = Mock(get_host=Mock(return_value=site.domain))
-        with pytest.raises(Organization.DoesNotExist):
+        site = SiteFactory.create(domain='my_site.org')
+        request = Mock(site=site)
+        with pytest.raises(Organization.DoesNotExist,
+                           match=r'Organization matching query does not exist'):
+            get_current_organization(request)
+
+    def test_organization_main_site(self, settings):
+        """
+        Ensure no orgs are handled properly.
+        """
+        site = SiteFactory.create(domain='my_site.org')
+        settings.SITE_ID = site.id
+        request = Mock(site=site)
+        with pytest.raises(Organization.DoesNotExist, match=r'Tahoe.*Should not find.*SITE_ID'):
             get_current_organization(request)
 
     def test_two_organizations(self):
         """
         Ensure multiple orgs to be forbidden.
         """
-        site = SiteFactory(domain='my_site.org')
+        site = SiteFactory.create(domain='my_site.org')
         OrganizationFactory.create_batch(2, sites=[site])
-        request = Mock(get_host=Mock(return_value=site.domain))
+        request = Mock(site=site)
 
         with pytest.raises(Organization.MultipleObjectsReturned):
             get_current_organization(request)
@@ -64,12 +77,82 @@ class TestCurrentOrgHelper:
         """
         Ensure multiple orgs to be forbidden.
         """
-        my_site = SiteFactory(domain='my_site.org')
-        other_site = SiteFactory(domain='other_site.org')  # ensure no collision.
+        my_site = SiteFactory.create(domain='my_site.org')
+        other_site = SiteFactory.create(domain='other_site.org')  # ensure no collision.
         my_org = OrganizationFactory.create(sites=[my_site])
         OrganizationFactory.create(sites=[other_site])  # ensure no collision.
-        request = Mock(get_host=Mock(return_value=my_site.domain))
+        request = Mock(site=my_site)
         assert my_org == get_current_organization(request)
+
+
+@pytest.mark.django_db
+class TestGetRequestedOrganization:
+    """
+    Tests for get_requested_organization.
+    """
+
+    def test_on_customer_site(self):
+        """
+        Customer sites can use CAG APIs.
+        """
+        site = SiteFactory.create(domain='my_site.org')
+        expected_org = OrganizationFactory.create(sites=[site])
+        non_superuser = UserFactory.create()
+        request = Mock(site=site, user=non_superuser, GET={})
+
+        requested_org = get_requested_organization(request)
+        assert requested_org == expected_org, 'Should return the site organization'
+
+    def test_on_main_site_with_uuid_parameter(self, settings):
+        """
+        Superusers can use the `get_requested_organization` helper with `organization_uuid`.
+        """
+        main_site = SiteFactory.create(domain='main_site')
+        settings.SITE_ID = main_site.id
+
+        customer_site = SiteFactory.create(domain='customer_site')
+        customer_org = OrganizationFactory.create(sites=[customer_site])
+        superuser = UserFactory.create(is_superuser=True)
+        request = Mock(site=main_site, user=superuser, GET={
+            'organization_uuid': customer_org.edx_uuid,
+        })
+
+        requested_org = get_requested_organization(request)
+        assert requested_org == customer_org, 'Should return the site organization'
+
+    def test_on_main_site_without_uuid_parameter(self, settings):
+        """
+        Non superusers shouldn't use the CAG on main site ( e.g. tahoe.appsembler.com/admin ).
+        """
+        main_site = SiteFactory.create(domain='main_site')
+        settings.SITE_ID = main_site.id
+
+        customer_site = SiteFactory.create(domain='customer_site')
+        OrganizationFactory.create(sites=[customer_site])  # Creates customer_org
+        superuser = UserFactory.create(is_superuser=True)
+        request = Mock(site=main_site, user=superuser, GET={})
+
+        with pytest.raises(Organization.DoesNotExist,
+                           match=r'Tahoe.*Should not find.*SITE_ID'):
+            get_requested_organization(request)
+
+    def test_on_main_site_with_uuid_parameter_non_staff(self, settings):
+        """
+        Non superusers shouldn't be able to use the `organization_uuid` parameters.
+        """
+        main_site = SiteFactory.create(domain='main_site')
+        settings.SITE_ID = main_site.id
+
+        customer_site = SiteFactory.create(domain='customer_site')
+        customer_org = OrganizationFactory.create(sites=[customer_site])
+        non_superuser = UserFactory.create()
+        request = Mock(site=main_site, user=non_superuser, GET={
+            'organization_uuid': customer_org.edx_uuid,
+        })
+
+        with pytest.raises(PermissionDenied,
+                           match=r'Not permitted to use the `organization_uuid` parameter.'):
+            get_requested_organization(request)
 
 
 @pytest.mark.django_db
@@ -80,7 +163,7 @@ class TestSiteAdminPermissions:
 
     @pytest.fixture(autouse=True)
     def setup(self, db, monkeypatch, standard_test_users):
-        self.site = SiteFactory()
+        self.site = SiteFactory.create()
         self.organization = OrganizationFactory(sites=[self.site])
         self.callers = [
             UserFactory.create(username='alpha_nonadmin'),
@@ -98,7 +181,7 @@ class TestSiteAdminPermissions:
         ]
         self.callers += standard_test_users
         self.request = APIRequestFactory().get('/')
-        self.request.META['HTTP_HOST'] = self.site.domain
+        self.request.site = self.site
         monkeypatch.setattr(sites_shortcuts, 'get_current_site', self.get_test_site)
 
     def get_test_site(self, request):
@@ -240,3 +323,19 @@ class TestCommonAuthMixin:
         Ensures that the APIs are only callable by Site Admin User.
         """
         assert IsSiteAdminUser in CommonAuthMixin.permission_classes, 'Only authorized users may access CAG views'
+
+
+def test_get_current_site_no_site():
+    """
+    Emulate the behaviour of `openedx.core.djangoapps.theming.helpers.get_current_site`.
+    """
+    request = Mock(site=None)
+    assert not get_current_site(request)
+
+
+def test_get_current_site_with_site():
+    """
+    Emulate the behaviour of `openedx.core.djangoapps.theming.helpers.get_current_site`.
+    """
+    request = Mock(site={'domain': 'test.org'})
+    assert get_current_site(request)

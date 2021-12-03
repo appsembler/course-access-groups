@@ -10,7 +10,7 @@ from rest_framework.exceptions import ValidationError
 
 from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from .openedx_modules import CourseOverview
-from .permissions import get_current_organization
+from .permissions import get_requested_organization
 
 
 class CourseKeyFieldWithPermission(serializers.RelatedField):
@@ -21,7 +21,7 @@ class CourseKeyFieldWithPermission(serializers.RelatedField):
     """
 
     def get_queryset(self):
-        organization = get_current_organization(self.context['request'])
+        organization = get_requested_organization(self.context['request'])
         organization_courses = OrganizationCourse.objects.filter(organization=organization, active=True)
         return CourseOverview.objects.filter(
             id__in=organization_courses.values('course_id'),
@@ -64,7 +64,7 @@ class UserFieldWithPermission(serializers.RelatedField):
     """
 
     def get_queryset(self):
-        organization = get_current_organization(self.context['request'])
+        organization = get_requested_organization(self.context['request'])
         return get_user_model().objects.filter(
             id__in=UserOrganizationMapping.objects.filter(
                 organization=organization,
@@ -92,7 +92,7 @@ class CourseAccessGroupFieldWithPermission(serializers.RelatedField):
     """
 
     def get_queryset(self):
-        organization = get_current_organization(self.context['request'])
+        organization = get_requested_organization(self.context['request'])
         return CourseAccessGroup.objects.filter(
             organization=organization,
         )

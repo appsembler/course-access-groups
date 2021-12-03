@@ -15,7 +15,7 @@ from rest_framework.pagination import LimitOffsetPagination
 from .filters import CourseOverviewFilter, UserFilter
 from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from .openedx_modules import CourseOverview
-from .permissions import CommonAuthMixin, get_current_organization
+from .permissions import CommonAuthMixin, get_requested_organization
 from .serializers import (
     CourseAccessGroupSerializer,
     CourseOverviewSerializer,
@@ -40,11 +40,11 @@ class CourseAccessGroupViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = CourseAccessGroupSerializer
 
     def perform_create(self, serializer):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         serializer.save(organization=organization)
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return self.model.objects.filter(organization=organization)
 
 
@@ -73,7 +73,7 @@ class CourseViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
         return super(CourseViewSet, self).get_object()
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return CourseOverview.objects.filter(
             id__in=OrganizationCourse.objects.filter(
                 organization=organization,
@@ -88,7 +88,7 @@ class MembershipViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = MembershipSerializer
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return self.model.objects.filter(
             group__in=CourseAccessGroup.objects.filter(organization=organization),
         )
@@ -100,7 +100,7 @@ class MembershipRuleViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = MembershipRuleSerializer
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return self.model.objects.filter(
             group__in=CourseAccessGroup.objects.filter(organization=organization),
         )
@@ -116,7 +116,7 @@ class PublicCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = PublicCourseSerializer
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         course_links = OrganizationCourse.objects.filter(organization=organization, active=True)
 
         return self.model.objects.filter(
@@ -140,7 +140,7 @@ class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
     search_fields = ['email', 'username', 'profile__name']
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return self.model.objects.filter(
             pk__in=UserOrganizationMapping.objects.filter(
                 organization=organization,
@@ -156,7 +156,7 @@ class GroupCourseViewSet(CommonAuthMixin, viewsets.ModelViewSet):
     serializer_class = GroupCourseSerializer
 
     def get_queryset(self):
-        organization = get_current_organization(self.request)
+        organization = get_requested_organization(self.request)
         return self.model.objects.filter(
             group__in=CourseAccessGroup.objects.filter(organization=organization),
         )

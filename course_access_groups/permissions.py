@@ -6,16 +6,29 @@ Course Access Groups permission and authentication classes.
 
 import logging
 
-from django.contrib.sites import shortcuts as sites_shortcuts
+from django.conf import settings
 from django.contrib.sites.models import Site
 from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 
 from .models import CourseAccessGroup, GroupCourse, Membership, PublicCourse
 from .openedx_modules import OAuth2Authentication
 
 log = logging.getLogger(__name__)
+
+
+def get_current_site(request):
+    """
+    Return current site.
+
+    This is a copy of Open edX's `openedx.core.djangoapps.theming.helpers.get_current_site`.
+
+    Returns:
+         (django.contrib.sites.models.Site): returns current site
+    """
+    return getattr(request, 'site', None)
 
 
 def is_organization_staff(user, course):
@@ -59,8 +72,38 @@ def get_current_organization(request):
     :raise Organization.MultipleObjectsReturned when more than one organization is returned.
     :return Organization.
     """
-    current_site = sites_shortcuts.get_current_site(request)
+    current_site = get_current_site(request)
+
+    main_site_id = getattr(settings, 'SITE_ID', None)
+    if main_site_id and current_site and current_site.id == main_site_id:
+        raise Organization.DoesNotExist('Tahoe: Should not find organization of main site `settings.SITE_ID`')
+
     return Organization.objects.get(sites__in=[current_site])
+
+
+def get_requested_organization(request):
+    """
+    Return a single organization for the request based on two strategies.
+
+        - Strategy no 1: If the `GET.site_uuid` parameter find the Organization by `edx_uuid`
+                         - This only works for superuser accounts.
+        - Strategy no 2: Get the current organization.
+
+    Note: In Tahoe terms `site` and `organization` is interchangeable -- same goes for
+          is `site_uuid`, `edx_uuid` and `organization_uuid`.
+
+    :raise whatever exceptions get_current_organization().
+
+    :return Organization.
+    """
+    organization_uuid = request.GET.get('organization_uuid')
+    if organization_uuid:
+        if is_active_staff_or_superuser(request.user):
+            return Organization.objects.get(edx_uuid=organization_uuid)
+        else:
+            raise PermissionDenied('Not permitted to use the `organization_uuid` parameter.')
+    else:
+        return get_current_organization(request)
 
 
 def is_site_admin_user(request):
