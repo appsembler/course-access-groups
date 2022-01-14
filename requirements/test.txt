@@ -4,6 +4,8 @@
 #
 #    make upgrade
 #
+-e git+https://github.com/appsembler/tahoe-sites.git@59f86403bf881eeac2efd3e6efdbc323ccda36fe#egg=tahoe-sites
+    # via -r requirements/test.in
 appdirs==1.4.4
     # via
     #   -r requirements/base.txt
