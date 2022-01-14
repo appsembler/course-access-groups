@@ -8,10 +8,15 @@ import logging
 
 from django.conf import settings
 from django.contrib.sites.models import Site
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from tahoe_sites.helpers import (
+    get_organization_by_uuid,
+    is_active_admin_on_any_organization,
+    is_active_admin_on_organization,
+)
 
 from .models import CourseAccessGroup, GroupCourse, Membership, PublicCourse
 from .openedx_modules import OAuth2Authentication
@@ -54,12 +59,7 @@ def is_organization_staff(user, course):
         active=True,
     ).values('organization_id')
 
-    return UserOrganizationMapping.objects.filter(
-        user=user,
-        organization_id__in=course_org_ids,
-        is_active=True,
-        is_amc_admin=True,
-    ).exists()
+    return is_active_admin_on_any_organization(user=user, org_ids=course_org_ids)
 
 
 def get_current_organization(request):
@@ -85,12 +85,12 @@ def get_requested_organization(request):
     """
     Return a single organization for the request based on two strategies.
 
-        - Strategy no 1: If the `GET.site_uuid` parameter find the Organization by `edx_uuid`
+        - Strategy no 1: If the `GET.site_uuid` parameter find the Organization by `site_uuid`
                          - This only works for superuser accounts.
         - Strategy no 2: Get the current organization.
 
     Note: In Tahoe terms `site` and `organization` is interchangeable -- same goes for
-          is `site_uuid`, `edx_uuid` and `organization_uuid`.
+          is `site_uuid` and `organization_uuid`.
 
     :raise whatever exceptions get_current_organization().
 
@@ -99,7 +99,7 @@ def get_requested_organization(request):
     organization_uuid = request.GET.get('organization_uuid')
     if organization_uuid:
         if is_active_staff_or_superuser(request.user):
-            return Organization.objects.get(edx_uuid=organization_uuid)
+            return get_organization_by_uuid(organization_uuid)
         else:
             raise PermissionDenied('Not permitted to use the `organization_uuid` parameter.')
     else:
@@ -115,7 +115,7 @@ def is_site_admin_user(request):
     1. Get the current site (matching the request)
     2. Get the orgs for the site
     3. Get the user org mappings for the orgs and user in the request
-    4. Check the UserOrganizationMapping record if user is admin and active
+    4. Check with tahoe_sites if user is an active admin
 
     # TODO: Refactor with `is_organization_staff`.
     """
@@ -135,12 +135,7 @@ def is_site_admin_user(request):
         )
         return False
 
-    return UserOrganizationMapping.objects.filter(
-        organization=current_organization,
-        user=request.user,
-        is_active=True,
-        is_amc_admin=True,
-    ).exists()
+    return is_active_admin_on_organization(user=request.user, organization=current_organization)
 
 
 def is_course_with_public_access(course):

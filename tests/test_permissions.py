@@ -9,10 +9,12 @@ from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
 from mock import Mock, patch
 from openedx.core.lib.api.authentication import OAuth2Authentication
-from organizations.models import Organization, UserOrganizationMapping
+from organizations.models import Organization
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
 from rest_framework.exceptions import PermissionDenied
+from tahoe_sites.helpers import get_uuid_by_organization
+from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.permissions import (
     CommonAuthMixin,
@@ -114,7 +116,7 @@ class TestGetRequestedOrganization:
         customer_org = OrganizationFactory.create(sites=[customer_site])
         superuser = UserFactory.create(is_superuser=True)
         request = Mock(site=main_site, user=superuser, GET={
-            'organization_uuid': customer_org.edx_uuid,
+            'organization_uuid': get_uuid_by_organization(customer_org),
         })
 
         requested_org = get_requested_organization(request)
@@ -147,7 +149,7 @@ class TestGetRequestedOrganization:
         customer_org = OrganizationFactory.create(sites=[customer_site])
         non_superuser = UserFactory.create()
         request = Mock(site=main_site, user=non_superuser, GET={
-            'organization_uuid': customer_org.edx_uuid,
+            'organization_uuid': get_uuid_by_organization(customer_org),
         })
 
         with pytest.raises(PermissionDenied,
@@ -171,13 +173,13 @@ class TestSiteAdminPermissions:
             UserFactory.create(username='nosite_staff'),
         ]
         self.user_organization_mappings = [
-            UserOrganizationMapping.objects.create(
+            create_organization_mapping(
                 user=self.callers[0],
                 organization=self.organization),
-            UserOrganizationMapping.objects.create(
+            create_organization_mapping(
                 user=self.callers[1],
                 organization=self.organization,
-                is_amc_admin=True)
+                is_admin=True)
         ]
         self.callers += standard_test_users
         self.request = APIRequestFactory().get('/')
@@ -229,7 +231,7 @@ class TestSiteAdminPermissions:
         """
         self.request.user = get_user_model().objects.get(username=username)
         org2 = OrganizationFactory(sites=[self.site])
-        UserOrganizationMapping.objects.create(user=self.request.user, organization=org2),
+        create_organization_mapping(user=self.request.user, organization=org2),
 
         with patch('course_access_groups.permissions.log') as mock_log:
             permission = IsSiteAdminUser().has_permission(self.request, None)

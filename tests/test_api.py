@@ -9,7 +9,7 @@ import json
 import pytest
 from django.contrib.auth import get_user_model
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse
 from rest_framework.status import (
     HTTP_200_OK,
     HTTP_201_CREATED,
@@ -17,6 +17,7 @@ from rest_framework.status import (
     HTTP_400_BAD_REQUEST,
     HTTP_404_NOT_FOUND
 )
+from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from test_utils.factories import (
@@ -49,10 +50,10 @@ class ViewSetTestBase:
         self.site = SiteFactory.create(domain=self.domain)
         self.my_org = OrganizationFactory.create(name='my_org', sites=[self.site])
         self.other_org = OrganizationFactory.create(name='other_org')
-        self.staff = UserOrganizationMapping.objects.create(
+        self.staff = create_organization_mapping(
             user=self.user,
             organization=self.my_org,
-            is_amc_admin=True,
+            is_admin=True,
         )
         client.force_login(self.user)
 
@@ -195,7 +196,7 @@ class TestMembershipViewSet(ViewSetTestBase):
             organization=Organization.objects.get(name=group_org),
         )
         user = UserFactory.create()
-        UserOrganizationMapping.objects.create(
+        create_organization_mapping(
             organization=Organization.objects.get(name=user_org),
             user=user,
         )
@@ -220,7 +221,7 @@ class TestMembershipViewSet(ViewSetTestBase):
         """
         org = Organization.objects.get(name=org_name)
         membership = MembershipFactory.create(group__organization=org)
-        UserOrganizationMapping.objects.create(user=membership.user, organization=org)
+        create_organization_mapping(user=membership.user, organization=org)
         response = client.delete('/memberships/{}/'.format(membership.id))
         assert response.status_code == status_code, response.content
         assert Membership.objects.count() == expected_post_delete_count
