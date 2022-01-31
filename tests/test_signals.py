@@ -1,7 +1,7 @@
 """
 Tests for signal handlers.
 """
-
+import logging
 
 import pytest
 
@@ -23,13 +23,14 @@ from test_utils.factories import (
     on_learner_account_activated,
     on_learner_register,
 ])
-def test_working_on_account_activated_signal(receiver_function):
+def test_working_membership_rule_signals(receiver_function):
     """
     Ensure USER_ACCOUNT_ACTIVATED and REGISTER_USER signals are processed correctly.
     """
     rule = MembershipRuleFactory(domain='example.com')
     mapping = UserOrganizationMappingFactory.create(
         user__email='someone@example.com',
+        user__is_active=True,
         organization=rule.group.organization,
     )
 
@@ -40,11 +41,31 @@ def test_working_on_account_activated_signal(receiver_function):
 
 
 @pytest.mark.django_db
+def test_register_user_signal_inactive_user(caplog):
+    """
+    Ensure REGISTER_USER signal is not processed for inactive users.
+
+    Otherwise, `Membership.create_from_rules` would raise an exception.
+    """
+    caplog.set_level(logging.INFO)  # Ensure INFO logs are captured
+    rule = MembershipRuleFactory(domain='example.com')
+    mapping = UserOrganizationMappingFactory.create(
+        user__email='someone@example.com',
+        user__is_active=False,
+        organization=rule.group.organization,
+    )
+
+    on_learner_register(object(), mapping.user)
+    assert not Membership.objects.filter(user=mapping.user).exists(), 'Should not create the rule for inactive user'
+    assert 'Received REGISTER_USER signal for inactive user' in caplog.text
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize('receiver_function,signal_name', [
     [on_learner_account_activated, 'USER_ACCOUNT_ACTIVATED'],
     [on_learner_register, 'REGISTER_USER'],
 ])
-def test_failed_on_account_activated_signal(monkeypatch, caplog, receiver_function, signal_name):
+def test_failed_membership_rule_signals(monkeypatch, caplog, receiver_function, signal_name):
     """
     Ensure  errors in USER_ACCOUNT_ACTIVATED and REGISTER_USER are logged.
     """
