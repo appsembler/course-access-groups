@@ -1,6 +1,7 @@
 """
 Tests for signal handlers.
 """
+import logging
 
 import pytest
 
@@ -37,6 +38,26 @@ def test_working_membership_rule_signals(receiver_function):
     assert Membership.objects.filter(user=mapping.user).exists(), 'Should create the rule'
 
     receiver_function(object(), mapping.user)  # Should not fail when receiving the signal twice
+
+
+@pytest.mark.django_db
+def test_register_user_signal_inactive_user(caplog):
+    """
+    Ensure REGISTER_USER signal is not processed for inactive users.
+
+    Otherwise, `Membership.create_from_rules` would raise an exception.
+    """
+    caplog.set_level(logging.INFO)  # Ensure INFO logs are captured
+    rule = MembershipRuleFactory(domain='example.com')
+    mapping = UserOrganizationMappingFactory.create(
+        user__email='someone@example.com',
+        user__is_active=False,
+        organization=rule.group.organization,
+    )
+
+    on_learner_register(object(), mapping.user)
+    assert not Membership.objects.filter(user=mapping.user).exists(), 'Should not create the rule for inactive user'
+    assert 'Received REGISTER_USER signal for inactive user' in caplog.text
 
 
 @pytest.mark.django_db
