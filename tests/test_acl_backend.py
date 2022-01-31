@@ -6,7 +6,8 @@ Testing the Access Control Backend `acl_backend.user_has_access`.
 
 import pytest
 from django.contrib.auth.models import AnonymousUser
-from organizations.models import OrganizationCourse, UserOrganizationMapping
+from organizations.models import OrganizationCourse
+from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.acl_backends import user_has_access
 from course_access_groups.openedx_modules import ACCESS_DENIED, ACCESS_GRANTED
@@ -89,10 +90,10 @@ class TestAclBackend:
         user = UserFactory.create()
         organization = OrganizationFactory.create()
         OrganizationCourse.objects.create(course_id=str(self.course.id), organization=organization)
-        UserOrganizationMapping.objects.create(
+        create_organization_mapping(
             user=user,
             organization=organization,
-            is_amc_admin=True,
+            is_admin=True,
         )
         assert user_has_access(user, self.course, default_has_access, {}) == default_has_access
 
@@ -129,7 +130,7 @@ class TestAclBackend:
         """
         org = OrganizationFactory.create()
         OrganizationCourse.objects.create(course_id=str(self.course.id), organization=org)
-        UserOrganizationMapping.objects.create(
+        create_organization_mapping(
             user=self.user,
             organization=org,
         )

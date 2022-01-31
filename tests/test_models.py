@@ -6,7 +6,7 @@ Tests for the `course-access-groups` models module.
 
 import pytest
 from django.core.exceptions import ValidationError
-from organizations.models import UserOrganizationMapping
+from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.models import CourseAccessGroup, Membership, MembershipRule
 from course_access_groups.signals import on_learner_account_activated
@@ -58,7 +58,7 @@ class TestMembershipRuleApply:
         assert not Membership.objects.count()
         user = UserFactory.create(is_active=True, email=email)
         group = CourseAccessGroupFactory.create()
-        UserOrganizationMapping.objects.create(id=500, user=user, organization=group.organization)
+        create_organization_mapping(user=user, organization=group.organization)
         MembershipRule.objects.create(name='Something', domain='known_site.com', group=group)
 
         on_learner_account_activated(self.__class__, user)

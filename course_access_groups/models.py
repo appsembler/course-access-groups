@@ -7,7 +7,8 @@ Database models for course_access_groups.
 from django.contrib.auth import get_user_model
 from django.db import models
 from model_utils import models as utils_models
-from organizations.models import Organization, UserOrganizationMapping
+from organizations.models import Organization
+from tahoe_sites.helpers import get_organizations_for_user
 
 from .openedx_modules import CourseOverview
 from .validators import validate_domain
@@ -69,9 +70,7 @@ class Membership(utils_models.TimeStampedModel):
 
         # Ideally an exception should be thrown if there's more than one organization
         # but such error is out of the scope of the CAG module.
-        user_orgs = Organization.objects.filter(
-            pk__in=UserOrganizationMapping.objects.filter(user=user, is_active=True).values('organization_id'),
-        )
+        user_orgs = get_organizations_for_user(user)
         rule = MembershipRule.objects.filter(
             domain=email_domain,
             group__organization__in=user_orgs,

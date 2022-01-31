@@ -4,6 +4,8 @@
 #
 #    make upgrade
 #
+-e git+https://github.com/appsembler/tahoe-sites.git@59f86403bf881eeac2efd3e6efdbc323ccda36fe#egg=tahoe-sites
+    # via -r requirements/test.txt
 alabaster==0.7.12
     # via sphinx
 appdirs==1.4.4

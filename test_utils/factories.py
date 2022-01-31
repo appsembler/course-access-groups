@@ -7,8 +7,9 @@ from django.contrib.sites.models import Site
 from factory.django import DjangoModelFactory
 from opaque_keys.edx.keys import CourseKey
 from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from organizations.models import Organization, OrganizationCourse
 from student.models import UserProfile
+from tahoe_sites.models import UserOrganizationMapping
 
 from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 

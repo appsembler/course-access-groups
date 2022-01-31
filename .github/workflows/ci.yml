@@ -4,16 +4,20 @@ on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, reopened, ready_for_review, edited, synchronize]
 
 jobs:
   test:
+    if: github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.5]
         tox-env:
-          - py3-django2
-          - py3-django2-check
+          - py3-django2-noorgs
+          - py3-django2-withorgs
+          - py3-django2-check-noorgs
+          - py3-django2-check-withorgs
           - docs
           - quality
     steps:
