@@ -2,7 +2,6 @@
 Tests for signal handlers.
 """
 
-
 import pytest
 
 from course_access_groups.models import Membership
@@ -23,13 +22,14 @@ from test_utils.factories import (
     on_learner_account_activated,
     on_learner_register,
 ])
-def test_working_on_account_activated_signal(receiver_function):
+def test_working_membership_rule_signals(receiver_function):
     """
     Ensure USER_ACCOUNT_ACTIVATED and REGISTER_USER signals are processed correctly.
     """
     rule = MembershipRuleFactory(domain='example.com')
     mapping = UserOrganizationMappingFactory.create(
         user__email='someone@example.com',
+        user__is_active=True,
         organization=rule.group.organization,
     )
 
@@ -44,7 +44,7 @@ def test_working_on_account_activated_signal(receiver_function):
     [on_learner_account_activated, 'USER_ACCOUNT_ACTIVATED'],
     [on_learner_register, 'REGISTER_USER'],
 ])
-def test_failed_on_account_activated_signal(monkeypatch, caplog, receiver_function, signal_name):
+def test_failed_membership_rule_signals(monkeypatch, caplog, receiver_function, signal_name):
     """
     Ensure  errors in USER_ACCOUNT_ACTIVATED and REGISTER_USER are logged.
     """
