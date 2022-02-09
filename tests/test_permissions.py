@@ -13,7 +13,7 @@ from organizations.models import Organization
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
 from rest_framework.exceptions import PermissionDenied
-from tahoe_sites.helpers import get_uuid_by_organization
+from tahoe_sites.api import create_tahoe_site, get_uuid_by_organization
 from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.permissions import (
@@ -27,7 +27,6 @@ from course_access_groups.permissions import (
 )
 from test_utils.factories import (
     CourseOverviewFactory,
-    OrganizationFactory,
     PublicCourseFactory,
     SiteFactory,
     UserFactory
@@ -64,28 +63,6 @@ class TestCurrentOrgHelper:
         with pytest.raises(Organization.DoesNotExist, match=r'Tahoe.*Should not find.*SITE_ID'):
             get_current_organization(request)
 
-    def test_two_organizations(self):
-        """
-        Ensure multiple orgs to be forbidden.
-        """
-        site = SiteFactory.create(domain='my_site.org')
-        OrganizationFactory.create_batch(2, sites=[site])
-        request = Mock(site=site)
-
-        with pytest.raises(Organization.MultipleObjectsReturned):
-            get_current_organization(request)
-
-    def test_single_organization(self):
-        """
-        Ensure multiple orgs to be forbidden.
-        """
-        my_site = SiteFactory.create(domain='my_site.org')
-        other_site = SiteFactory.create(domain='other_site.org')  # ensure no collision.
-        my_org = OrganizationFactory.create(sites=[my_site])
-        OrganizationFactory.create(sites=[other_site])  # ensure no collision.
-        request = Mock(site=my_site)
-        assert my_org == get_current_organization(request)
-
 
 @pytest.mark.django_db
 class TestGetRequestedOrganization:
@@ -97,13 +74,13 @@ class TestGetRequestedOrganization:
         """
         Customer sites can use CAG APIs.
         """
-        site = SiteFactory.create(domain='my_site.org')
-        expected_org = OrganizationFactory.create(sites=[site])
+        expected_info = create_tahoe_site(domain='my_site.org', short_name='any')
+
         non_superuser = UserFactory.create()
-        request = Mock(site=site, user=non_superuser, GET={})
+        request = Mock(site=expected_info['site'], user=non_superuser, GET={})
 
         requested_org = get_requested_organization(request)
-        assert requested_org == expected_org, 'Should return the site organization'
+        assert requested_org == expected_info['organization'], 'Should return the site organization'
 
     def test_on_main_site_with_uuid_parameter(self, settings):
         """
@@ -112,8 +89,8 @@ class TestGetRequestedOrganization:
         main_site = SiteFactory.create(domain='main_site')
         settings.SITE_ID = main_site.id
 
-        customer_site = SiteFactory.create(domain='customer_site')
-        customer_org = OrganizationFactory.create(sites=[customer_site])
+        customer_org = create_tahoe_site(domain='customer_site', short_name='any')['organization']
+
         superuser = UserFactory.create(is_superuser=True)
         request = Mock(site=main_site, user=superuser, GET={
             'organization_uuid': get_uuid_by_organization(customer_org),
@@ -129,8 +106,7 @@ class TestGetRequestedOrganization:
         main_site = SiteFactory.create(domain='main_site')
         settings.SITE_ID = main_site.id
 
-        customer_site = SiteFactory.create(domain='customer_site')
-        OrganizationFactory.create(sites=[customer_site])  # Creates customer_org
+        create_tahoe_site(domain='customer_site', short_name='any')
         superuser = UserFactory.create(is_superuser=True)
         request = Mock(site=main_site, user=superuser, GET={})
 
@@ -145,8 +121,7 @@ class TestGetRequestedOrganization:
         main_site = SiteFactory.create(domain='main_site')
         settings.SITE_ID = main_site.id
 
-        customer_site = SiteFactory.create(domain='customer_site')
-        customer_org = OrganizationFactory.create(sites=[customer_site])
+        customer_org = create_tahoe_site(domain='customer_site', short_name='any')['organization']
         non_superuser = UserFactory.create()
         request = Mock(site=main_site, user=non_superuser, GET={
             'organization_uuid': get_uuid_by_organization(customer_org),
@@ -165,8 +140,10 @@ class TestSiteAdminPermissions:
 
     @pytest.fixture(autouse=True)
     def setup(self, db, monkeypatch, standard_test_users):
-        self.site = SiteFactory.create()
-        self.organization = OrganizationFactory(sites=[self.site])
+        info = create_tahoe_site(domain='testdomain.org', short_name='TD')
+        self.organization = info['organization']
+        self.site = info['site']
+
         self.callers = [
             UserFactory.create(username='alpha_nonadmin'),
             UserFactory.create(username='alpha_site_admin'),
@@ -215,28 +192,6 @@ class TestSiteAdminPermissions:
         self.request.user.is_active = False
         permission = IsSiteAdminUser().has_permission(self.request, None)
         assert not permission, 'username: "{username}"'.format(username=username)
-
-    @pytest.mark.parametrize('username, allow, log_call_count', [
-        ('regular_user', False, 1),
-        ('staff_user', True, 0),  # Site-wide staff are exempted from org checks.
-        ('super_user', True, 0),  # Superusers are exempted from org checks.
-        ('superstaff_user', True, 0),  # Superusers are exempted from org checks.
-        ('alpha_nonadmin', False, 1),
-        ('alpha_site_admin', False, 1),
-        ('nosite_staff', False, 1),
-    ])
-    def test_multiple_user_orgs(self, username, allow, log_call_count):
-        """
-        Prevent users from having multiple orgs.
-        """
-        self.request.user = get_user_model().objects.get(username=username)
-        org2 = OrganizationFactory(sites=[self.site])
-        create_organization_mapping(user=self.request.user, organization=org2),
-
-        with patch('course_access_groups.permissions.log') as mock_log:
-            permission = IsSiteAdminUser().has_permission(self.request, None)
-            assert mock_log.exception.call_count == log_call_count
-        assert permission == allow, 'Incorrect permission for user: "{username}"'.format(username=username)
 
 
 @pytest.mark.django_db

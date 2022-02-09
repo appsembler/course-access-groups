@@ -18,6 +18,7 @@ from rest_framework.status import (
     HTTP_404_NOT_FOUND
 )
 from tahoe_sites.tests.utils import create_organization_mapping
+from tahoe_sites.api import create_tahoe_site, get_organization_by_site
 
 from course_access_groups.models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from test_utils.factories import (
@@ -27,9 +28,7 @@ from test_utils.factories import (
     MembershipFactory,
     MembershipRuleFactory,
     OrganizationCourseFactory,
-    OrganizationFactory,
     PublicCourseFactory,
-    SiteFactory,
     UserFactory,
     UserOrganizationMappingFactory
 )
@@ -47,9 +46,12 @@ class ViewSetTestBase:
     def setup(self, client):
         client.defaults['SERVER_NAME'] = self.domain
         self.user = UserFactory.create(username='org_staff')
-        self.site = SiteFactory.create(domain=self.domain)
-        self.my_org = OrganizationFactory.create(name='my_org', sites=[self.site])
-        self.other_org = OrganizationFactory.create(name='other_org')
+
+        info = create_tahoe_site(domain=self.domain, short_name='my_org')
+        self.my_org = info['organization']
+        self.site = info['site']
+        self.other_org = create_tahoe_site(domain='other_org.com', short_name='other_org')['organization']
+
         self.staff = create_organization_mapping(
             user=self.user,
             organization=self.my_org,
@@ -67,7 +69,7 @@ class TestCourseAccessGroupsViewSet(ViewSetTestBase):
 
     def test_sanity_check(self, client):
         assert self.user.is_active
-        assert list(self.my_org.sites.all()) == [self.site], 'There should be one organization site.'
+        assert get_organization_by_site(self.site) is not None, 'There should be linked site to the organization.'
         response = client.get(self.url)
         assert response.json()['results'] == []
 
