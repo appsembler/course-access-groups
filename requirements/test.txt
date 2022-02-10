@@ -3,8 +3,10 @@
 # To update, run:
 #
 #    make upgrade
-#
--e git+https://github.com/appsembler/tahoe-sites.git@e50f85d82fd14c1592d8b1deed380f68dbb11a98#egg=tahoe-sites
+###############
+
+# `tahoe-sites=0.1.1` plus some additional unreleased updates on `main`
+-e git+https://github.com/appsembler/tahoe-sites.git@d225f6a63613e1a302a45a67c9075cb8679bb385#egg=tahoe-sites
     # via -r requirements/test.in
 appdirs==1.4.4
     # via

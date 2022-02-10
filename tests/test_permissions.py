@@ -13,14 +13,16 @@ from organizations.models import Organization
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
 from rest_framework.exceptions import PermissionDenied
-from tahoe_sites.api import create_tahoe_site, get_uuid_by_organization
+from tahoe_sites.api import (
+    create_tahoe_site,
+    get_current_organization,
+    get_uuid_by_organization,
+)
 from tahoe_sites.tests.utils import create_organization_mapping
 
 from course_access_groups.permissions import (
     CommonAuthMixin,
     IsSiteAdminUser,
-    get_current_organization,
-    get_current_site,
     get_requested_organization,
     is_active_staff_or_superuser,
     is_course_with_public_access,
@@ -280,19 +282,3 @@ class TestCommonAuthMixin:
         Ensures that the APIs are only callable by Site Admin User.
         """
         assert IsSiteAdminUser in CommonAuthMixin.permission_classes, 'Only authorized users may access CAG views'
-
-
-def test_get_current_site_no_site():
-    """
-    Emulate the behaviour of `openedx.core.djangoapps.theming.helpers.get_current_site`.
-    """
-    request = Mock(site=None)
-    assert not get_current_site(request)
-
-
-def test_get_current_site_with_site():
-    """
-    Emulate the behaviour of `openedx.core.djangoapps.theming.helpers.get_current_site`.
-    """
-    request = Mock(site={'domain': 'test.org'})
-    assert get_current_site(request)
