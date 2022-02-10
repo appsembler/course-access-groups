@@ -6,15 +6,14 @@ Course Access Groups permission and authentication classes.
 
 import logging
 
-from django.conf import settings
 from django.contrib.sites.models import Site
 from organizations.models import Organization, OrganizationCourse
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from tahoe_sites.api import (
+    get_current_organization,
     get_organization_by_uuid,
-    get_organization_by_site,
     is_active_admin_on_any_organization,
     is_active_admin_on_organization,
 )
@@ -23,18 +22,6 @@ from .models import CourseAccessGroup, GroupCourse, Membership, PublicCourse
 from .openedx_modules import OAuth2Authentication
 
 log = logging.getLogger(__name__)
-
-
-def get_current_site(request):
-    """
-    Return current site.
-
-    This is a copy of Open edX's `openedx.core.djangoapps.theming.helpers.get_current_site`.
-
-    Returns:
-         (django.contrib.sites.models.Site): returns current site
-    """
-    return getattr(request, 'site', None)
 
 
 def is_organization_staff(user, course):
@@ -61,25 +48,6 @@ def is_organization_staff(user, course):
     ).values('organization_id')
 
     return is_active_admin_on_any_organization(user=user, org_ids=course_org_ids)
-
-
-def get_current_organization(request):
-    """
-    Return a single organization for the current site.
-
-    :param request:
-    :raise Site.DoesNotExist when the site isn't found.
-    :raise Organization.DoesNotExist when the organization isn't found.
-    :raise Organization.MultipleObjectsReturned when more than one organization is returned.
-    :return Organization.
-    """
-    current_site = get_current_site(request)
-
-    main_site_id = getattr(settings, 'SITE_ID', None)
-    if main_site_id and current_site and current_site.id == main_site_id:
-        raise Organization.DoesNotExist('Tahoe: Should not find organization of main site `settings.SITE_ID`')
-
-    return get_organization_by_site(current_site)
 
 
 def get_requested_organization(request):
