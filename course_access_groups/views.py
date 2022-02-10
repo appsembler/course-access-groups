@@ -11,7 +11,7 @@ from organizations.models import OrganizationCourse
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
-from tahoe_sites.helpers import get_users_of_organization
+from tahoe_sites.api import get_users_of_organization
 
 from .filters import CourseOverviewFilter, UserFilter
 from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse

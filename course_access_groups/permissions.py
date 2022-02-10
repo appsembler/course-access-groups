@@ -12,8 +12,9 @@ from organizations.models import Organization, OrganizationCourse
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
-from tahoe_sites.helpers import (
+from tahoe_sites.api import (
     get_organization_by_uuid,
+    get_organization_by_site,
     is_active_admin_on_any_organization,
     is_active_admin_on_organization,
 )
@@ -78,7 +79,7 @@ def get_current_organization(request):
     if main_site_id and current_site and current_site.id == main_site_id:
         raise Organization.DoesNotExist('Tahoe: Should not find organization of main site `settings.SITE_ID`')
 
-    return Organization.objects.get(sites__in=[current_site])
+    return get_organization_by_site(current_site)
 
 
 def get_requested_organization(request):

@@ -7,7 +7,7 @@ from opaque_keys.edx.keys import CourseKey
 from organizations.models import OrganizationCourse
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
-from tahoe_sites.helpers import get_users_of_organization
+from tahoe_sites.api import get_users_of_organization
 
 from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
 from .openedx_modules import CourseOverview

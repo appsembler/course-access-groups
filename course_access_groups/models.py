@@ -8,7 +8,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from model_utils import models as utils_models
 from organizations.models import Organization
-from tahoe_sites.helpers import get_organizations_for_user
+from tahoe_sites.api import get_organizations_for_user
 
 from .openedx_modules import CourseOverview
 from .validators import validate_domain
