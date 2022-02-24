@@ -144,7 +144,7 @@ class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
         organization = get_requested_organization(self.request)
         return get_users_of_organization(
             organization=organization,
-            without_admins=True,  # Site admins shouldn't be included in the API.
+            without_site_admins=True,  # Site admins shouldn't be included in the API.
         )
 
 
