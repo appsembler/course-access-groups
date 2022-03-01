@@ -4,7 +4,9 @@
 #
 #    make upgrade
 ###############
-
+# `tahoe-sites=0.1.2` plus some additional unreleased updates on `main`
+-e git+https://github.com/appsembler/tahoe-sites.git@40f6ebae712bb3092d3cbd222767bea905485f43#egg=tahoe-sites
+    # via -r requirements/test.in
 appdirs==1.4.4
     # via
     #   -r requirements/base.txt
@@ -239,8 +241,6 @@ stevedore==1.32.0
     #   code-annotations
     #   edx-django-utils
     #   edx-opaque-keys
-tahoe-sites==0.1.2
-    # via -r requirements/test.in
 text-unidecode==1.3
     # via
     #   faker
