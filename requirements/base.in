@@ -6,7 +6,8 @@ XBlock                     # Courseware component architecture
 django-model-utils
 https://github.com/appsembler/edx-organizations/archive/5.2.0-appsembler11.tar.gz
 
-tahoe-sites==0.1.2
+# `tahoe-sites=0.1.2` plus some additional unreleased updates on `main`
+-e git+https://github.com/appsembler/tahoe-sites.git@40f6ebae712bb3092d3cbd222767bea905485f43#egg=tahoe-sites
 
 edx-opaque-keys
 django-filter              # Filters for Django Rest Framework

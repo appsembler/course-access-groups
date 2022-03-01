@@ -7,9 +7,10 @@ Test the authentication and permission of Course Access Groups.
 import pytest
 from django.contrib.auth import get_user_model
 from django.contrib.sites import shortcuts as sites_shortcuts
+from django.core.exceptions import MultipleObjectsReturned
 from mock import Mock, patch
 from openedx.core.lib.api.authentication import OAuth2Authentication
-from organizations.models import Organization
+from organizations.models import Organization, OrganizationCourse
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.test import APIRequestFactory
 from rest_framework.exceptions import PermissionDenied
@@ -26,9 +27,11 @@ from course_access_groups.permissions import (
     get_requested_organization,
     is_active_staff_or_superuser,
     is_course_with_public_access,
+    is_organization_staff,
 )
 from test_utils.factories import (
     CourseOverviewFactory,
+    OrganizationFactory,
     PublicCourseFactory,
     SiteFactory,
     UserFactory
@@ -225,6 +228,71 @@ class TestStaffSuperuserHelper:
         user = get_user_model().objects.get(username=username)
         user.is_active = False
         assert not is_active_staff_or_superuser(user)
+
+
+@pytest.mark.django_db
+class TestOrganizationStaffHelper:
+    """
+    Tests for permissions.is_organization_staff
+    """
+    def setup(self):
+        self.user = UserFactory.create()
+        self.org1 = OrganizationFactory.create()
+        self.org2 = OrganizationFactory.create()
+        self.course = CourseOverviewFactory.create()
+        OrganizationCourse.objects.create(course_id=str(self.course.id), organization=self.org1)
+        create_organization_mapping(
+            user=self.user,
+            organization=self.org1,
+            is_admin=True,
+        )
+
+    def test_admin_user(self):
+        """
+        Verify that is_organization_staff returns True if the user is an admin on the course's organization
+        """
+        assert is_organization_staff(self.user, self.course)
+
+    def test_non_admin_user(self):
+        """
+        Verify that is_organization_staff returns False if the user is an admin on the course's organization
+        """
+        user2 = UserFactory.create()
+        create_organization_mapping(
+            user=user2,
+            organization=self.org1,
+            is_admin=False,
+        )
+        assert not is_organization_staff(user2, self.course)
+
+    def test_multi_org_course(self):
+        """
+        Verify that is_organization_staff returns False if there are many active organization-course links
+        for the same course
+        """
+        with patch(
+            'course_access_groups.permissions.get_organization_by_course',
+            side_effect=MultipleObjectsReturned()
+        ):
+            with patch('course_access_groups.permissions.log.warning') as mock_log:
+                assert not is_organization_staff(self.user, self.course)
+                mock_log.assert_called_with(
+                    'Course Access Group: This module expects a one:one relationship between'
+                    ' organizations and course. Raised by course (%s)', self.course.id
+                )
+
+    def test_course_org_not_related_to_user(self):
+        """
+        Verify that is_organization_staff will return False if the user is not related to the same organization
+        of the course
+        """
+        with patch(
+            'course_access_groups.permissions.get_organization_by_course',
+            side_effect=Organization.DoesNotExist()
+        ):
+            with patch('course_access_groups.permissions.log.warning') as mock_log:
+                assert not is_organization_staff(Mock(), self.course)
+                assert mock_log.call_count == 0
 
 
 @pytest.mark.django_db

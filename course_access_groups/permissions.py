@@ -7,14 +7,15 @@ Course Access Groups permission and authentication classes.
 import logging
 
 from django.contrib.sites.models import Site
-from organizations.models import Organization, OrganizationCourse
+from django.core.exceptions import MultipleObjectsReturned
+from organizations.models import Organization
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
 from tahoe_sites.api import (
     get_current_organization,
+    get_organization_by_course,
     get_organization_by_uuid,
-    is_active_admin_on_any_organization,
     is_active_admin_on_organization,
 )
 
@@ -28,26 +29,31 @@ def is_organization_staff(user, course):
     """
     Helper to check if the user is organization staff.
 
+    Q: What if a course has two orgs?
+    A: No problem. This function raises `MultipleObjectsReturned`
+
     :param user: User to check access against.
     :param course: The Course or CourseOverview object to check access for.
 
     :return: bool
-
-    TODO: Handle single-site setups in which organization is not important
-    TODO: What if a course has two orgs? data leak I guess?
     """
-
     if not user.is_active:
         # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
 
-    # Same as organization.api.get_course_organizations
-    course_org_ids = OrganizationCourse.objects.filter(
-        course_id=str(course.id),
-        active=True,
-    ).values('organization_id')
+    try:
+        course_organization = get_organization_by_course(course_id=course.id)
+    except Organization.DoesNotExist:
+        # Safely handle the exception errors by assuming the user is not a staff.
+        return False
+    except MultipleObjectsReturned:
+        log.warning(
+            'Course Access Group: This module expects a one:one relationship between organizations and course. '
+            'Raised by course (%s)', course.id
+        )
+        return False
 
-    return is_active_admin_on_any_organization(user=user, org_ids=course_org_ids)
+    return is_active_admin_on_organization(user=user, organization=course_organization)
 
 
 def get_requested_organization(request):
