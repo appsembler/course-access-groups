@@ -14,7 +14,7 @@ from rest_framework.exceptions import PermissionDenied
 from tahoe_sites.api import (
     get_current_organization,
     get_organization_by_uuid,
-    is_active_admin_on_any_organization,
+    get_organization_for_user,
     is_active_admin_on_organization,
 )
 
@@ -33,7 +33,6 @@ def is_organization_staff(user, course):
 
     :return: bool
 
-    TODO: Handle single-site setups in which organization is not important
     TODO: What if a course has two orgs? data leak I guess?
     """
 
@@ -45,9 +44,14 @@ def is_organization_staff(user, course):
     course_org_ids = OrganizationCourse.objects.filter(
         course_id=str(course.id),
         active=True,
-    ).values('organization_id')
+    ).values_list('organization_id', flat=True)
 
-    return is_active_admin_on_any_organization(user=user, org_ids=course_org_ids)
+    try:
+        org = get_organization_for_user(user=user)
+    except Organization.DoesNotExist:
+        return False
+
+    return is_active_admin_on_organization(user=user, organization=org) if org.id in course_org_ids else False
 
 
 def get_requested_organization(request):
