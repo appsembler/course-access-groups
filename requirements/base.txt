@@ -127,7 +127,7 @@ stevedore==1.32.0
     # via
     #   edx-django-utils
     #   edx-opaque-keys
-tahoe-sites==0.1.4
+tahoe-sites==0.1.5
     # via -r requirements/base.in
 typing==3.7.4.3
     # via fs
