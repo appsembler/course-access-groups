@@ -7,10 +7,11 @@ API Endpoints for Course Access Groups.
 from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from opaque_keys.edx.keys import CourseKey
-from organizations.models import OrganizationCourse, UserOrganizationMapping
+from organizations.models import OrganizationCourse
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from rest_framework.pagination import LimitOffsetPagination
+from tahoe_sites.api import get_users_of_organization
 
 from .filters import CourseOverviewFilter, UserFilter
 from .models import CourseAccessGroup, GroupCourse, Membership, MembershipRule, PublicCourse
@@ -141,12 +142,9 @@ class UserViewSet(CommonAuthMixin, viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         organization = get_requested_organization(self.request)
-        return self.model.objects.filter(
-            pk__in=UserOrganizationMapping.objects.filter(
-                organization=organization,
-                is_active=True,  # TODO: Add test for `is_active`
-                is_amc_admin=False,  # Site admins shouldn't be included in the API.
-            ).values('user_id'),
+        return get_users_of_organization(
+            organization=organization,
+            without_site_admins=True,  # Site admins shouldn't be included in the API.
         )
 
 

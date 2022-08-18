@@ -8,6 +8,7 @@ Django applications, so these settings will not be used.
 
 import sys
 from os.path import abspath, dirname, join
+from os import environ
 
 DEBUG = True
 
@@ -46,6 +47,7 @@ INSTALLED_APPS = [
     'student',
     'openedx.core.djangoapps.content.course_overviews',
     'organizations',
+    'tahoe_sites',
     'course_access_groups',
 ]
 
@@ -96,3 +98,13 @@ STATIC_URL = '/static/'
 ROOT_URLCONF = 'mocks.urls'
 
 SECRET_KEY = 'insecure-secret-key'
+
+# We can only run tests with a known flag value
+TAHOE_SITES_USE_ORGS_MODELS = environ.get('TAHOE_SITES_USE_ORGS_MODELS')
+if TAHOE_SITES_USE_ORGS_MODELS is None:
+    raise ValueError('Please set TAHOE_SITES_USE_ORGS_MODELS value in your test environment')
+if isinstance(TAHOE_SITES_USE_ORGS_MODELS, str):
+    TAHOE_SITES_USE_ORGS_MODELS = (TAHOE_SITES_USE_ORGS_MODELS.lower() == 'true')
+if not isinstance(TAHOE_SITES_USE_ORGS_MODELS, bool):
+    raise TypeError('Bad datatype for TAHOE_SITES_USE_ORGS_MODELS')
+FEATURES['TAHOE_SITES_USE_ORGS_MODELS'] = TAHOE_SITES_USE_ORGS_MODELS

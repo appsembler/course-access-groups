@@ -6,12 +6,18 @@ Course Access Groups permission and authentication classes.
 
 import logging
 
-from django.conf import settings
 from django.contrib.sites.models import Site
-from organizations.models import Organization, OrganizationCourse, UserOrganizationMapping
+from django.core.exceptions import MultipleObjectsReturned
+from organizations.models import Organization
 from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.exceptions import PermissionDenied
+from tahoe_sites.api import (
+    get_current_organization,
+    get_organization_by_course,
+    get_organization_by_uuid,
+    is_active_admin_on_organization,
+)
 
 from .models import CourseAccessGroup, GroupCourse, Membership, PublicCourse
 from .openedx_modules import OAuth2Authentication
@@ -19,78 +25,47 @@ from .openedx_modules import OAuth2Authentication
 log = logging.getLogger(__name__)
 
 
-def get_current_site(request):
-    """
-    Return current site.
-
-    This is a copy of Open edX's `openedx.core.djangoapps.theming.helpers.get_current_site`.
-
-    Returns:
-         (django.contrib.sites.models.Site): returns current site
-    """
-    return getattr(request, 'site', None)
-
-
 def is_organization_staff(user, course):
     """
     Helper to check if the user is organization staff.
+
+    Q: What if a course has two orgs?
+    A: No problem. This function raises `MultipleObjectsReturned`
 
     :param user: User to check access against.
     :param course: The Course or CourseOverview object to check access for.
 
     :return: bool
-
-    TODO: Handle single-site setups in which organization is not important
-    TODO: What if a course has two orgs? data leak I guess?
     """
-
     if not user.is_active:
         # Checking for `user.is_active` again. Better to be safe than sorry.
         return False
 
-    # Same as organization.api.get_course_organizations
-    course_org_ids = OrganizationCourse.objects.filter(
-        course_id=str(course.id),
-        active=True,
-    ).values('organization_id')
+    try:
+        course_organization = get_organization_by_course(course_id=course.id)
+    except Organization.DoesNotExist:
+        # Safely handle the exception errors by assuming the user is not a staff.
+        return False
+    except MultipleObjectsReturned:
+        log.warning(
+            'Course Access Group: This module expects a one:one relationship between organizations and course. '
+            'Raised by course (%s)', course.id
+        )
+        return False
 
-    return UserOrganizationMapping.objects.filter(
-        user=user,
-        organization_id__in=course_org_ids,
-        is_active=True,
-        is_amc_admin=True,
-    ).exists()
-
-
-def get_current_organization(request):
-    """
-    Return a single organization for the current site.
-
-    :param request:
-    :raise Site.DoesNotExist when the site isn't found.
-    :raise Organization.DoesNotExist when the organization isn't found.
-    :raise Organization.MultipleObjectsReturned when more than one organization is returned.
-    :return Organization.
-    """
-    current_site = get_current_site(request)
-
-    main_site_id = getattr(settings, 'SITE_ID', None)
-    if main_site_id and current_site and current_site.id == main_site_id:
-        raise Organization.DoesNotExist('Tahoe: Should not find organization of main site `settings.SITE_ID`')
-
-    return Organization.objects.get(sites__in=[current_site])
+    return is_active_admin_on_organization(user=user, organization=course_organization)
 
 
 def get_requested_organization(request):
     """
     Return a single organization for the request based on two strategies.
 
-        - Strategy no 1: If the `GET.site_uuid` parameter find the Organization by `edx_uuid`
+        - Strategy no 1: If the `GET.site_uuid` parameter find the Organization by `site_uuid`
                          - This only works for superuser accounts.
         - Strategy no 2: Get the current organization.
 
     Note: In Tahoe terms `site` and `organization` is interchangeable -- same goes for
-          is `site_uuid`, `edx_uuid` and `organization_uuid`.
+          is `site_uuid` and `organization_uuid`.
 
     :raise whatever exceptions get_current_organization().
 
@@ -99,7 +74,7 @@ def get_requested_organization(request):
     organization_uuid = request.GET.get('organization_uuid')
     if organization_uuid:
         if is_active_staff_or_superuser(request.user):
-            return Organization.objects.get(edx_uuid=organization_uuid)
+            return get_organization_by_uuid(organization_uuid)
         else:
             raise PermissionDenied('Not permitted to use the `organization_uuid` parameter.')
     else:
@@ -115,7 +90,7 @@ def is_site_admin_user(request):
     1. Get the current site (matching the request)
     2. Get the orgs for the site
     3. Get the user org mappings for the orgs and user in the request
-    4. Check the UserOrganizationMapping record if user is admin and active
+    4. Check with tahoe_sites if user is an active admin
 
     # TODO: Refactor with `is_organization_staff`.
     """
@@ -135,12 +110,7 @@ def is_site_admin_user(request):
         )
         return False
 
-    return UserOrganizationMapping.objects.filter(
-        organization=current_organization,
-        user=request.user,
-        is_active=True,
-        is_amc_admin=True,
-    ).exists()
+    return is_active_admin_on_organization(user=request.user, organization=current_organization)
 
 
 def is_course_with_public_access(course):
