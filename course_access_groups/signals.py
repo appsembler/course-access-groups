@@ -5,6 +5,8 @@ Signals and receivers for Course Access Groups.
 
 import logging
 
+from organizations.models import Organization
+
 from .models import Membership
 
 log = logging.getLogger(__name__)
@@ -20,6 +22,12 @@ def on_learner_account_activated(sender, user, **kwargs):
     """
     try:
         Membership.create_from_rules(user)
+    except Organization.DoesNotExist:
+        # This means that it's a new account. We're using FusionAuth activation code in Tahoe which means that
+        # we're skipping activation email by edx-platform. Therefore, USER_ACCOUNT_ACTIVATED signal is triggered
+        # before linking the user to the organization. We'll pass on this exception because REGISTER_USER signal
+        # will fix membership rules anyway
+        pass
     except Exception:
         log.exception('Error receiving USER_ACCOUNT_ACTIVATED signal for user %s pk=%s, is_active=%s, sender=%s',
                       user.email, user.pk, user.is_active, sender)

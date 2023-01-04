@@ -61,6 +61,17 @@ def test_register_user_signal_inactive_user(caplog):
 
 
 @pytest.mark.django_db
+def test_register_user_signal_new_user():
+    """
+    Ensure that on_learner_account_activated will not raise Organization.DoesNotExist for any reason
+    """
+    _ = MembershipRuleFactory(domain='example.com')
+    user = UserFactory.create(email='someone@example.com')
+
+    on_learner_account_activated(object(), user)
+
+
+@pytest.mark.django_db
 @pytest.mark.parametrize('receiver_function,signal_name', [
     [on_learner_account_activated, 'USER_ACCOUNT_ACTIVATED'],
     [on_learner_register, 'REGISTER_USER'],
