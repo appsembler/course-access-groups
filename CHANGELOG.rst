@@ -14,6 +14,10 @@ Change Log
 Unreleased
 ~~~~~~~~~~
 
+[0.6.1] - 2023-01-04
+~~~~~~~~~~~~~~~~~~~~
+ * Minor fix for a False-Positive log
+
 [0.6.0] - 2022-08-17
 ~~~~~~~~~~~~~~~~~~~~
 
