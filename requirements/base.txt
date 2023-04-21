@@ -121,7 +121,7 @@ six==1.15.0
     #   python-dateutil
     #   stevedore
     #   xblock
-sqlparse==0.4.2
+sqlparse==0.4.4
     # via django
 stevedore==1.32.0
     # via
